@@ -1,0 +1,8 @@
+version: 1
+policy:
+  scheduleEnabled: false
+  liveCasesPerRun: 1
+  weeklyGoldCases: 1
+  maxInputCharacters: 6000
+  maxRequestsPerRun: 6
+models: []

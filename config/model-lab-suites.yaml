@@ -1,0 +1,14 @@
+version: 1
+suites:
+  - id: ecosystem-classification
+    version: 1
+    displayName: AI Ecosystem Classification
+    description: Compare structured classification and evidence grounding across model providers.
+    task: ecosystem-classification
+    promptVersion: 1
+    inputKinds:
+      - github_release
+      - huggingface_model_revision
+      - research_paper
+      - official_announcement
+    enabled: true

@@ -1,0 +1,93 @@
+name: Run Model Consensus Lab
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: Optional benchmark case ID
+        required: false
+        type: string
+      model_profile_id:
+        description: Optional model profile ID
+        required: false
+        type: string
+      retry_failed:
+        description: Retry previously failed executions
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repository-data-updates
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    outputs:
+      data_ready: ${{ steps.ready.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, ref: main }
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.34.5 }
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm model-lab:validate
+      - name: Run bounded comparison
+        id: comparison
+        continue-on-error: true
+        env:
+          MODEL_LAB_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          MODEL_LAB_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+          MODEL_LAB_ENABLED: ${{ vars.MODEL_LAB_ENABLED }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+          CASE_ID: ${{ inputs.case_id }}
+          MODEL_PROFILE_ID: ${{ inputs.model_profile_id }}
+          RETRY_FAILED: ${{ inputs.retry_failed }}
+        run: |
+          args=()
+          if [[ -n "$CASE_ID" ]]; then args+=(--case "$CASE_ID"); fi
+          if [[ -n "$MODEL_PROFILE_ID" ]]; then args+=(--model "$MODEL_PROFILE_ID"); fi
+          if [[ "$RETRY_FAILED" == "true" ]]; then args+=(--retry-failed); fi
+          pnpm model-lab:run -- "${args[@]}"
+      - run: pnpm model-lab:validate
+      - name: Verify dashboard build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm build
+      - name: Commit bounded result dataset
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data/model-lab-responses data/model-lab-runs
+          git add data/model-lab-responses data/model-lab-runs
+          if git diff --cached --quiet; then
+            echo "No Model Lab data changed."
+          else
+            git commit -m "data: record model comparison for $(date -u +%F)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - id: ready
+        if: always() && steps.comparison.outcome != 'cancelled' && steps.commit.outcome == 'success'
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+      - if: steps.comparison.outcome == 'failure'
+        run: exit 1
+
+  deploy:
+    if: always() && needs.compare.outputs.data_ready == 'true'
+    needs: compare
+    uses: ./.github/workflows/deploy-pages.yml
+    secrets: inherit

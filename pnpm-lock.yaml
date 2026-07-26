@@ -118,6 +118,19 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
 
+  packages/model-lab:
+    dependencies:
+      '@noir/core':
+        specifier: workspace:*
+        version: link:../core
+      '@noir/storage':
+        specifier: workspace:*
+        version: link:../storage
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   packages/monitoring:
     dependencies:
       '@noir/core':
