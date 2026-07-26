@@ -23,9 +23,10 @@ pnpm check
 - Update an architecture decision record when changing a foundational choice.
 - Do not change an existing source ID when editing its category, tags, or display metadata.
 - Run `pnpm registry:validate` after manually editing registry YAML.
+- Run `pnpm research-source:validate` after editing research source YAML.
 
 ## Pull requests
 
 Pull requests should be narrow, describe how the change was verified, and pass `pnpm check`. Automated data commits use a clearly marked `data:` prefix.
 
-Approved source-request automation requires the repository label `source:approved` and the repository setting that allows GitHub Actions to create pull requests.
+Approved request automation requires `source:approved`, `monitor:approved`, and `research:approved` labels plus the repository setting that allows GitHub Actions to create pull requests.

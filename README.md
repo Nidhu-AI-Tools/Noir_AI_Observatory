@@ -1,8 +1,8 @@
 # Noir AI Observatory
 
-Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, and sampled availability and latency for public AI-related APIs.
+Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, AI papers and official announcements, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 4: API Health**. Public HTTPS monitors are checked every six hours and rendered alongside the Phase 3 ecosystem dashboard. Repository-managed registries remain the control plane.
+The project is currently in **Phase 5: Research and Announcements**. arXiv queries and official RSS or Atom feeds produce a normalized daily research stream alongside the release and API-health datasets. Repository-managed registries remain the control plane.
 
 ## Architecture
 
@@ -102,6 +102,20 @@ pnpm generate:dashboard
 
 New sources bootstrap from a seven-day lookback. Later runs continue from versioned per-source cursors, and stable observation IDs make reruns safe. See [Collection](docs/collection.md) for data contracts, scheduling, recovery, and repository settings. See [Dashboard](docs/dashboard.md) for generated view models, filters, and empty-state behavior.
 
+## Tracking research
+
+Add and dry-check an arXiv query:
+
+```bash
+pnpm research-source:add -- --kind arxiv_query \
+  --display-name "arXiv Machine Learning" --query "cat:cs.LG" \
+  --category research-paper --tags machine-learning,research
+pnpm research-source:check arxiv-query-arxiv-machine-learning
+pnpm research:collect -- --dry-run
+```
+
+Official RSS or Atom feeds use `--kind rss_feed`, `--url`, and `--publisher`. See [Research and announcement intelligence](docs/research.md) for management, identity, safety, and scheduled-operation details.
+
 ## Quality checks
 
 ```bash
@@ -125,6 +139,7 @@ apps/web                  Static Next.js dashboard
 packages/core             Shared domain primitives and schemas
 packages/collectors       External source adapters and orchestration
 packages/monitoring       API health and model measurement logic
+packages/research         Research registries, provider adapters, and orchestration
 packages/storage          Registry and observation persistence
 packages/dashboard-data   Frontend-facing aggregation
 config                    Human-managed source configuration
@@ -140,7 +155,7 @@ scripts                   Project automation entry points
 3. **Phase 2 · Collection** — normalized releases, models, and daily run reports. ✓
 4. **Phase 3 · Dashboard** — real overview, radar, source, and digest views. ✓
 5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries. ✓
-6. **Phase 5 · Research** — papers and official announcement feeds.
+6. **Phase 5 · Research** — papers and official announcement feeds. ✓
 7. **Phase 6 · Model lab** — versioned multi-provider behavior and consensus benchmarks.
 
 ## Automated data

@@ -26,7 +26,7 @@ export function Navigation() {
               Noir AI Observatory
             </span>
             <span className="block text-xs text-[var(--muted)]">
-              Live ecosystem dashboard · Phase 3
+              Live ecosystem dashboard · Phase 5
             </span>
           </span>
         </Link>

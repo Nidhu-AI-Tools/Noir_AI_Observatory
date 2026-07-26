@@ -13,3 +13,7 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `monitor-health.ts` executes enabled monitors and persists normalized samples.
 - `validate-health.ts` validates monitor configuration and health datasets.
 - `generate-health.ts` creates bounded health index and monitor-detail artifacts.
+- `research-cli.ts` manages and dry-checks arXiv query and RSS/Atom sources.
+- `collect-research.ts` runs incremental research collection and writes a run report even when nothing changes.
+- `validate-research.ts` validates research configuration, canonical items, and reports.
+- `generate-research.ts` creates the bounded Research dashboard index and daily artifacts.

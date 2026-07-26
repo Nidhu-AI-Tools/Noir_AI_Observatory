@@ -1,13 +1,19 @@
-import { PlaceholderPage } from "../../components/placeholder-page";
+import type { Metadata } from "next";
+
+import { ResearchDashboard } from "../../components/dashboard/research-dashboard";
+import { PageHeading } from "../../components/page-heading";
+
+export const metadata: Metadata = { title: "Research Watch" };
 
 export default function ResearchPage() {
   return (
-    <PlaceholderPage
-      description="Follow relevant papers, authors, topics, and links to authoritative research sources."
-      emptyDescription="OpenAlex queries and research topic configuration are planned for the research ingestion phase."
-      emptyTitle="No research indexed yet"
-      eyebrow="Research watch"
-      title="New work across the AI landscape"
-    />
+    <div className="space-y-8">
+      <PageHeading
+        description="Follow new AI papers and official announcements through reviewed arXiv queries and RSS or Atom feeds."
+        eyebrow="Research watch"
+        title="New work across the AI landscape"
+      />
+      <ResearchDashboard />
+    </div>
   );
 }

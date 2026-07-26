@@ -3,6 +3,9 @@ import type {
   HealthCheck,
   MonitorRegistry,
   Observation,
+  ResearchItem,
+  ResearchRegistry,
+  ResearchRunReport,
 } from "@noir/core";
 import type { RegistrySnapshot } from "@noir/storage";
 
@@ -10,6 +13,10 @@ import {
   buildObservationViews,
   type DashboardObservation,
 } from "./observation-view";
+import {
+  buildResearchDashboardData,
+  type DashboardResearchItem,
+} from "./research";
 
 export interface DigestIndexEntry {
   date: string;
@@ -17,6 +24,8 @@ export interface DigestIndexEntry {
   releases: number;
   modelRevisions: number;
   healthTransitions: number;
+  papers: number;
+  announcements: number;
   runStatus?: "success" | "partial" | "failure";
 }
 
@@ -37,6 +46,8 @@ export interface DailyDigestData {
     releases: number;
     modelRevisions: number;
     healthTransitions: number;
+    papers: number;
+    announcements: number;
   };
   latestRun?: {
     runId: string;
@@ -64,6 +75,8 @@ export interface DailyDigestData {
     from: HealthCheck["status"];
     to: HealthCheck["status"];
   }[];
+  researchItems: DashboardResearchItem[];
+  latestResearchRun?: ResearchRunReport;
 }
 
 export interface DigestBuildResult {
@@ -81,6 +94,9 @@ export function buildDigestDashboardData(
     observationsPerDay?: number;
     healthChecks?: HealthCheck[];
     monitorRegistry?: MonitorRegistry;
+    researchItems?: ResearchItem[];
+    researchRegistry?: ResearchRegistry;
+    researchReports?: ResearchRunReport[];
   } = {},
 ): DigestBuildResult {
   const dayLimit = options.days ?? 90;
@@ -88,6 +104,20 @@ export function buildDigestDashboardData(
   const views = buildObservationViews(snapshot, observations);
   const observationDates = views.map((item) => item.occurredAt.slice(0, 10));
   const reportDates = reports.map((item) => item.startedAt.slice(0, 10));
+  const researchViews = options.researchRegistry
+    ? buildResearchDashboardData(
+        options.researchRegistry,
+        options.researchItems ?? [],
+        options.researchReports ?? [],
+        generatedAt,
+      ).items
+    : [];
+  const researchDates = researchViews.map((item) =>
+    item.publishedAt.slice(0, 10),
+  );
+  const researchReportDates = (options.researchReports ?? []).map((item) =>
+    item.startedAt.slice(0, 10),
+  );
   const monitorById = new Map(
     (options.monitorRegistry?.monitors ?? []).map((item) => [item.id, item]),
   );
@@ -122,6 +152,8 @@ export function buildDigestDashboardData(
       ...observationDates,
       ...reportDates,
       ...healthEvents.map((item) => item.at.slice(0, 10)),
+      ...researchDates,
+      ...researchReportDates,
     ]),
   ]
     .sort()
@@ -137,6 +169,12 @@ export function buildDigestDashboardData(
     const dailyHealthEvents = healthEvents
       .filter((item) => item.at.slice(0, 10) === date)
       .sort((a, b) => b.at.localeCompare(a.at));
+    const dailyResearch = researchViews.filter(
+      (item) => item.publishedAt.slice(0, 10) === date,
+    );
+    const latestResearchRun = (options.researchReports ?? [])
+      .filter((report) => report.startedAt.slice(0, 10) === date)
+      .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))[0];
     const latestRun = reports
       .filter((report) => report.startedAt.slice(0, 10) === date)
       .sort((left, right) =>
@@ -190,6 +228,11 @@ export function buildDigestDashboardData(
           (item) => item.type === "huggingface_model_revision",
         ).length,
         healthTransitions: dailyHealthEvents.length,
+        papers: dailyResearch.filter((item) => item.type === "research_paper")
+          .length,
+        announcements: dailyResearch.filter(
+          (item) => item.type === "official_announcement",
+        ).length,
       },
       ...(latestRun
         ? {
@@ -207,6 +250,8 @@ export function buildDigestDashboardData(
         : {}),
       categories,
       healthEvents: dailyHealthEvents,
+      researchItems: dailyResearch,
+      ...(latestResearchRun ? { latestResearchRun } : {}),
     });
   }
 
@@ -223,6 +268,8 @@ export function buildDigestDashboardData(
           releases: digest.summary.releases,
           modelRevisions: digest.summary.modelRevisions,
           healthTransitions: digest.summary.healthTransitions,
+          papers: digest.summary.papers,
+          announcements: digest.summary.announcements,
           ...(digest.latestRun ? { runStatus: digest.latestRun.status } : {}),
         };
       }),

@@ -9,10 +9,13 @@ import {
 } from "../packages/dashboard-data/src/index";
 import {
   JsonRunReportStore,
+  JsonResearchRunReportStore,
+  JsonlResearchItemStore,
   JsonlHealthCheckStore,
   JsonlObservationStore,
   YamlMonitorRegistryStore,
   YamlRegistryStore,
+  YamlResearchRegistryStore,
 } from "../packages/storage/src/index";
 
 async function writeJson(filePath: string, value: unknown): Promise<void> {
@@ -24,14 +27,25 @@ export async function generateDashboard(
   rootDirectory = process.cwd(),
   generatedAt = new Date(),
 ): Promise<void> {
-  const [snapshot, observations, reports, healthChecks, monitorRegistry] =
-    await Promise.all([
-      new YamlRegistryStore(rootDirectory).read(),
-      new JsonlObservationStore(rootDirectory).readAll(),
-      new JsonRunReportStore(rootDirectory).readAll(),
-      new JsonlHealthCheckStore(rootDirectory).readAll(),
-      new YamlMonitorRegistryStore(rootDirectory).read(),
-    ]);
+  const [
+    snapshot,
+    observations,
+    reports,
+    healthChecks,
+    monitorRegistry,
+    researchRegistry,
+    researchItems,
+    researchReports,
+  ] = await Promise.all([
+    new YamlRegistryStore(rootDirectory).read(),
+    new JsonlObservationStore(rootDirectory).readAll(),
+    new JsonRunReportStore(rootDirectory).readAll(),
+    new JsonlHealthCheckStore(rootDirectory).readAll(),
+    new YamlMonitorRegistryStore(rootDirectory).read(),
+    new YamlResearchRegistryStore(rootDirectory).read(),
+    new JsonlResearchItemStore(rootDirectory).readAll(),
+    new JsonResearchRunReportStore(rootDirectory).readAll(),
+  ]);
   const outputDirectory = path.join(
     rootDirectory,
     "apps",
@@ -45,7 +59,13 @@ export async function generateDashboard(
     observations,
     reports,
     generatedAt,
-    { healthChecks, monitorRegistry },
+    {
+      healthChecks,
+      monitorRegistry,
+      researchRegistry,
+      researchItems,
+      researchReports,
+    },
   );
 
   // Daily files are disposable view models. Recreate the directory so dates
