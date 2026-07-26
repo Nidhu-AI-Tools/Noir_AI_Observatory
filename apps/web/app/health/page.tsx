@@ -1,13 +1,19 @@
-import { PlaceholderPage } from "../../components/placeholder-page";
+import type { Metadata } from "next";
+
+import { HealthDashboard } from "../../components/dashboard/health-dashboard";
+import { PageHeading } from "../../components/page-heading";
+
+export const metadata: Metadata = { title: "API Health" };
 
 export default function HealthPage() {
   return (
-    <PlaceholderPage
-      description="Inspect observed availability, latency, recent failures, and eventually model-specific API behavior."
-      emptyDescription="Endpoint definitions and scheduled health observations will be introduced after the release collection pipeline."
-      emptyTitle="No API monitors configured"
-      eyebrow="API health"
-      title="Operational signals from tracked APIs"
-    />
+    <div className="space-y-8">
+      <PageHeading
+        description="Inspect observed availability, latency, recent failures, and eventually model-specific API behavior."
+        eyebrow="API health"
+        title="Operational signals from tracked APIs"
+      />
+      <HealthDashboard />
+    </div>
   );
 }

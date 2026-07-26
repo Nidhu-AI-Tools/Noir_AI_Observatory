@@ -1,4 +1,9 @@
-import type { CollectionRunReport, Observation } from "@noir/core";
+import type {
+  CollectionRunReport,
+  HealthCheck,
+  MonitorRegistry,
+  Observation,
+} from "@noir/core";
 import type { RegistrySnapshot } from "@noir/storage";
 
 import {
@@ -11,6 +16,7 @@ export interface DigestIndexEntry {
   observations: number;
   releases: number;
   modelRevisions: number;
+  healthTransitions: number;
   runStatus?: "success" | "partial" | "failure";
 }
 
@@ -30,6 +36,7 @@ export interface DailyDigestData {
     hidden: number;
     releases: number;
     modelRevisions: number;
+    healthTransitions: number;
   };
   latestRun?: {
     runId: string;
@@ -49,6 +56,14 @@ export interface DailyDigestData {
       observations: DashboardObservation[];
     }[];
   }[];
+  healthEvents: {
+    monitorId: string;
+    displayName: string;
+    url: string;
+    at: string;
+    from: HealthCheck["status"];
+    to: HealthCheck["status"];
+  }[];
 }
 
 export interface DigestBuildResult {
@@ -61,14 +76,54 @@ export function buildDigestDashboardData(
   observations: Observation[],
   reports: CollectionRunReport[],
   generatedAt = new Date(),
-  options: { days?: number; observationsPerDay?: number } = {},
+  options: {
+    days?: number;
+    observationsPerDay?: number;
+    healthChecks?: HealthCheck[];
+    monitorRegistry?: MonitorRegistry;
+  } = {},
 ): DigestBuildResult {
   const dayLimit = options.days ?? 90;
   const observationLimit = options.observationsPerDay ?? 500;
   const views = buildObservationViews(snapshot, observations);
   const observationDates = views.map((item) => item.occurredAt.slice(0, 10));
   const reportDates = reports.map((item) => item.startedAt.slice(0, 10));
-  const dates = [...new Set([...observationDates, ...reportDates])]
+  const monitorById = new Map(
+    (options.monitorRegistry?.monitors ?? []).map((item) => [item.id, item]),
+  );
+  const healthEvents: DailyDigestData["healthEvents"] = [];
+  const checksByMonitor = new Map<string, HealthCheck[]>();
+  for (const check of options.healthChecks ?? [])
+    checksByMonitor.set(check.monitorId, [
+      ...(checksByMonitor.get(check.monitorId) ?? []),
+      check,
+    ]);
+  for (const [monitorId, monitorChecks] of checksByMonitor) {
+    const chronological = [...monitorChecks].sort((a, b) =>
+      a.checkedAt.localeCompare(b.checkedAt),
+    );
+    for (let index = 1; index < chronological.length; index += 1) {
+      const previous = chronological[index - 1];
+      const current = chronological[index];
+      if (!previous || !current || previous.status === current.status) continue;
+      const monitor = monitorById.get(monitorId);
+      healthEvents.push({
+        monitorId,
+        displayName: monitor?.displayName ?? monitorId,
+        url: monitor?.url ?? "",
+        at: current.checkedAt,
+        from: previous.status,
+        to: current.status,
+      });
+    }
+  }
+  const dates = [
+    ...new Set([
+      ...observationDates,
+      ...reportDates,
+      ...healthEvents.map((item) => item.at.slice(0, 10)),
+    ]),
+  ]
     .sort()
     .reverse()
     .slice(0, dayLimit);
@@ -79,6 +134,9 @@ export function buildDigestDashboardData(
       (item) => item.occurredAt.slice(0, 10) === date,
     );
     const displayed = allForDate.slice(0, observationLimit);
+    const dailyHealthEvents = healthEvents
+      .filter((item) => item.at.slice(0, 10) === date)
+      .sort((a, b) => b.at.localeCompare(a.at));
     const latestRun = reports
       .filter((report) => report.startedAt.slice(0, 10) === date)
       .sort((left, right) =>
@@ -131,6 +189,7 @@ export function buildDigestDashboardData(
         modelRevisions: allForDate.filter(
           (item) => item.type === "huggingface_model_revision",
         ).length,
+        healthTransitions: dailyHealthEvents.length,
       },
       ...(latestRun
         ? {
@@ -147,6 +206,7 @@ export function buildDigestDashboardData(
           }
         : {}),
       categories,
+      healthEvents: dailyHealthEvents,
     });
   }
 
@@ -162,6 +222,7 @@ export function buildDigestDashboardData(
           observations: digest.summary.observations,
           releases: digest.summary.releases,
           modelRevisions: digest.summary.modelRevisions,
+          healthTransitions: digest.summary.healthTransitions,
           ...(digest.latestRun ? { runStatus: digest.latestRun.status } : {}),
         };
       }),

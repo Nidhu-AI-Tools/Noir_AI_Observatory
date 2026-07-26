@@ -1,8 +1,8 @@
 # Noir AI Observatory
 
-Noir AI Observatory is a continuously updated view of the AI ecosystem. It currently tracks releases from GitHub and model revisions from Hugging Face; research, announcements, API health, and model consensus measurements can be added behind the same repository-first boundaries.
+Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 3: Dashboard**. The static site turns the Phase 2 dataset into an overview feed, a filterable source radar, per-day UTC digests, and source activity summaries. The Phase 1 registry remains the control plane.
+The project is currently in **Phase 4: API Health**. Public HTTPS monitors are checked every six hours and rendered alongside the Phase 3 ecosystem dashboard. Repository-managed registries remain the control plane.
 
 ## Architecture
 
@@ -71,6 +71,19 @@ pnpm source:add -- --kind github_repo --locator qdrant/qdrant \
 
 Set `GITHUB_TOKEN` or `HF_TOKEN` when higher API limits or access to private resources is required. Secrets are never stored in registry YAML. See [Source management](docs/source-management.md) for configuration and remote request details.
 
+## Monitoring APIs
+
+Add and test a public endpoint:
+
+```bash
+pnpm monitor:add -- --display-name "GitHub API" --url https://api.github.com \
+  --category developer-tool --tags github,developer-api
+pnpm monitor:check api-api-github-com
+pnpm health:run -- --dry-run
+```
+
+Only public HTTPS `GET` and `HEAD` endpoints are supported. Tokens, custom headers, request bodies, and private-network targets are intentionally rejected. See [API health monitoring](docs/api-health.md).
+
 ## Collecting observations
 
 Preview a single source without writing data:
@@ -126,7 +139,7 @@ scripts                   Project automation entry points
 2. **Phase 1 · Source registry** — validated GitHub and Hugging Face source management. ✓
 3. **Phase 2 · Collection** — normalized releases, models, and daily run reports. ✓
 4. **Phase 3 · Dashboard** — real overview, radar, source, and digest views. ✓
-5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries.
+5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries. ✓
 6. **Phase 5 · Research** — papers and official announcement feeds.
 7. **Phase 6 · Model lab** — versioned multi-provider behavior and consensus benchmarks.
 

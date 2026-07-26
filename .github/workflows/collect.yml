@@ -21,7 +21,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: daily-collection
+  group: repository-data-updates
   cancel-in-progress: false
 
 jobs:

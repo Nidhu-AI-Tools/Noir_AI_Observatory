@@ -1,6 +1,6 @@
 # Scripts
 
-Command-line entry points cover registry management, collection, observation validation, and dashboard generation. Monitoring commands will be introduced with API health work.
+Command-line entry points cover registry management, collection, health monitoring, validation, and dashboard generation.
 
 Scripts should delegate business logic to workspace packages so they remain thin orchestration layers.
 
@@ -9,3 +9,7 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `generate-dashboard.ts` produces the overview feed, radar, digest index, daily digest files, and the backward-compatible activity feed.
 - `generate-activity.ts` remains available for backward-compatible activity-only generation.
 - `generate-sources.ts` produces the frontend-sized source registry.
+- `monitor-cli.ts` manages and dry-checks public API monitors.
+- `monitor-health.ts` executes enabled monitors and persists normalized samples.
+- `validate-health.ts` validates monitor configuration and health datasets.
+- `generate-health.ts` creates bounded health index and monitor-detail artifacts.

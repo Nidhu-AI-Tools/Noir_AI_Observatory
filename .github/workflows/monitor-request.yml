@@ -1,0 +1,42 @@
+name: Process approved monitor request
+on:
+  issues:
+    types: [labeled]
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  prepare-monitor-change:
+    if: >-
+      github.event.label.name == 'monitor:approved' &&
+      (startsWith(github.event.issue.title, '[Monitor Add]') || startsWith(github.event.issue.title, '[Monitor Edit]'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate and apply request
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: pnpm monitor:request
+      - name: Create configuration pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          branch="monitor-request-${ISSUE_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add config/monitors.yaml
+          git commit -m "config: apply monitor request #${ISSUE_NUMBER}"
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Apply monitor request #${ISSUE_NUMBER}" --body "Closes #${ISSUE_NUMBER}" --base main --head "$branch"
