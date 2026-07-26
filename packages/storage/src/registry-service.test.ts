@@ -120,4 +120,26 @@ describe("RegistryService", () => {
       ),
     ).rejects.toThrow("Unknown category");
   });
+
+  it("rejects private sources from the public registry", async () => {
+    const { service } = await createStore();
+    await expect(
+      service.addSource(
+        {
+          kind: "github_repo",
+          locator: "private/repository",
+          categoryId: "vector-database",
+          tags: [],
+        },
+        {
+          kind: "github_repo",
+          locator: "private/repository",
+          displayName: "Private repository",
+          externalUrl: "https://github.com/private/repository",
+          warnings: [],
+          metadata: { private: true },
+        },
+      ),
+    ).rejects.toThrow("Private sources cannot be added");
+  });
 });

@@ -40,6 +40,12 @@ export class RegistryService {
     const id = createSourceId(candidate.kind, locator);
     const now = this.clock().toISOString();
 
+    if (resolved.metadata.private === true) {
+      throw new Error(
+        "Private sources cannot be added to the public registry.",
+      );
+    }
+
     if (
       !snapshot.taxonomy.categories.some(
         (category) => category.id === candidate.categoryId,
