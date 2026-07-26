@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "runId": "30196594220-1",
+  "trigger": "manual",
+  "startedAt": "2026-07-26T09:31:15.158Z",
+  "finishedAt": "2026-07-26T09:31:24.518Z",
+  "status": "success",
+  "totals": {
+    "configured": 13,
+    "attempted": 13,
+    "succeeded": 13,
+    "failed": 0,
+    "skipped": 0,
+    "observations": 101
+  },
+  "sources": [
+    {
+      "sourceId": "github-ollama-ollama",
+      "status": "success",
+      "durationMs": 1339,
+      "observations": 3,
+      "cursorAfter": {
+        "timestamp": "2026-07-25T02:22:12Z",
+        "externalIdsAtTimestamp": [
+          "359627724"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-ggml-org-llama-cpp",
+      "status": "success",
+      "durationMs": 2085,
+      "observations": 26,
+      "cursorAfter": {
+        "timestamp": "2026-07-24T14:01:16Z",
+        "externalIdsAtTimestamp": [
+          "359342703"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-huggingface-transformers",
+      "status": "success",
+      "durationMs": 1048,
+      "observations": 0,
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "github-langchain-ai-langchain",
+      "status": "success",
+      "durationMs": 850,
+      "observations": 11,
+      "cursorAfter": {
+        "timestamp": "2026-07-24T19:08:22Z",
+        "externalIdsAtTimestamp": [
+          "359494332"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-langfuse-langfuse",
+      "status": "success",
+      "durationMs": 526,
+      "observations": 7,
+      "cursorAfter": {
+        "timestamp": "2026-07-24T12:34:34Z",
+        "externalIdsAtTimestamp": [
+          "359294991"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-qdrant-qdrant",
+      "status": "success",
+      "durationMs": 958,
+      "observations": 0,
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "github-vllm-project-vllm",
+      "status": "success",
+      "durationMs": 1566,
+      "observations": 1,
+      "cursorAfter": {
+        "timestamp": "2026-07-25T10:38:53Z",
+        "externalIdsAtTimestamp": [
+          "359735987"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-deepseek-ai",
+      "status": "success",
+      "durationMs": 159,
+      "observations": 0,
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-google",
+      "status": "success",
+      "durationMs": 247,
+      "observations": 23,
+      "cursorAfter": {
+        "timestamp": "2026-07-20T16:43:58.000Z",
+        "externalIdsAtTimestamp": [
+          "6a1e18a241aa598ff91f14a6"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-meta-llama",
+      "status": "success",
+      "durationMs": 112,
+      "observations": 0,
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-mistralai",
+      "status": "success",
+      "durationMs": 106,
+      "observations": 0,
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-nvidia",
+      "status": "success",
+      "durationMs": 213,
+      "observations": 28,
+      "cursorAfter": {
+        "timestamp": "2026-07-24T20:35:04.000Z",
+        "externalIdsAtTimestamp": [
+          "6a5f4efa00b4b6af07785fe4"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-qwen",
+      "status": "success",
+      "durationMs": 125,
+      "observations": 2,
+      "cursorAfter": {
+        "timestamp": "2026-07-22T11:58:47.000Z",
+        "externalIdsAtTimestamp": [
+          "6a3e3aa4444639d84407da62"
+        ]
+      }
+    }
+  ]
+}
