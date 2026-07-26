@@ -1,2 +1,14 @@
 version: 1
-sources: []
+sources:
+  - id: arxiv-query-arxiv-artificial-intelligence
+    displayName: arXiv Artificial Intelligence
+    category: research-paper
+    tags:
+      - artificial-intelligence
+      - research
+    weight: 3
+    enabled: true
+    createdAt: 2026-07-26T11:34:33.591Z
+    updatedAt: 2026-07-26T11:34:33.591Z
+    kind: arxiv_query
+    query: cat:cs.AI
