@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@huggingface/hub": "2.13.3",
     "@noir/core": "workspace:*",
+    "@noir/storage": "workspace:*",
     "zod": "4.4.3"
   },
   "devDependencies": {

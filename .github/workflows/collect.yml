@@ -1,0 +1,111 @@
+name: Collect AI observations
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Optional source ID to collect
+        required: false
+        type: string
+      lookback_days:
+        description: Bootstrap lookback window in days
+        required: false
+        default: "7"
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-collection
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    outputs:
+      data_ready: ${{ steps.ready.outputs.value }}
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate source registry
+        run: pnpm registry:validate
+
+      - name: Collect observations
+        id: collection
+        continue-on-error: true
+        env:
+          COLLECTION_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          COLLECTION_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '7' }}
+          SOURCE_ID: ${{ inputs.source }}
+        run: |
+          args=(--lookback-days "$LOOKBACK_DAYS")
+          if [[ -n "$SOURCE_ID" ]]; then
+            args+=(--source "$SOURCE_ID")
+          fi
+          pnpm collect -- "${args[@]}"
+
+      - name: Validate generated data
+        run: pnpm observations:validate
+
+      - name: Verify dashboard build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm build
+
+      - name: Commit generated dataset
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data/observations data/runs data/state
+          git add data/observations data/runs data/state
+          if git diff --cached --quiet; then
+            echo "No generated data changed."
+          else
+            git commit -m "data: collect AI observations for $(date -u +%F)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Mark data ready
+        id: ready
+        if: always() && steps.collection.outcome != 'cancelled' && steps.commit.outcome == 'success'
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+
+      - name: Fail after persisting a failed run
+        if: steps.collection.outcome == 'failure'
+        run: |
+          echo "Every attempted source failed. The run report was preserved."
+          exit 1
+
+  deploy:
+    if: always() && needs.collect.outputs.data_ready == 'true'
+    needs: collect
+    uses: ./.github/workflows/deploy-pages.yml
+    secrets: inherit

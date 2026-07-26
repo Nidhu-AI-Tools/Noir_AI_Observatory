@@ -2,7 +2,7 @@
 
 Noir AI Observatory is a planned, continuously updated view of the AI ecosystem. It will track releases from GitHub and Hugging Face, research and announcements, API health, and—later—model behavior and consensus measurements.
 
-The project is currently in **Phase 1: Source Registry**. GitHub repositories and Hugging Face organizations can be validated, categorized, tagged, edited, enabled, and disabled through a versioned registry. External release collection starts in Phase 2.
+The project is currently in **Phase 2: Collection**. GitHub releases and Hugging Face model revisions are normalized into a versioned, date-partitioned dataset with per-source cursors and auditable run reports. The source registry from Phase 1 remains the control plane.
 
 ## Architecture
 
@@ -69,6 +69,24 @@ pnpm source:add -- --kind github_repo --locator qdrant/qdrant \
 
 Set `GITHUB_TOKEN` or `HF_TOKEN` when higher API limits or access to private resources is required. Secrets are never stored in registry YAML. See [Source management](docs/source-management.md) for configuration and remote request details.
 
+## Collecting observations
+
+Preview a single source without writing data:
+
+```bash
+pnpm collect -- --source github-qdrant-qdrant --dry-run
+```
+
+Run the complete enabled registry and validate the resulting dataset:
+
+```bash
+pnpm collect
+pnpm observations:validate
+pnpm generate:activity
+```
+
+New sources bootstrap from a seven-day lookback. Later runs continue from versioned per-source cursors, and stable observation IDs make reruns safe. See [Collection](docs/collection.md) for data contracts, scheduling, recovery, and repository settings.
+
 ## Quality checks
 
 ```bash
@@ -104,7 +122,7 @@ scripts                   Project automation entry points
 
 1. **Foundation** — workspace, dashboard shell, tests, CI, and deployment. ✓
 2. **Source registry** — validated GitHub and Hugging Face source management. ✓
-3. **Collection** — normalized releases, models, and daily run reports.
+3. **Collection** — normalized releases, models, and daily run reports. ✓
 4. **Dashboard** — real radar, source, and digest views.
 5. **API health** — scheduled endpoint checks and historical summaries.
 6. **Research** — papers and official announcement feeds.

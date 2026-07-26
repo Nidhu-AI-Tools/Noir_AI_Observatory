@@ -14,9 +14,9 @@ test-results/
 apps/web/public/generated/*
 !apps/web/public/generated/.gitkeep
 
-# Local and generated observation data
-data/**/*
-!data/README.md
+# Uncommitted provider payloads and collection scratch space
+data/raw/
+data/tmp/
 
 # Environment files and secrets
 .env
