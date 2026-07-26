@@ -1,0 +1,50 @@
+name: Edit a tracked source
+description: Change a source's display metadata, category, tags, or enabled state.
+title: "[Source Edit] "
+body:
+  - type: markdown
+    attributes:
+      value: Copy the immutable source ID from the Sources dashboard. A maintainer applies `source:approved` before automation opens a pull request.
+  - type: input
+    id: source-id
+    attributes:
+      label: Source ID
+      placeholder: github-qdrant-qdrant
+    validations:
+      required: true
+  - type: input
+    id: display-name
+    attributes:
+      label: Display name
+      description: Optional. Leave empty to keep the current name.
+  - type: input
+    id: category
+    attributes:
+      label: Category ID
+      description: Optional. Leave empty to keep the current category.
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Optional complete comma-separated list. Leave empty to keep existing tags.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Optional. Leave empty to keep the current description.
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options:
+        - unchanged
+        - enabled
+        - disabled
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why is this change needed?
+    validations:
+      required: true

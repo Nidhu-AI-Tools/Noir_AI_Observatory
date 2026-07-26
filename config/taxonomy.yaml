@@ -1,0 +1,20 @@
+version: 1
+categories:
+  - id: agent-framework
+    name: Agent Framework
+    description: Frameworks and runtimes for building AI agents.
+  - id: developer-tool
+    name: Developer Tool
+    description: General-purpose AI development tools and libraries.
+  - id: evaluation-observability
+    name: Evaluation and Observability
+    description: Tools for evaluating and monitoring AI systems.
+  - id: foundation-model
+    name: Foundation Model
+    description: Foundation and general-purpose AI model publishers.
+  - id: inference-engine
+    name: Inference Engine
+    description: Model serving and inference infrastructure.
+  - id: vector-database
+    name: Vector Database
+    description: Databases and infrastructure for vector search.
