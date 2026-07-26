@@ -1,2 +1,163 @@
 version: 1
-sources: []
+sources:
+  - id: github-ggml-org-llama-cpp
+    kind: github_repo
+    locator: ggml-org/llama.cpp
+    displayName: llama.cpp
+    description: LLM inference in C/C++
+    categoryId: inference-engine
+    tags:
+      - inference
+      - llm
+      - local-ai
+      - quantization
+    enabled: true
+    createdAt: 2026-07-26T07:52:40.613Z
+    updatedAt: 2026-07-26T07:52:40.613Z
+  - id: github-huggingface-transformers
+    kind: github_repo
+    locator: huggingface/transformers
+    displayName: transformers
+    description: "🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, for both inference and training."
+    categoryId: developer-tool
+    tags:
+      - inference
+      - model-library
+      - training
+      - transformers
+    enabled: true
+    createdAt: 2026-07-26T07:52:08.132Z
+    updatedAt: 2026-07-26T07:52:08.132Z
+  - id: github-langchain-ai-langchain
+    kind: github_repo
+    locator: langchain-ai/langchain
+    displayName: langchain
+    description: The agent engineering platform.
+    categoryId: agent-framework
+    tags:
+      - agents
+      - llm-applications
+      - orchestration
+      - rag
+    enabled: true
+    createdAt: 2026-07-26T07:52:43.711Z
+    updatedAt: 2026-07-26T07:52:43.711Z
+  - id: github-langfuse-langfuse
+    kind: github_repo
+    locator: langfuse/langfuse
+    displayName: langfuse
+    description: "🪢 Open source AI engineering platform: LLM evals, observability, metrics, prompt management, playground, datasets. Integrates with OpenTelemetry, LangChain, OpenAI SDK, LiteLLM, and more. 🍊YC W23"
+    categoryId: evaluation-observability
+    tags:
+      - evaluation
+      - llmops
+      - observability
+      - tracing
+    enabled: true
+    createdAt: 2026-07-26T07:52:48.477Z
+    updatedAt: 2026-07-26T07:52:48.477Z
+  - id: github-qdrant-qdrant
+    kind: github_repo
+    locator: qdrant/qdrant
+    displayName: qdrant
+    description: Qdrant - High-performance, massive-scale Vector Database and Vector Search Engine for the next generation of AI. Also available in the cloud https://cloud.qdrant.io/
+    categoryId: vector-database
+    tags:
+      - database
+      - embeddings
+      - rag
+      - vector-search
+    enabled: true
+    createdAt: 2026-07-26T07:52:46.104Z
+    updatedAt: 2026-07-26T07:52:46.104Z
+  - id: github-vllm-project-vllm
+    kind: github_repo
+    locator: vllm-project/vllm
+    displayName: vllm
+    description: A high-throughput and memory-efficient inference and serving engine for LLMs
+    categoryId: inference-engine
+    tags:
+      - gpu
+      - inference
+      - llm
+      - model-serving
+    enabled: true
+    createdAt: 2026-07-26T07:52:36.155Z
+    updatedAt: 2026-07-26T07:52:36.155Z
+  - id: huggingface-deepseek-ai
+    kind: huggingface_org
+    locator: deepseek-ai
+    displayName: DeepSeek
+    categoryId: foundation-model
+    tags:
+      - code
+      - llm
+      - open-weights
+      - reasoning
+    enabled: true
+    createdAt: 2026-07-26T07:52:51.365Z
+    updatedAt: 2026-07-26T07:52:51.365Z
+  - id: huggingface-google
+    kind: huggingface_org
+    locator: google
+    displayName: Google
+    categoryId: foundation-model
+    tags:
+      - embeddings
+      - llm
+      - multimodal
+      - open-weights
+    enabled: true
+    createdAt: 2026-07-26T07:53:03.888Z
+    updatedAt: 2026-07-26T07:53:03.888Z
+  - id: huggingface-meta-llama
+    kind: huggingface_org
+    locator: meta-llama
+    displayName: Meta Llama
+    categoryId: foundation-model
+    tags:
+      - llm
+      - multimodal
+      - open-weights
+    enabled: true
+    createdAt: 2026-07-26T07:53:00.151Z
+    updatedAt: 2026-07-26T07:53:00.151Z
+  - id: huggingface-mistralai
+    kind: huggingface_org
+    locator: mistralai
+    displayName: Mistral AI_
+    categoryId: foundation-model
+    tags:
+      - code
+      - llm
+      - multimodal
+      - open-weights
+    enabled: true
+    createdAt: 2026-07-26T07:53:20.843Z
+    updatedAt: 2026-07-26T07:53:20.843Z
+  - id: huggingface-nvidia
+    kind: huggingface_org
+    locator: nvidia
+    displayName: NVIDIA
+    categoryId: foundation-model
+    tags:
+      - inference
+      - llm
+      - multimodal
+      - synthetic-data
+    enabled: true
+    createdAt: 2026-07-26T07:53:23.815Z
+    updatedAt: 2026-07-26T07:53:23.815Z
+  - id: huggingface-qwen
+    kind: huggingface_org
+    locator: qwen
+    displayName: Qwen
+    categoryId: foundation-model
+    tags:
+      - llm
+      - multimodal
+      - open-weights
+      - reasoning
+    enabled: true
+    createdAt: 2026-07-26T07:52:56.245Z
+    updatedAt: 2026-07-26T07:52:56.245Z
