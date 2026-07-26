@@ -6,5 +6,6 @@ Scripts should delegate business logic to workspace packages so they remain thin
 
 - `collect.ts` runs all enabled sources or one selected source and supports non-writing dry runs.
 - `validate-observations.ts` validates observations, reports, and configured source states.
-- `generate-activity.ts` produces the frontend-sized activity feed.
+- `generate-dashboard.ts` produces the overview feed, radar, digest index, daily digest files, and the backward-compatible activity feed.
+- `generate-activity.ts` remains available for backward-compatible activity-only generation.
 - `generate-sources.ts` produces the frontend-sized source registry.

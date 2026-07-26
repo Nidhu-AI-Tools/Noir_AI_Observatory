@@ -1,13 +1,19 @@
-import { PlaceholderPage } from "../../components/placeholder-page";
+import type { Metadata } from "next";
+
+import { DigestDashboard } from "../../components/dashboard/digest-dashboard";
+import { PageHeading } from "../../components/page-heading";
+
+export const metadata: Metadata = { title: "Daily Digests" };
 
 export default function DigestsPage() {
   return (
-    <PlaceholderPage
-      description="Read deterministic daily summaries of releases, models, papers, announcements, and monitored failures."
-      emptyDescription="A digest will be generated after each successful collection run once normalized observations are available."
-      emptyTitle="No daily digests yet"
-      eyebrow="Daily signal"
-      title="What changed in AI today"
-    />
+    <div className="space-y-8">
+      <PageHeading
+        description="Read deterministic daily summaries of releases, models, papers, announcements, and monitored failures."
+        eyebrow="Daily signal"
+        title="What changed in AI today"
+      />
+      <DigestDashboard />
+    </div>
   );
 }

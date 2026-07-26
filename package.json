@@ -10,15 +10,16 @@
     "pnpm": ">=10.0.0 <11"
   },
   "scripts": {
-    "build": "corepack pnpm generate:sources && corepack pnpm generate:activity && corepack pnpm --filter @noir/web build",
+    "build": "corepack pnpm generate:sources && corepack pnpm generate:dashboard && corepack pnpm --filter @noir/web build",
     "category:add": "node --import tsx scripts/registry-cli.ts category:add",
     "category:edit": "node --import tsx scripts/registry-cli.ts category:edit",
     "check": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm observations:validate && corepack pnpm build",
     "collect": "node --import tsx scripts/collect.ts",
-    "dev": "corepack pnpm generate:sources && corepack pnpm generate:activity && corepack pnpm --filter @noir/web dev",
+    "dev": "corepack pnpm generate:sources && corepack pnpm generate:dashboard && corepack pnpm --filter @noir/web dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate:activity": "node --import tsx scripts/generate-activity.ts",
+    "generate:dashboard": "node --import tsx scripts/generate-dashboard.ts",
     "generate:sources": "node --import tsx scripts/generate-sources.ts",
     "lint": "eslint . --max-warnings 0",
     "observations:validate": "node --import tsx scripts/validate-observations.ts",
