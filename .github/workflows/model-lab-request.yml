@@ -1,0 +1,42 @@
+name: Process approved Model Lab profile request
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  prepare-model-change:
+    if: >-
+      github.event.label.name == 'model-lab:approved' &&
+      (startsWith(github.event.issue.title, '[Model Add]') || startsWith(github.event.issue.title, '[Model Edit]'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.34.5 }
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Validate and apply profile configuration only
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: pnpm model-lab:request
+      - name: Create configuration pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          branch="model-lab-request-${ISSUE_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add config/model-lab.yaml
+          git commit -m "config: apply Model Lab request #${ISSUE_NUMBER}"
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Apply Model Lab request #${ISSUE_NUMBER}" --body "Closes #${ISSUE_NUMBER}" --base main --head "$branch"

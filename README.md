@@ -2,7 +2,7 @@
 
 Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, AI papers and official announcements, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 5: Research and Announcements**. arXiv queries and official RSS or Atom feeds produce a normalized daily research stream alongside the release and API-health datasets. Repository-managed registries remain the control plane.
+The project is currently in **Phase 6: Model Consensus Lab**. It can compare bounded, structured classifications from OpenAI, Anthropic, and Google against live ecosystem items and synthetic gold cases. Calls are disabled by default and all configuration remains repository-managed.
 
 ## Architecture
 
@@ -116,6 +116,19 @@ pnpm research:collect -- --dry-run
 
 Official RSS or Atom feeds use `--kind rss_feed`, `--url`, and `--publisher`. See [Research and announcement intelligence](docs/research.md) for management, identity, safety, and scheduled-operation details.
 
+## Comparing model behavior
+
+Model profiles can be managed without exposing secrets or making calls:
+
+```bash
+pnpm model:add
+pnpm model:list
+pnpm benchmark:list
+pnpm model-lab:run -- --dry-run
+```
+
+See [Model Consensus Lab](docs/model-lab.md) before enabling any provider or scheduled execution. Consensus is an agreement signal, not a truth label.
+
 ## Quality checks
 
 ```bash
@@ -140,6 +153,7 @@ packages/core             Shared domain primitives and schemas
 packages/collectors       External source adapters and orchestration
 packages/monitoring       API health and model measurement logic
 packages/research         Research registries, provider adapters, and orchestration
+packages/model-lab        Provider adapters, selection, consensus, and scoring
 packages/storage          Registry and observation persistence
 packages/dashboard-data   Frontend-facing aggregation
 config                    Human-managed source configuration
@@ -156,7 +170,7 @@ scripts                   Project automation entry points
 4. **Phase 3 · Dashboard** — real overview, radar, source, and digest views. ✓
 5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries. ✓
 6. **Phase 5 · Research** — papers and official announcement feeds. ✓
-7. **Phase 6 · Model lab** — versioned multi-provider behavior and consensus benchmarks.
+7. **Phase 6 · Model lab** — versioned multi-provider behavior and consensus benchmarks. ✓
 
 ## Automated data
 

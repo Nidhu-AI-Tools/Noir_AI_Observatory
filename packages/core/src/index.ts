@@ -1,5 +1,6 @@
 export * from "./collection/schema";
 export * from "./health/schema";
+export * from "./model-lab/schema";
 export * from "./observation/identity";
 export * from "./observation/schema";
 export * from "./research/schema";
@@ -9,4 +10,4 @@ export * from "./source/types";
 export * from "./taxonomy/schema";
 
 export const PROJECT_NAME = "Noir AI Observatory";
-export const CURRENT_PHASE = 5;
+export const CURRENT_PHASE = 6;
