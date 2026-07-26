@@ -1,2 +1,15 @@
 version: 1
-sources: []
+sources:
+  - id: github-ollama-ollama
+    kind: github_repo
+    locator: ollama/ollama
+    displayName: ollama
+    description: Get up and running with Kimi-K2.6, GLM-5.2, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models.
+    categoryId: inference-engine
+    tags:
+      - llm
+      - local-ai
+      - model-serving
+    enabled: true
+    createdAt: 2026-07-26T08:00:51.870Z
+    updatedAt: 2026-07-26T08:00:51.870Z
