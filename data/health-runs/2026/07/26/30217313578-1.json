@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "runId": "30217313578-1",
+  "trigger": "schedule",
+  "startedAt": "2026-07-26T19:39:58.117Z",
+  "finishedAt": "2026-07-26T19:40:03.412Z",
+  "status": "success",
+  "totals": {
+    "configured": 1,
+    "attempted": 1,
+    "skipped": 0,
+    "healthy": 0,
+    "degraded": 1,
+    "down": 0,
+    "internalFailures": 0
+  },
+  "monitors": [
+    {
+      "monitorId": "api-api-jikan-moe-v4-anime-1",
+      "status": "degraded",
+      "latencyMs": 5259
+    }
+  ]
+}
