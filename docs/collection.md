@@ -2,6 +2,8 @@
 
 Phase 2 collects high-signal public activity from enabled sources. GitHub repositories produce published release observations. Hugging Face organizations produce model-revision observations through the official `@huggingface/hub` client.
 
+For the complete production acceptance test and routine operating procedure, see [How to run Noir AI Observatory](how-to-run.md).
+
 ## Local commands
 
 Use a dry run to inspect provider output without modifying `data/`:
@@ -11,13 +13,15 @@ pnpm collect -- --dry-run
 pnpm collect -- --source github-qdrant-qdrant --dry-run
 ```
 
-Persist a run, validate it, and rebuild the frontend-sized activity feed:
+Persist a run, validate it, and rebuild the frontend-sized dashboard view models:
 
 ```bash
 pnpm collect
 pnpm observations:validate
-pnpm generate:activity
+pnpm generate:dashboard
 ```
+
+The generated Overview, Radar, and Daily Digest contracts are documented in [Dashboard](dashboard.md).
 
 The default first-run lookback is seven days. Override it only when intentionally bootstrapping more history:
 

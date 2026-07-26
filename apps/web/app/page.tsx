@@ -1,6 +1,6 @@
 import { PROJECT_NAME } from "@noir/core";
 
-import { ActivitySummary } from "../components/activity-summary";
+import { OverviewDashboard } from "../components/dashboard/overview-dashboard";
 import { PageHeading } from "../components/page-heading";
 
 export default function OverviewPage() {
@@ -13,12 +13,12 @@ export default function OverviewPage() {
         action={
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-200">
             <span className="size-1.5 rounded-full bg-emerald-300" />
-            Collection ready
+            Dashboard active
           </span>
         }
       />
 
-      <ActivitySummary />
+      <OverviewDashboard />
     </div>
   );
 }

@@ -1,12 +1,21 @@
 "use client";
 
-import type { SourceDashboardData } from "@noir/dashboard-data";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import type {
+  RadarDashboardData,
+  SourceDashboardData,
+} from "@noir/dashboard-data";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { FilterSelect } from "../../components/dashboard/filter-select";
+import { GeneratedDataState } from "../../components/dashboard/generated-data-state";
+import { MetricCard } from "../../components/dashboard/metric-card";
+import { StatusBadge } from "../../components/dashboard/status-badge";
 import { EmptyState } from "../../components/empty-state";
 import { PageHeading } from "../../components/page-heading";
+import { useGeneratedData } from "../../hooks/use-generated-data";
+import { formatDateTime } from "../../lib/dashboard-format";
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const repositoryUrl =
   process.env.NEXT_PUBLIC_REPOSITORY_URL ??
   "https://github.com/Nidhu-AI-Tools/Noir_AI_Observatory";
@@ -18,29 +27,25 @@ function sourceKindLabel(kind: "github_repo" | "huggingface_org"): string {
 }
 
 export default function SourcesPage() {
-  const [data, setData] = useState<SourceDashboardData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, loading, retry } = useGeneratedData<SourceDashboardData>(
+    "/generated/sources.json",
+  );
+  const { data: radar } = useGeneratedData<RadarDashboardData>(
+    "/generated/radar.json",
+  );
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("all");
   const [category, setCategory] = useState("all");
   const [tag, setTag] = useState("all");
   const [status, setStatus] = useState("all");
+  const [sourceId, setSourceId] = useState("");
 
   useEffect(() => {
-    fetch(`${basePath}/generated/sources.json`)
-      .then(async (response) => {
-        if (!response.ok)
-          throw new Error(`Source data returned ${response.status}.`);
-        return (await response.json()) as SourceDashboardData;
-      })
-      .then(setData)
-      .catch((reason: unknown) =>
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : "Source data could not be loaded.",
-        ),
-      );
+    queueMicrotask(() =>
+      setSourceId(
+        new URLSearchParams(window.location.search).get("source") ?? "",
+      ),
+    );
   }, []);
 
   const sources = useMemo(() => {
@@ -59,15 +64,22 @@ export default function SourcesPage() {
       const matchesStatus =
         status === "all" ||
         (status === "enabled" ? source.enabled : !source.enabled);
+      const matchesSource = !sourceId || source.id === sourceId;
       return (
         matchesQuery &&
         matchesKind &&
         matchesCategory &&
         matchesTag &&
-        matchesStatus
+        matchesStatus &&
+        matchesSource
       );
     });
-  }, [category, data, kind, query, status, tag]);
+  }, [category, data, kind, query, sourceId, status, tag]);
+
+  const activityBySource = useMemo(
+    () => new Map(radar?.sources.map((source) => [source.id, source])),
+    [radar],
+  );
 
   return (
     <div className="space-y-8">
@@ -87,39 +99,32 @@ export default function SourcesPage() {
         title="Control what the observatory follows"
       />
 
-      {error ? (
-        <EmptyState
-          description={error}
-          title="Source registry could not be loaded"
-        />
-      ) : !data ? (
-        <EmptyState
-          description="Reading the generated registry snapshot."
-          title="Loading sources"
-        />
+      {!data ? (
+        <GeneratedDataState error={error} loading={loading} onRetry={retry} />
       ) : (
         <>
           <section
             aria-label="Source statistics"
             className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
           >
-            {[
-              ["Tracked sources", data.summary.total],
-              ["Enabled", data.summary.enabled],
-              ["Disabled", data.summary.disabled],
-              ["Categories", data.summary.categories],
-            ].map(([label, value]) => (
-              <article
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-                key={label}
-              >
-                <p className="text-sm text-[var(--muted)]">{label}</p>
-                <p className="mt-3 text-3xl font-semibold text-white">
-                  {value}
-                </p>
-              </article>
-            ))}
+            <MetricCard label="Tracked sources" value={data.summary.total} />
+            <MetricCard label="Enabled" value={data.summary.enabled} />
+            <MetricCard label="Disabled" value={data.summary.disabled} />
+            <MetricCard label="Categories" value={data.summary.categories} />
           </section>
+
+          {sourceId ? (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-violet-400/20 bg-violet-400/5 px-4 py-3 text-sm text-violet-100">
+              <span>Showing one source selected from Radar.</span>
+              <button
+                className="font-medium text-violet-300 hover:text-violet-200"
+                onClick={() => setSourceId("")}
+                type="button"
+              >
+                Show all
+              </button>
+            </div>
+          ) : null}
 
           <section className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-2 xl:grid-cols-5">
             <label>
@@ -186,62 +191,101 @@ export default function SourcesPage() {
                   className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6"
                   key={source.id}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-medium text-violet-300">
-                        {sourceKindLabel(source.kind)}
-                      </p>
-                      <h2 className="mt-2 text-lg font-semibold text-white">
-                        {source.displayName}
-                      </h2>
-                      <a
-                        className="mt-1 block text-sm text-[var(--muted)] hover:text-violet-200"
-                        href={source.externalUrl}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        {source.locator}
-                      </a>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        source.enabled
-                          ? "bg-emerald-400/10 text-emerald-200"
-                          : "bg-slate-400/10 text-slate-300"
-                      }`}
-                    >
-                      {source.enabled ? "Enabled" : "Disabled"}
-                    </span>
-                  </div>
-                  {source.description ? (
-                    <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
-                      {source.description}
-                    </p>
-                  ) : null}
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <span className="rounded-md border border-violet-400/20 bg-violet-400/5 px-2 py-1 text-xs text-violet-200">
-                      {source.category.name}
-                    </span>
-                    {source.tags.map((tag) => (
-                      <span
-                        className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted)]"
-                        key={tag}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-6 flex items-center justify-between border-t border-[var(--border)] pt-4">
-                    <code className="text-xs text-slate-500">{source.id}</code>
-                    <a
-                      className="text-sm font-medium text-violet-300 hover:text-violet-200"
-                      href={`${repositoryUrl}/issues/new?template=edit-source.yml&title=${encodeURIComponent(`[Source Edit] ${source.id}`)}`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      Request edit
-                    </a>
-                  </div>
+                  {(() => {
+                    const sourceActivity = activityBySource.get(source.id);
+                    return (
+                      <>
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs font-medium text-violet-300">
+                              {sourceKindLabel(source.kind)}
+                            </p>
+                            <h2 className="mt-2 text-lg font-semibold text-white">
+                              {source.displayName}
+                            </h2>
+                            <a
+                              className="mt-1 block text-sm text-[var(--muted)] hover:text-violet-200"
+                              href={source.externalUrl}
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              {source.locator}
+                            </a>
+                          </div>
+                          <StatusBadge
+                            label={source.enabled ? "Enabled" : "Disabled"}
+                            tone={source.enabled ? "success" : "neutral"}
+                          />
+                        </div>
+                        {source.description ? (
+                          <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
+                            {source.description}
+                          </p>
+                        ) : null}
+                        <div className="mt-5 flex flex-wrap gap-2">
+                          <span className="rounded-md border border-violet-400/20 bg-violet-400/5 px-2 py-1 text-xs text-violet-200">
+                            {source.category.name}
+                          </span>
+                          {source.tags.map((tag) => (
+                            <span
+                              className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted)]"
+                              key={tag}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="mt-5 rounded-lg border border-[var(--border)] bg-black/15 p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-xs font-medium tracking-[0.14em] text-slate-500 uppercase">
+                              Observed activity
+                            </p>
+                            <Link
+                              className="text-xs font-medium text-violet-300 hover:text-violet-200"
+                              href={`/radar/?source=${source.id}`}
+                            >
+                              Open in Radar
+                            </Link>
+                          </div>
+                          {sourceActivity?.latestObservation ? (
+                            <div className="mt-3">
+                              <a
+                                className="text-sm font-medium text-white hover:text-violet-200"
+                                href={sourceActivity.latestObservation.url}
+                                rel="noreferrer"
+                                target="_blank"
+                              >
+                                {sourceActivity.latestObservation.title}
+                              </a>
+                              <p className="mt-1 text-xs text-[var(--muted)]">
+                                {sourceActivity.activity.total} total · latest{" "}
+                                {formatDateTime(
+                                  sourceActivity.latestObservation.occurredAt,
+                                )}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="mt-3 text-sm text-slate-500">
+                              No observations collected yet.
+                            </p>
+                          )}
+                        </div>
+                        <div className="mt-6 flex items-center justify-between border-t border-[var(--border)] pt-4">
+                          <code className="text-xs text-slate-500">
+                            {source.id}
+                          </code>
+                          <a
+                            className="text-sm font-medium text-violet-300 hover:text-violet-200"
+                            href={`${repositoryUrl}/issues/new?template=edit-source.yml&title=${encodeURIComponent(`[Source Edit] ${source.id}`)}`}
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            Request edit
+                          </a>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </article>
               ))}
             </section>
@@ -249,30 +293,5 @@ export default function SourcesPage() {
         </>
       )}
     </div>
-  );
-}
-
-function FilterSelect({
-  children,
-  label,
-  onChange,
-  value,
-}: {
-  children: ReactNode;
-  label: string;
-  onChange: (value: string) => void;
-  value: string;
-}) {
-  return (
-    <label>
-      <span className="sr-only">{label}</span>
-      <select
-        className="w-full rounded-lg border border-[var(--border)] bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-400"
-        onChange={(event) => onChange(event.target.value)}
-        value={value}
-      >
-        {children}
-      </select>
-    </label>
   );
 }
