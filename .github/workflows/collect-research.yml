@@ -1,0 +1,91 @@
+name: Collect research intelligence
+
+on:
+  schedule:
+    - cron: "37 4 * * *"
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Optional research source ID
+        required: false
+        type: string
+      lookback_days:
+        description: Bootstrap lookback window in days
+        required: false
+        default: "7"
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repository-data-updates
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    outputs:
+      data_ready: ${{ steps.ready.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate research sources
+        run: pnpm research-source:validate
+      - name: Collect research metadata
+        id: collection
+        continue-on-error: true
+        env:
+          RESEARCH_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          RESEARCH_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+          SOURCE_ID: ${{ inputs.source }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '7' }}
+        run: |
+          args=(--lookback-days "$LOOKBACK_DAYS")
+          if [[ -n "$SOURCE_ID" ]]; then args+=(--source "$SOURCE_ID"); fi
+          pnpm research:collect -- "${args[@]}"
+      - name: Validate research data
+        run: pnpm research:validate
+      - name: Verify dashboard build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm build
+      - name: Commit research dataset
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data/research-items data/research-runs data/research-state
+          git add data/research-items data/research-runs data/research-state
+          if git diff --cached --quiet; then
+            echo "No research data changed."
+          else
+            git commit -m "data: collect research intelligence for $(date -u +%F)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Mark data ready
+        id: ready
+        if: always() && steps.collection.outcome != 'cancelled' && steps.commit.outcome == 'success'
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+      - name: Fail after persisting a failed run
+        if: steps.collection.outcome == 'failure'
+        run: exit 1
+
+  deploy:
+    if: always() && needs.collect.outputs.data_ready == 'true'
+    needs: collect
+    uses: ./.github/workflows/deploy-pages.yml
+    secrets: inherit

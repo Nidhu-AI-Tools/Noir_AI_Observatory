@@ -9,6 +9,7 @@ import { EmptyState } from "../empty-state";
 import { GeneratedDataState } from "./generated-data-state";
 import { MetricCard } from "./metric-card";
 import { ObservationCard } from "./observation-card";
+import { ResearchCard } from "./research-dashboard";
 import { StatusBadge } from "./status-badge";
 
 export function DigestDashboard() {
@@ -87,7 +88,9 @@ export function DigestDashboard() {
             >
               {data.dates.map((entry) => (
                 <option key={entry.date} value={entry.date}>
-                  {entry.date} · {entry.observations} changes
+                  {entry.date} ·{" "}
+                  {entry.observations + entry.papers + entry.announcements}{" "}
+                  items
                 </option>
               ))}
             </select>
@@ -120,12 +123,16 @@ function SelectedDigest({ date }: { date: string }) {
     <div className="space-y-8">
       <section
         aria-label="Digest statistics"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
       >
-        <MetricCard label="Changes" value={data.summary.observations} />
+        <MetricCard
+          label="Ecosystem changes"
+          value={data.summary.observations}
+        />
         <MetricCard label="GitHub releases" value={data.summary.releases} />
         <MetricCard label="Model updates" value={data.summary.modelRevisions} />
-        <MetricCard label="Categories" value={data.categories.length} />
+        <MetricCard label="Papers" value={data.summary.papers} />
+        <MetricCard label="Announcements" value={data.summary.announcements} />
       </section>
 
       {data.latestRun ? (
@@ -191,7 +198,27 @@ function SelectedDigest({ date }: { date: string }) {
         </section>
       ) : null}
 
-      {data.categories.length === 0 && data.healthEvents.length === 0 ? (
+      {data.researchItems.length > 0 ? (
+        <section>
+          <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-[var(--border)] pb-3">
+            <h2 className="text-xl font-semibold text-white">
+              Research and announcements
+            </h2>
+            <span className="text-sm text-[var(--muted)]">
+              {data.researchItems.length} items
+            </span>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {data.researchItems.map((item) => (
+              <ResearchCard compact item={item} key={item.id} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {data.categories.length === 0 &&
+      data.healthEvents.length === 0 &&
+      data.researchItems.length === 0 ? (
         <EmptyState
           description={
             data.latestRun

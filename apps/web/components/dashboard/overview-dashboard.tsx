@@ -1,6 +1,10 @@
 "use client";
 
-import type { DashboardFeedData, HealthIndexData } from "@noir/dashboard-data";
+import type {
+  DashboardFeedData,
+  HealthIndexData,
+  ResearchDashboardData,
+} from "@noir/dashboard-data";
 import Link from "next/link";
 
 import { useGeneratedData } from "../../hooks/use-generated-data";
@@ -17,6 +21,9 @@ export function OverviewDashboard() {
   );
   const { data: health } = useGeneratedData<HealthIndexData>(
     "/generated/health/index.json",
+  );
+  const { data: research } = useGeneratedData<ResearchDashboardData>(
+    "/generated/research/index.json",
   );
 
   if (!data)
@@ -73,6 +80,39 @@ export function OverviewDashboard() {
         </section>
 
         <aside className="space-y-4">
+          <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-[var(--muted)]">Research watch</p>
+              <Link
+                className="text-xs text-violet-300 hover:text-violet-200"
+                href="/research/"
+              >
+                Explore
+              </Link>
+            </div>
+            {research ? (
+              <div className="mt-4 grid grid-cols-2 gap-3 text-center">
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {research.summary.papers7Days}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">Papers · 7d</p>
+                </div>
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {research.summary.announcements7Days}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Announcements · 7d
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-slate-500">
+                Loading research signal.
+              </p>
+            )}
+          </article>
           <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-[var(--muted)]">API health</p>

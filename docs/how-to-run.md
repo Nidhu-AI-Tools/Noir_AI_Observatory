@@ -4,7 +4,7 @@ This is the canonical operating guide for maintainers. Update it whenever a phas
 
 ## Normal operation
 
-No routine manual command is required. **Collect AI observations** runs daily at `02:17 UTC` (`07:47 Asia/Kolkata`). **Monitor API health** runs at minute `23` every six hours. Scheduled runs may start late.
+No routine manual command is required. **Collect AI observations** runs daily at `02:17 UTC` (`07:47 Asia/Kolkata`). **Collect research intelligence** runs daily at `04:37 UTC` (`10:07 Asia/Kolkata`). **Monitor API health** runs at minute `23` every six hours. Scheduled runs may start late.
 
 Each run:
 
@@ -16,6 +16,8 @@ Each run:
 6. Rebuilds and deploys the GitHub Pages dashboard.
 
 The daily commit is meaningful even when there are no new observations because it contains an auditable run report. Do not edit generated files under `data/` manually.
+
+Research collection follows the same operating model with `config/research-sources.yaml`, `data/research-items`, `data/research-runs`, and `data/research-state`. Its deployment updates Research, Overview, and Daily Digests.
 
 ## First production acceptance test
 
@@ -238,6 +240,35 @@ After the first monitor is merged, run **Actions → Monitor API health → Run 
 
 The dashboard marks a monitor stale after 15 hours without a sample. Availability is a sampled observation from GitHub-hosted runners, not an SLA.
 
+## Adding and operating research sources
+
+Create the `research:approved` label before processing the first request. Use **Add research source** from the Research page or the matching issue form, review the arXiv query or official feed endpoint, and apply the label. Automation validates the request, parses up to five recent items without persisting them, and opens a configuration pull request.
+
+Local commands:
+
+```bash
+corepack pnpm research-source:list
+corepack pnpm research-source:add
+corepack pnpm research-source:check RESEARCH_SOURCE_ID
+corepack pnpm research-source:edit RESEARCH_SOURCE_ID
+corepack pnpm research-source:disable RESEARCH_SOURCE_ID
+corepack pnpm research-source:enable RESEARCH_SOURCE_ID
+corepack pnpm research-source:validate
+corepack pnpm research:collect -- --dry-run
+```
+
+After the first research source is merged, run **Actions → Collect research intelligence → Run workflow** with the source field empty and lookback set to `7`. Confirm that:
+
+- Only `data/research-items/**`, `data/research-runs/**`, and `data/research-state/**` are committed.
+- Papers or announcements contain canonical IDs, source attribution, timestamps, and bounded excerpts.
+- The Research page loads filters and source-management links.
+- Overview and the matching Daily Digest include research counts or items.
+- A second run adds a run report without duplicating items.
+- Overlapping arXiv queries produce one item with merged `sourceIds` and tags.
+- A successful zero-change day still creates a research run report and deploys Pages.
+
+Wait for the next scheduled `04:37 UTC` run and confirm it completes without manual approval. See [Research and announcement intelligence](research.md) for the complete data and safety contract.
+
 ## Routine maintenance
 
 Check the Actions page periodically for failed scheduled runs. No intervention is needed for a successful zero-observation run.
@@ -285,6 +316,10 @@ Open the collection run and inspect its `deploy` job. Confirm that GitHub Pages 
 
 Open its history in API Health and compare the HTTP status or error code. A down endpoint does not make the monitoring workflow red. Use a local `monitor:check` or targeted manual workflow run to confirm it, then disable the monitor if the endpoint was permanently removed.
 
+### A research source fails
+
+Run `research-source:check RESEARCH_SOURCE_ID` locally or target it from the manual research workflow. Verify that an arXiv query is valid or that the publisher still exposes a public HTTPS RSS/Atom document under the 2 MB limit. A failed source does not advance its cursor and does not stop successful sources from being persisted.
+
 ## Acceptance checklist
 
 - [ ] First complete manual run succeeded.
@@ -300,3 +335,9 @@ Open its history in API Health and compare the HTTP status or error code. A down
 - [ ] A manual health run committed samples and deployed Pages.
 - [ ] API Health shows current status, latency, and observed availability.
 - [ ] A scheduled health run completed without intervention.
+- [ ] The `research:approved` label exists.
+- [ ] The first research source was added through the issue/PR flow.
+- [ ] A manual research run committed metadata and deployed Pages.
+- [ ] A second research run introduced no duplicate items.
+- [ ] Research appears in Research, Overview, and Daily Digests.
+- [ ] A scheduled research run completed without intervention.
