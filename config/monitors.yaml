@@ -1,2 +1,20 @@
 version: 1
-monitors: []
+monitors:
+  - id: api-api-jikan-moe-v4-anime-1
+    displayName: MyAnimeList via Jikan
+    description: Monitors the public Jikan endpoint for MyAnimeList anime data using the Cowboy Bebop record.
+    url: https://api.jikan.moe/v4/anime/1
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 10000
+    degradedAfterMs: 2000
+    categoryId: developer-tool
+    tags:
+      - anime
+      - jikan
+      - myanimelist
+      - public-api
+    enabled: true
+    createdAt: 2026-07-26T10:46:28.704Z
+    updatedAt: 2026-07-26T10:46:28.704Z
