@@ -5,3 +5,7 @@ export * from "./observation-store";
 export * from "./registry-service";
 export * from "./registry-store";
 export * from "./yaml-registry-store";
+export * from "./yaml-monitor-registry-store";
+export * from "./health-store";
+export * from "./json-health-run-report-store";
+export * from "./jsonl-health-check-store";

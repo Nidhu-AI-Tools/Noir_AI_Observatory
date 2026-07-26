@@ -9,7 +9,9 @@ import {
 } from "../packages/dashboard-data/src/index";
 import {
   JsonRunReportStore,
+  JsonlHealthCheckStore,
   JsonlObservationStore,
+  YamlMonitorRegistryStore,
   YamlRegistryStore,
 } from "../packages/storage/src/index";
 
@@ -22,11 +24,14 @@ export async function generateDashboard(
   rootDirectory = process.cwd(),
   generatedAt = new Date(),
 ): Promise<void> {
-  const [snapshot, observations, reports] = await Promise.all([
-    new YamlRegistryStore(rootDirectory).read(),
-    new JsonlObservationStore(rootDirectory).readAll(),
-    new JsonRunReportStore(rootDirectory).readAll(),
-  ]);
+  const [snapshot, observations, reports, healthChecks, monitorRegistry] =
+    await Promise.all([
+      new YamlRegistryStore(rootDirectory).read(),
+      new JsonlObservationStore(rootDirectory).readAll(),
+      new JsonRunReportStore(rootDirectory).readAll(),
+      new JsonlHealthCheckStore(rootDirectory).readAll(),
+      new YamlMonitorRegistryStore(rootDirectory).read(),
+    ]);
   const outputDirectory = path.join(
     rootDirectory,
     "apps",
@@ -40,6 +45,7 @@ export async function generateDashboard(
     observations,
     reports,
     generatedAt,
+    { healthChecks, monitorRegistry },
   );
 
   // Daily files are disposable view models. Recreate the directory so dates

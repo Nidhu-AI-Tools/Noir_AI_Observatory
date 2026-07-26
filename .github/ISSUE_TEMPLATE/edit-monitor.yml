@@ -1,0 +1,59 @@
+name: Edit an API monitor
+description: Change monitor metadata, thresholds, expected statuses, or enabled state.
+title: "[Monitor Edit] "
+body:
+  - type: input
+    id: monitor-id
+    attributes:
+      label: Monitor ID
+      placeholder: api-api-github-com
+    validations:
+      required: true
+  - type: input
+    id: display-name
+    attributes:
+      label: Display name
+      description: Optional. Leave empty to keep the current value.
+  - type: input
+    id: expected-statuses
+    attributes:
+      label: Expected statuses
+      description: Optional complete comma-separated list.
+  - type: input
+    id: category
+    attributes:
+      label: Category ID
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Optional complete comma-separated list.
+  - type: input
+    id: linked-source
+    attributes:
+      label: Linked source ID
+  - type: input
+    id: degraded-after
+    attributes:
+      label: Degraded after milliseconds
+  - type: input
+    id: timeout
+    attributes:
+      label: Timeout milliseconds
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options: [unchanged, enabled, disabled]
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why is this change needed?
+    validations:
+      required: true

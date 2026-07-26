@@ -1,0 +1,80 @@
+name: Monitor API health
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      monitor:
+        description: Optional monitor ID to check
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repository-data-updates
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    outputs:
+      data_ready: ${{ steps.ready.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate monitor registry
+        run: pnpm monitor:validate
+      - name: Check endpoints
+        env:
+          HEALTH_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          HEALTH_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+          MONITOR_ID: ${{ inputs.monitor }}
+        run: |
+          args=()
+          if [[ -n "$MONITOR_ID" ]]; then args+=(--monitor "$MONITOR_ID"); fi
+          pnpm health:run -- "${args[@]}"
+      - name: Validate health data
+        run: pnpm health:validate
+      - name: Verify dashboard build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm build
+      - name: Commit health dataset
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data/health-checks data/health-runs
+          find data/health-checks data/health-runs -type f -print0 | xargs -0 -r git add --
+          if git diff --cached --quiet; then
+            echo "No health data changed."
+          else
+            git commit -m "data: record API health checks for $(date -u +%FT%H:%MZ)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Mark data ready
+        id: ready
+        if: steps.commit.outcome == 'success'
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    if: needs.monitor.outputs.data_ready == 'true'
+    needs: monitor
+    uses: ./.github/workflows/deploy-pages.yml
+    secrets: inherit

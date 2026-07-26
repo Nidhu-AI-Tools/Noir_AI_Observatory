@@ -153,7 +153,45 @@ function SelectedDigest({ date }: { date: string }) {
         </section>
       ) : null}
 
-      {data.categories.length === 0 ? (
+      {data.healthEvents.length > 0 ? (
+        <section>
+          <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-[var(--border)] pb-3">
+            <h2 className="text-xl font-semibold text-white">
+              API health transitions
+            </h2>
+            <span className="text-sm text-[var(--muted)]">
+              {data.healthEvents.length} changes
+            </span>
+          </div>
+          <div className="space-y-3">
+            {data.healthEvents.map((event) => (
+              <article
+                className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:flex-row sm:items-center sm:justify-between"
+                key={`${event.monitorId}:${event.at}`}
+              >
+                <div>
+                  <a
+                    className="font-medium text-white hover:text-violet-200"
+                    href={event.url || undefined}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {event.displayName}
+                  </a>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {event.from} → {event.to}
+                  </p>
+                </div>
+                <time className="text-xs text-slate-500" dateTime={event.at}>
+                  {formatDateTime(event.at)}
+                </time>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {data.categories.length === 0 && data.healthEvents.length === 0 ? (
         <EmptyState
           description={
             data.latestRun

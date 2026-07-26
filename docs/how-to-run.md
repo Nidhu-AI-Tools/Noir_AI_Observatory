@@ -4,7 +4,7 @@ This is the canonical operating guide for maintainers. Update it whenever a phas
 
 ## Normal operation
 
-No daily manual command is required. The **Collect AI observations** workflow runs every day at `02:17 UTC` (`07:47 Asia/Kolkata`) from the latest `main` branch. A scheduled run may start a few minutes late.
+No routine manual command is required. **Collect AI observations** runs daily at `02:17 UTC` (`07:47 Asia/Kolkata`). **Monitor API health** runs at minute `23` every six hours. Scheduled runs may start late.
 
 Each run:
 
@@ -209,6 +209,35 @@ corepack pnpm source:enable SOURCE_ID
 
 Run `corepack pnpm registry:validate` after source or taxonomy changes.
 
+## Adding and operating API monitors
+
+Use **Add monitor** and **Request edit** from the API Health dashboard. After reviewing the public endpoint, apply `monitor:approved`; automation validates it, performs a non-persistent check, and opens a pull request.
+
+Create the `monitor:approved` repository label before processing the first request.
+
+Local commands:
+
+```bash
+corepack pnpm monitor:list
+corepack pnpm monitor:add
+corepack pnpm monitor:check MONITOR_ID
+corepack pnpm monitor:edit MONITOR_ID
+corepack pnpm monitor:disable MONITOR_ID
+corepack pnpm monitor:enable MONITOR_ID
+corepack pnpm monitor:validate
+corepack pnpm health:run -- --dry-run
+```
+
+After the first monitor is merged, run **Actions → Monitor API health → Run workflow** once. Leave the monitor input empty to check the complete registry. Confirm that:
+
+- The workflow commits only `data/health-checks/**` and `data/health-runs/**`.
+- A healthy, degraded, or down sample exists for every enabled monitor.
+- Endpoint failures appear as data and do not fail the workflow.
+- API Health and Overview update after Pages deployment.
+- A second execution creates a new sample; rerunning the same workflow run ID does not duplicate one.
+
+The dashboard marks a monitor stale after 15 hours without a sample. Availability is a sampled observation from GitHub-hosted runners, not an SLA.
+
 ## Routine maintenance
 
 Check the Actions page periodically for failed scheduled runs. No intervention is needed for a successful zero-observation run.
@@ -252,6 +281,10 @@ Run it alone from the workflow input or locally in dry-run mode. If its locator 
 
 Open the collection run and inspect its `deploy` job. Confirm that GitHub Pages still uses **GitHub Actions** as its build and deployment source. Retry the workflow after correcting any build or environment error.
 
+### A monitored API is down
+
+Open its history in API Health and compare the HTTP status or error code. A down endpoint does not make the monitoring workflow red. Use a local `monitor:check` or targeted manual workflow run to confirm it, then disable the monitor if the endpoint was permanently removed.
+
 ## Acceptance checklist
 
 - [ ] First complete manual run succeeded.
@@ -262,3 +295,8 @@ Open the collection run and inspect its `deploy` job. Confirm that GitHub Pages 
 - [ ] GitHub Pages displayed the latest run.
 - [ ] A scheduled run completed without manual intervention.
 - [ ] A zero-observation run still produced a report.
+- [ ] The `monitor:approved` label exists.
+- [ ] The first API monitor was added through the issue/PR flow.
+- [ ] A manual health run committed samples and deployed Pages.
+- [ ] API Health shows current status, latency, and observed availability.
+- [ ] A scheduled health run completed without intervention.

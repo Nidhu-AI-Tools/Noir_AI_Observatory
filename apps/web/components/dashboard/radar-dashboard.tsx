@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  HealthIndexData,
   RadarActivityStatus,
   RadarDashboardData,
 } from "@noir/dashboard-data";
@@ -27,6 +28,9 @@ const statusLabels: Record<RadarActivityStatus, string> = {
 export function RadarDashboard() {
   const { data, error, loading, retry } = useGeneratedData<RadarDashboardData>(
     "/generated/radar.json",
+  );
+  const { data: health } = useGeneratedData<HealthIndexData>(
+    "/generated/health/index.json",
   );
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("all");
@@ -117,6 +121,11 @@ export function RadarDashboard() {
   const selectedSource = sourceId
     ? data.sources.find((source) => source.id === sourceId)
     : undefined;
+  const healthBySource = new Map(
+    health?.monitors
+      .filter((monitor) => monitor.linkedSourceId)
+      .map((monitor) => [monitor.linkedSourceId as string, monitor]),
+  );
 
   return (
     <div className="space-y-6">
@@ -214,6 +223,18 @@ export function RadarDashboard() {
               className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6"
               key={source.id}
             >
+              {healthBySource.get(source.id) ? (
+                <div className="mb-4 flex items-center justify-between rounded-lg border border-[var(--border)] bg-black/15 px-3 py-2 text-xs">
+                  <span className="text-[var(--muted)]">Linked API</span>
+                  <Link
+                    className="font-medium text-violet-300 hover:text-violet-200"
+                    href={`/health/?monitor=${healthBySource.get(source.id)?.id}`}
+                  >
+                    {healthBySource.get(source.id)?.displayName} ·{" "}
+                    {healthBySource.get(source.id)?.status}
+                  </Link>
+                </div>
+              ) : null}
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-medium text-violet-300">

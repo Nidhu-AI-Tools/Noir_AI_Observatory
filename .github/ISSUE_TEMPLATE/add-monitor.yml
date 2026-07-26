@@ -1,0 +1,79 @@
+name: Add an API monitor
+description: Propose a public HTTPS endpoint for scheduled health monitoring.
+title: "[Monitor Add] "
+body:
+  - type: markdown
+    attributes:
+      value: Never include tokens or credentials. A maintainer applies `monitor:approved` after reviewing the public endpoint.
+  - type: input
+    id: display-name
+    attributes:
+      label: Display name
+      placeholder: GitHub API
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Public HTTPS URL
+      placeholder: https://api.github.com
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: HTTP method
+      options: [GET, HEAD]
+    validations:
+      required: true
+  - type: input
+    id: expected-statuses
+    attributes:
+      label: Expected statuses
+      description: Comma-separated HTTP status codes.
+      value: "200"
+    validations:
+      required: true
+  - type: input
+    id: category
+    attributes:
+      label: Category ID
+      placeholder: developer-tool
+    validations:
+      required: true
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      placeholder: github, developer-api
+    validations:
+      required: true
+  - type: input
+    id: linked-source
+    attributes:
+      label: Linked source ID
+      description: Optional immutable source ID from the Sources page.
+  - type: input
+    id: degraded-after
+    attributes:
+      label: Degraded after milliseconds
+      value: "1500"
+    validations:
+      required: true
+  - type: input
+    id: timeout
+    attributes:
+      label: Timeout milliseconds
+      value: "10000"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why should this endpoint be monitored?
+    validations:
+      required: true

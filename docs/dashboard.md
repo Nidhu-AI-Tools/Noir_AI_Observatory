@@ -9,7 +9,7 @@ Phase 3 turns the repository dataset into a useful static interface without intr
 - **Digests** groups observations by UTC day, category, and source. A collection report creates a digest date even when the run found no changes.
 - **Sources** remains the registry-management view and now links each source to its latest observation and focused Radar view.
 
-Research and API Health remain separate placeholders until their collection contracts are implemented.
+**API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. Research remains a placeholder until its collection contract is implemented.
 
 ## Generated artifacts
 
@@ -29,6 +29,8 @@ apps/web/public/generated/feed.json
 apps/web/public/generated/radar.json
 apps/web/public/generated/digests/index.json
 apps/web/public/generated/digests/YYYY-MM-DD.json
+apps/web/public/generated/health/index.json
+apps/web/public/generated/health/monitors/MONITOR_ID.json
 ```
 
 `activity.json` is retained for compatibility with Phase 2. New pages use the enriched feed, radar, and digest artifacts. Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment.
