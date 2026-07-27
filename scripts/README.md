@@ -17,3 +17,7 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `collect-research.ts` runs incremental research collection and writes a run report even when nothing changes.
 - `validate-research.ts` validates research configuration, canonical items, and reports.
 - `generate-research.ts` creates the bounded Research dashboard index and daily artifacts.
+- `model-intelligence-cli.ts` manages reviewed model metadata and categories.
+- `collect-model-intelligence.ts` materializes deduplicated model release events from public observations and reviewed overrides.
+- `validate-model-intelligence.ts` validates model configuration, events, and run reports.
+- `generate-model-radar.ts` creates the Model Radar dashboard artifact.

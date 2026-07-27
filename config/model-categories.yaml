@@ -1,0 +1,44 @@
+version: 1
+categories:
+  - id: agents
+    name: Agents
+    description: Models designed for tool use and autonomous or agentic workflows.
+  - id: coding
+    name: Coding
+    description: Models specialized for programming and software engineering.
+  - id: computer-vision
+    name: Computer Vision
+    description: Models for image understanding, detection, and visual recognition.
+  - id: domain-specific
+    name: Domain Specific
+    description: Models specialized for scientific, medical, legal, or other domains.
+  - id: embeddings
+    name: Embeddings
+    description: Models that produce vector representations for retrieval and similarity.
+  - id: image-generation
+    name: Image Generation and Editing
+    description: Models that generate or edit images.
+  - id: language-models
+    name: Language Models
+    description: General-purpose text generation and language understanding models.
+  - id: multimodal
+    name: Multimodal
+    description: Models that work across more than one input or output modality.
+  - id: reasoning
+    name: Reasoning
+    description: Models explicitly designed or trained for multi-step reasoning.
+  - id: reranking
+    name: Reranking
+    description: Models that reorder retrieval candidates by relevance.
+  - id: safety
+    name: Safety and Moderation
+    description: Models for moderation, guardrails, and safety classification.
+  - id: small-on-device
+    name: Small and On-device
+    description: Compact models intended for local, edge, or resource-constrained use.
+  - id: speech-audio
+    name: Speech and Audio
+    description: Models for speech recognition, synthesis, and audio understanding.
+  - id: video-generation
+    name: Video Generation
+    description: Models that generate or edit video.

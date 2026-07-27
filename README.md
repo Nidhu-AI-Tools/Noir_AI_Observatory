@@ -2,7 +2,7 @@
 
 Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, AI papers and official announcements, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 6: Model Consensus Lab**. It can compare bounded, structured classifications from OpenAI, Anthropic, and Google against live ecosystem items and synthetic gold cases. Calls are disabled by default and all configuration remains repository-managed.
+The project is currently in **Phase 6: Model Intelligence**. Model Radar turns public Hugging Face observations and reviewed first-party release metadata into a categorized, searchable release timeline. It requires no paid inference APIs or model-provider credentials.
 
 ## Architecture
 
@@ -116,18 +116,18 @@ pnpm research:collect -- --dry-run
 
 Official RSS or Atom feeds use `--kind rss_feed`, `--url`, and `--publisher`. See [Research and announcement intelligence](docs/research.md) for management, identity, safety, and scheduled-operation details.
 
-## Comparing model behavior
+## Tracking model releases
 
-Model profiles can be managed without exposing secrets or making calls:
+Validate the model taxonomy, add reviewed metadata, and preview collection:
 
 ```bash
 pnpm model:add
 pnpm model:list
-pnpm benchmark:list
-pnpm model-lab:run -- --dry-run
+pnpm model:validate
+pnpm model-intelligence:collect -- --dry-run
 ```
 
-See [Model Consensus Lab](docs/model-lab.md) before enabling any provider or scheduled execution. Consensus is an agreement signal, not a truth label.
+The normal path is the **Add a model release** or **Edit Model Radar metadata** issue form. Approved changes open a reviewable pull request. See [Model Radar](docs/model-radar.md) for provenance, classification, and operation details.
 
 ## Quality checks
 
@@ -153,7 +153,7 @@ packages/core             Shared domain primitives and schemas
 packages/collectors       External source adapters and orchestration
 packages/monitoring       API health and model measurement logic
 packages/research         Research registries, provider adapters, and orchestration
-packages/model-lab        Provider adapters, selection, consensus, and scoring
+packages/model-intelligence Public metadata reconciliation and release materialization
 packages/storage          Registry and observation persistence
 packages/dashboard-data   Frontend-facing aggregation
 config                    Human-managed source configuration
@@ -170,7 +170,7 @@ scripts                   Project automation entry points
 4. **Phase 3 · Dashboard** — real overview, radar, source, and digest views. ✓
 5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries. ✓
 6. **Phase 5 · Research** — papers and official announcement feeds. ✓
-7. **Phase 6 · Model lab** — versioned multi-provider behavior and consensus benchmarks. ✓
+7. **Phase 6 · Model Intelligence** — categorized public model releases and lifecycle tracking. ✓
 
 ## Automated data
 

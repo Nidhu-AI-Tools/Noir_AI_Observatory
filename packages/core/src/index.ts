@@ -1,6 +1,6 @@
 export * from "./collection/schema";
 export * from "./health/schema";
-export * from "./model-lab/schema";
+export * from "./model-intelligence/schema";
 export * from "./observation/identity";
 export * from "./observation/schema";
 export * from "./research/schema";

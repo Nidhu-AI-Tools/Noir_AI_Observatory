@@ -1,0 +1,19 @@
+{
+  "name": "@noir/model-intelligence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noir/core": "workspace:*",
+    "@noir/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

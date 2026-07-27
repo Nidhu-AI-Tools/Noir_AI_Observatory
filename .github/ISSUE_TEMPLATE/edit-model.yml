@@ -1,0 +1,44 @@
+name: Edit Model Radar metadata
+description: Correct categories, tags, availability, version, or lifecycle.
+title: "[Model Edit] "
+labels: []
+body:
+  - type: input
+    id: id
+    attributes: { label: Model ID }
+    validations: { required: true }
+  - type: input
+    id: name
+    attributes:
+      label: Canonical model name
+      description: Leave blank to keep unchanged.
+  - type: input
+    id: categories
+    attributes:
+      label: Categories
+      description: Leave blank to keep unchanged.
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Leave blank to keep unchanged.
+  - type: input
+    id: availability
+    attributes:
+      label: Availability
+      description: Leave blank to keep unchanged.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Leave blank to keep unchanged.
+  - type: dropdown
+    id: lifecycle
+    attributes:
+      label: Lifecycle
+      options: [unchanged, active, deprecated, retired]
+    validations: { required: true }
+  - type: textarea
+    id: reason
+    attributes: { label: Reason and official source }
+    validations: { required: true }

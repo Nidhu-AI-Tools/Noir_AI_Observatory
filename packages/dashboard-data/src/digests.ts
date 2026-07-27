@@ -2,6 +2,7 @@ import type {
   CollectionRunReport,
   HealthCheck,
   MonitorRegistry,
+  ModelReleaseEvent,
   Observation,
   ResearchItem,
   ResearchRegistry,
@@ -26,6 +27,7 @@ export interface DigestIndexEntry {
   healthTransitions: number;
   papers: number;
   announcements: number;
+  modelReleases: number;
   runStatus?: "success" | "partial" | "failure";
 }
 
@@ -48,6 +50,7 @@ export interface DailyDigestData {
     healthTransitions: number;
     papers: number;
     announcements: number;
+    modelReleases: number;
   };
   latestRun?: {
     runId: string;
@@ -76,6 +79,7 @@ export interface DailyDigestData {
     to: HealthCheck["status"];
   }[];
   researchItems: DashboardResearchItem[];
+  modelEvents: ModelReleaseEvent[];
   latestResearchRun?: ResearchRunReport;
 }
 
@@ -97,6 +101,7 @@ export function buildDigestDashboardData(
     researchItems?: ResearchItem[];
     researchRegistry?: ResearchRegistry;
     researchReports?: ResearchRunReport[];
+    modelEvents?: ModelReleaseEvent[];
   } = {},
 ): DigestBuildResult {
   const dayLimit = options.days ?? 90;
@@ -117,6 +122,9 @@ export function buildDigestDashboardData(
   );
   const researchReportDates = (options.researchReports ?? []).map((item) =>
     item.startedAt.slice(0, 10),
+  );
+  const modelEventDates = (options.modelEvents ?? []).map((item) =>
+    item.occurredAt.slice(0, 10),
   );
   const monitorById = new Map(
     (options.monitorRegistry?.monitors ?? []).map((item) => [item.id, item]),
@@ -154,6 +162,7 @@ export function buildDigestDashboardData(
       ...healthEvents.map((item) => item.at.slice(0, 10)),
       ...researchDates,
       ...researchReportDates,
+      ...modelEventDates,
     ]),
   ]
     .sort()
@@ -172,6 +181,9 @@ export function buildDigestDashboardData(
     const dailyResearch = researchViews.filter(
       (item) => item.publishedAt.slice(0, 10) === date,
     );
+    const dailyModelEvents = (options.modelEvents ?? [])
+      .filter((item) => item.occurredAt.slice(0, 10) === date)
+      .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
     const latestResearchRun = (options.researchReports ?? [])
       .filter((report) => report.startedAt.slice(0, 10) === date)
       .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))[0];
@@ -233,6 +245,7 @@ export function buildDigestDashboardData(
         announcements: dailyResearch.filter(
           (item) => item.type === "official_announcement",
         ).length,
+        modelReleases: dailyModelEvents.length,
       },
       ...(latestRun
         ? {
@@ -251,6 +264,7 @@ export function buildDigestDashboardData(
       categories,
       healthEvents: dailyHealthEvents,
       researchItems: dailyResearch,
+      modelEvents: dailyModelEvents,
       ...(latestResearchRun ? { latestResearchRun } : {}),
     });
   }
@@ -270,6 +284,7 @@ export function buildDigestDashboardData(
           healthTransitions: digest.summary.healthTransitions,
           papers: digest.summary.papers,
           announcements: digest.summary.announcements,
+          modelReleases: digest.summary.modelReleases,
           ...(digest.latestRun ? { runStatus: digest.latestRun.status } : {}),
         };
       }),

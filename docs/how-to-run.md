@@ -4,7 +4,7 @@ This is the canonical operating guide for maintainers. Update it whenever a phas
 
 ## Normal operation
 
-No routine manual command is required. **Collect AI observations** runs daily at `02:17 UTC` (`07:47 Asia/Kolkata`). **Collect research intelligence** runs daily at `04:37 UTC` (`10:07 Asia/Kolkata`). **Monitor API health** runs at minute `23` every six hours. **Run Model Consensus Lab** is scheduled for `05:17 UTC` (`10:47 Asia/Kolkata`) but makes no calls until its two independent schedule gates are enabled. Scheduled runs may start late.
+No routine manual command is required. **Collect AI observations** runs daily at `02:17 UTC` (`07:47 Asia/Kolkata`). **Collect research intelligence** runs daily at `04:37 UTC` (`10:07 Asia/Kolkata`). **Monitor API health** runs at minute `23` every six hours. **Collect model intelligence** runs daily at `05:17 UTC` (`10:47 Asia/Kolkata`) using committed public observations and reviewed metadata. Scheduled runs may start late.
 
 Each run:
 
@@ -269,13 +269,13 @@ After the first research source is merged, run **Actions → Collect research in
 
 Wait for the next scheduled `04:37 UTC` run and confirm it completes without manual approval. See [Research and announcement intelligence](research.md) for the complete data and safety contract.
 
-## Adding and operating Model Lab profiles
+## Adding and operating Model Radar entries
 
-Read [Model Consensus Lab](model-lab.md) before enabling calls. Create the `model-lab:approved` label with description “Approved model profile configuration; does not authorize or trigger provider calls.” Submit the add form, apply the label, review the generated configuration-only pull request, and merge it.
+Read [Model Radar](model-radar.md), then create the `model:approved` label with description “Approved Model Radar metadata or source relationship change.” Use the **Add a model release** issue form for an API-only or otherwise unobserved model, or **Edit Model Radar metadata** for a correction. Apply the label only after checking the category IDs and first-party evidence URL. Automation opens a configuration pull request; review and merge it.
 
-Keep `policy.scheduleEnabled: false` initially. Add only the required repository secrets, then run one gold case manually from **Actions → Run Model Consensus Lab**. Confirm that the commit touches only `data/model-lab-responses/**` and `data/model-lab-runs/**`, the Model Lab page shows the response, and rerunning the same case/model reuses it without a second call.
+For automatically observed Hugging Face models, make sure the organization exists in `config/sources.yaml` and run **Collect AI observations** first. Then run **Actions → Collect model intelligence → Run workflow**. Confirm that its commit touches only `data/model-events/**` and `data/model-runs/**`, the Models page displays the evidence and metadata, and a repeated run writes a no-op report without duplicating the event.
 
-Only after that acceptance test, enable scheduling in a reviewed change by setting both `policy.scheduleEnabled: true` and the Actions variable `MODEL_LAB_ENABLED=true`. Either gate being false prevents scheduled calls. Manual runs remain possible for deliberate testing.
+No paid model key, provider secret, feature flag, or schedule gate is required. The workflow deploys Pages after a successful collection path, including zero-change days.
 
 ## Routine maintenance
 
@@ -349,9 +349,9 @@ Run `research-source:check RESEARCH_SOURCE_ID` locally or target it from the man
 - [ ] A second research run introduced no duplicate items.
 - [ ] Research appears in Research, Overview, and Daily Digests.
 - [ ] A scheduled research run completed without intervention.
-- [ ] The `model-lab:approved` label exists.
-- [ ] At least two model profiles were reviewed and merged.
-- [ ] A single gold-case run was inspected for schema, cost, and evidence.
-- [ ] Repeating the same case reused its stored successful response.
-- [ ] The Model Lab dashboard states that consensus is not truth.
-- [ ] Both schedule gates were enabled only after manual acceptance.
+- [ ] The `model:approved` label exists.
+- [ ] At least one Hugging Face observation or reviewed model override exists.
+- [ ] A model-intelligence run committed an event with first-party provenance.
+- [ ] Repeating the same input produced no duplicate model event.
+- [ ] The Models dashboard explains that latest does not mean best.
+- [ ] A scheduled model-intelligence run completed without intervention.
