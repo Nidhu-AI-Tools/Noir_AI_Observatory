@@ -24,10 +24,11 @@ pnpm check
 - Do not change an existing source ID when editing its category, tags, or display metadata.
 - Run `pnpm registry:validate` after manually editing registry YAML.
 - Run `pnpm research-source:validate` after editing research source YAML.
-- Run `pnpm model-lab:validate` after editing Model Lab configuration or data.
+- Run `pnpm model:validate` after editing model categories or reviewed overrides.
+- Run `pnpm model-intelligence:validate` after collecting model events.
 
 ## Pull requests
 
 Pull requests should be narrow, describe how the change was verified, and pass `pnpm check`. Automated data commits use a clearly marked `data:` prefix.
 
-Approved request automation requires `source:approved`, `monitor:approved`, `research:approved`, and `model-lab:approved` labels plus the repository setting that allows GitHub Actions to create pull requests.
+Approved request automation requires `source:approved`, `monitor:approved`, `research:approved`, and `model:approved` labels plus the repository setting that allows GitHub Actions to create pull requests.

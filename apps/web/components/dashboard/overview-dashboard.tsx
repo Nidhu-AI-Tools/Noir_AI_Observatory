@@ -3,6 +3,7 @@
 import type {
   DashboardFeedData,
   HealthIndexData,
+  ModelRadarDashboardData,
   ResearchDashboardData,
 } from "@noir/dashboard-data";
 import Link from "next/link";
@@ -24,6 +25,9 @@ export function OverviewDashboard() {
   );
   const { data: research } = useGeneratedData<ResearchDashboardData>(
     "/generated/research/index.json",
+  );
+  const { data: models } = useGeneratedData<ModelRadarDashboardData>(
+    "/generated/models/index.json",
   );
 
   if (!data)
@@ -80,6 +84,37 @@ export function OverviewDashboard() {
         </section>
 
         <aside className="space-y-4">
+          <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-[var(--muted)]">Model radar</p>
+              <Link
+                className="text-xs text-violet-300 hover:text-violet-200"
+                href="/models/"
+              >
+                Explore
+              </Link>
+            </div>
+            {models ? (
+              <div className="mt-4 grid grid-cols-2 gap-3 text-center">
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {models.summary.releases7Days}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">Releases · 7d</p>
+                </div>
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {models.summary.models}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">Tracked models</p>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-slate-500">
+                Loading model intelligence.
+              </p>
+            )}
+          </article>
           <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-[var(--muted)]">Research watch</p>

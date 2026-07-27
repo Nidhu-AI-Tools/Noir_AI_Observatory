@@ -7,7 +7,7 @@ const navigationItems = [
   ["Overview", "/"],
   ["Radar", "/radar/"],
   ["Research", "/research/"],
-  ["Model Lab", "/model-lab/"],
+  ["Models", "/models/"],
   ["API Health", "/health/"],
   ["Digests", "/digests/"],
   ["Sources", "/sources/"],

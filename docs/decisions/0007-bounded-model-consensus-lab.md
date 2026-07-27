@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR 0008](0008-public-model-intelligence.md)
 
 ## Decision
 
@@ -11,3 +11,5 @@ Model comparisons use a narrow versioned classification schema, provider adapter
 ## Consequences
 
 The dataset is reproducible and cheap enough to operate incrementally. Providers can be added without changing dashboard storage contracts. The first version does not support free-form chat evaluation, streaming, judge-model scoring, or automatic claims of correctness. Prompt or schema changes require explicit versioning.
+
+This design was implemented briefly but replaced before operational use because the project's current goal is release intelligence without paid inference calls.

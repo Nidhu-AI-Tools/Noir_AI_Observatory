@@ -9,7 +9,7 @@ Phase 3 turns the repository dataset into a useful static interface without intr
 - **Digests** groups observations by UTC day, category, and source. A collection report creates a digest date even when the run found no changes.
 - **Sources** remains the registry-management view and now links each source to its latest observation and focused Radar view.
 
-**API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. **Research** shows normalized papers and official announcements with shareable filters, transparent match reasons, and deterministic seven-day trends.
+**API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. **Research** shows normalized papers and official announcements with shareable filters, transparent match reasons, and deterministic seven-day trends. **Models** shows the latest categorized model releases, a model catalog, lifecycle and availability filters, and category leaders.
 
 ## Generated artifacts
 
@@ -19,6 +19,7 @@ Run:
 corepack pnpm generate:sources
 corepack pnpm generate:dashboard
 corepack pnpm generate:research
+corepack pnpm generate:model-radar
 ```
 
 The commands write:
@@ -34,6 +35,7 @@ apps/web/public/generated/health/index.json
 apps/web/public/generated/health/monitors/MONITOR_ID.json
 apps/web/public/generated/research/index.json
 apps/web/public/generated/research/days/YYYY-MM-DD.json
+apps/web/public/generated/models/index.json
 ```
 
 `activity.json` is retained for compatibility with Phase 2. New pages use the enriched feed, radar, and digest artifacts. Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment.

@@ -89,7 +89,10 @@ export function DigestDashboard() {
               {data.dates.map((entry) => (
                 <option key={entry.date} value={entry.date}>
                   {entry.date} ·{" "}
-                  {entry.observations + entry.papers + entry.announcements}{" "}
+                  {entry.observations +
+                    entry.papers +
+                    entry.announcements +
+                    entry.modelReleases}{" "}
                   items
                 </option>
               ))}
@@ -123,7 +126,7 @@ function SelectedDigest({ date }: { date: string }) {
     <div className="space-y-8">
       <section
         aria-label="Digest statistics"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
       >
         <MetricCard
           label="Ecosystem changes"
@@ -133,6 +136,7 @@ function SelectedDigest({ date }: { date: string }) {
         <MetricCard label="Model updates" value={data.summary.modelRevisions} />
         <MetricCard label="Papers" value={data.summary.papers} />
         <MetricCard label="Announcements" value={data.summary.announcements} />
+        <MetricCard label="Model releases" value={data.summary.modelReleases} />
       </section>
 
       {data.latestRun ? (
@@ -216,9 +220,45 @@ function SelectedDigest({ date }: { date: string }) {
         </section>
       ) : null}
 
+      {data.modelEvents.length > 0 ? (
+        <section>
+          <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-[var(--border)] pb-3">
+            <h2 className="text-xl font-semibold text-white">
+              Model releases and updates
+            </h2>
+            <span className="text-sm text-[var(--muted)]">
+              {data.modelEvents.length} events
+            </span>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {data.modelEvents.map((event) => (
+              <article
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
+                key={event.id}
+              >
+                <p className="text-xs tracking-wider text-violet-300 uppercase">
+                  {event.releaseKind}
+                </p>
+                <h3 className="mt-1 font-medium text-white">
+                  {event.canonicalName}
+                </h3>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  {event.organization} · {event.categories.join(", ")}
+                </p>
+                <time className="mt-3 block text-xs text-slate-500">
+                  {formatDateTime(event.occurredAt)}
+                  {event.occurredAtInferred ? " · first observed" : ""}
+                </time>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {data.categories.length === 0 &&
       data.healthEvents.length === 0 &&
-      data.researchItems.length === 0 ? (
+      data.researchItems.length === 0 &&
+      data.modelEvents.length === 0 ? (
         <EmptyState
           description={
             data.latestRun

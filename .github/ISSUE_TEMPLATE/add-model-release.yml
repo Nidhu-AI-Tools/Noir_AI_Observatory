@@ -1,0 +1,73 @@
+name: Add a model release
+description: Add an API-only or otherwise unobserved model using an official public source.
+title: "[Model Add] "
+labels: []
+body:
+  - type: input
+    id: name
+    attributes: { label: Canonical model name, placeholder: Example Model 2 }
+    validations: { required: true }
+  - type: input
+    id: organization
+    attributes: { label: Organization }
+    validations: { required: true }
+  - type: input
+    id: external-id
+    attributes:
+      label: Provider model or repository ID
+      description: Optional exact API or Hugging Face identifier.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Optional published version or snapshot.
+  - type: input
+    id: release-time
+    attributes:
+      label: Release timestamp
+      description: ISO 8601 timestamp from the official source.
+    validations: { required: true }
+  - type: input
+    id: categories
+    attributes:
+      label: Categories
+      description: Comma-separated IDs from model-categories.yaml.
+    validations: { required: true }
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Optional comma-separated tags.
+  - type: input
+    id: modalities
+    attributes:
+      label: Modalities
+      description: Optional comma-separated values such as text, image, or audio.
+  - type: input
+    id: availability
+    attributes:
+      label: Availability
+      description: "Comma-separated: open-weights, downloadable, gated, api, or unknown."
+    validations: { required: true }
+  - type: input
+    id: license
+    attributes:
+      label: Published license
+      description: Leave blank when the publisher does not state one.
+  - type: input
+    id: source
+    attributes:
+      label: Official source URL
+      description: Official model card, announcement, repository, or API documentation.
+    validations: { required: true }
+  - type: textarea
+    id: reason
+    attributes: { label: Why should this model be tracked? }
+    validations: { required: true }
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I used a public first-party source and did not infer unpublished specifications.
+          required: true
