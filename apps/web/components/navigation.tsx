@@ -8,6 +8,7 @@ const navigationItems = [
   ["Radar", "/radar/"],
   ["Research", "/research/"],
   ["Models", "/models/"],
+  ["Curation", "/curation/"],
   ["API Health", "/health/"],
   ["Digests", "/digests/"],
   ["Sources", "/sources/"],
@@ -27,7 +28,7 @@ export function Navigation() {
               Noir AI Observatory
             </span>
             <span className="block text-xs text-[var(--muted)]">
-              Live ecosystem dashboard · Phase 6
+              Live ecosystem dashboard · Phase 7
             </span>
           </span>
         </Link>

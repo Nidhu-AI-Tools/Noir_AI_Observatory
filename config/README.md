@@ -9,6 +9,7 @@ This directory contains human-managed, versioned configuration.
 - `model-categories.yaml` defines the stable Model Radar taxonomy.
 - `model-overrides.yaml` stores reviewed metadata for API-only models and corrections to automatically observed models.
 - `model-intelligence.yaml` bounds daily release-event materialization.
+- `curation.yaml` configures bounded evidence selection and the local Ollama default. It contains no credentials.
 
 Use the source-management commands rather than editing YAML when possible. They normalize tags, detect duplicates, verify providers, and write files atomically.
 

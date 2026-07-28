@@ -277,6 +277,32 @@ For automatically observed Hugging Face models, make sure the organization exist
 
 No paid model key, provider secret, feature flag, or schedule gate is required. The workflow deploys Pages after a successful collection path, including zero-change days.
 
+## Creating the daily curated note
+
+Daily curation is local and deliberately separate from scheduled GitHub data collection. Pull the latest data, ensure Ollama is running, and generate a draft:
+
+```bash
+git pull
+corepack pnpm curation:doctor
+corepack pnpm curation:daily
+```
+
+The default is `llama3.1:8b`. Use `--provider codex` for the read-only Codex route or `--model qwen2.5:3b-instruct` for a faster local draft. If no recent evidence exists, no note is created.
+
+Open `data/curation/YYYY/MM/DD.md`, check every source, and revise the structured frontmatter if needed. Then run:
+
+```bash
+corepack pnpm curation:render
+corepack pnpm curation:publish
+corepack pnpm curation:validate
+git diff
+git add data/curation
+git commit -m "curation: publish AI observatory note for $(date -u +%F)"
+git push
+```
+
+The provider never invokes Git. Confirm that `git config user.email` is connected to your GitHub account. Pages deploys through the normal push-triggered deployment after the note reaches `main`. See [Daily Curation Studio](daily-curation.md) for safe macOS draft scheduling and troubleshooting.
+
 ## Routine maintenance
 
 Check the Actions page periodically for failed scheduled runs. No intervention is needed for a successful zero-observation run.
@@ -355,3 +381,9 @@ Run `research-source:check RESEARCH_SOURCE_ID` locally or target it from the man
 - [ ] Repeating the same input produced no duplicate model event.
 - [ ] The Models dashboard explains that latest does not mean best.
 - [ ] A scheduled model-intelligence run completed without intervention.
+- [ ] `curation:doctor` recognizes the selected local provider and Git identity.
+- [ ] A bounded context was generated without committing `.noir/` scratch data.
+- [ ] A draft rejected fabricated or changed evidence URLs.
+- [ ] Every source in the first note was reviewed before publication.
+- [ ] The published note appears in Curation, Overview, and its Daily Digest.
+- [ ] The final note commit is attributed to the intended GitHub account.

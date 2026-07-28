@@ -26,6 +26,9 @@ pnpm check
 - Run `pnpm research-source:validate` after editing research source YAML.
 - Run `pnpm model:validate` after editing model categories or reviewed overrides.
 - Run `pnpm model-intelligence:validate` after collecting model events.
+- Run `pnpm curation:validate` after editing or publishing a curation note.
+- Do not commit `.noir/curation` contexts or raw provider responses.
+- Preserve the `assistedBy` disclosure and verify every evidence link before publishing a curation note.
 
 ## Pull requests
 

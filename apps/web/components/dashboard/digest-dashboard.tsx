@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useGeneratedData } from "../../hooks/use-generated-data";
 import { formatDateTime, formatDigestDate } from "../../lib/dashboard-format";
 import { EmptyState } from "../empty-state";
+import { CurationNoteView } from "./curation-note";
 import { GeneratedDataState } from "./generated-data-state";
 import { MetricCard } from "./metric-card";
 import { ObservationCard } from "./observation-card";
@@ -124,6 +125,11 @@ function SelectedDigest({ date }: { date: string }) {
 
   return (
     <div className="space-y-8">
+      {data.curationNote ? (
+        <section>
+          <CurationNoteView compact note={data.curationNote} />
+        </section>
+      ) : null}
       <section
         aria-label="Digest statistics"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6"

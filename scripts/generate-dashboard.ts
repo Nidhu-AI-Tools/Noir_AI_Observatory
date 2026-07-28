@@ -14,6 +14,7 @@ import {
   JsonlHealthCheckStore,
   JsonlObservationStore,
   JsonlModelReleaseEventStore,
+  MarkdownCurationNoteStore,
   YamlMonitorRegistryStore,
   YamlRegistryStore,
   YamlResearchRegistryStore,
@@ -38,6 +39,7 @@ export async function generateDashboard(
     researchItems,
     researchReports,
     modelEvents,
+    curationNotes,
   ] = await Promise.all([
     new YamlRegistryStore(rootDirectory).read(),
     new JsonlObservationStore(rootDirectory).readAll(),
@@ -48,6 +50,7 @@ export async function generateDashboard(
     new JsonlResearchItemStore(rootDirectory).readAll(),
     new JsonResearchRunReportStore(rootDirectory).readAll(),
     new JsonlModelReleaseEventStore(rootDirectory).readAll(),
+    new MarkdownCurationNoteStore(rootDirectory).readAll(),
   ]);
   const outputDirectory = path.join(
     rootDirectory,
@@ -69,6 +72,7 @@ export async function generateDashboard(
       researchItems,
       researchReports,
       modelEvents,
+      curationNotes,
     },
   );
 

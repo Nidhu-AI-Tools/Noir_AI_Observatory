@@ -17,6 +17,7 @@ apps/web/public/generated/*
 # Uncommitted provider payloads and collection scratch space
 data/raw/
 data/tmp/
+.noir/
 
 # Environment files and secrets
 .env
