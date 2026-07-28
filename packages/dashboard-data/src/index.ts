@@ -1,4 +1,5 @@
 export * from "./activity";
+export * from "./curation";
 export * from "./digests";
 export * from "./feed";
 export * from "./health";

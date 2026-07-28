@@ -2,7 +2,7 @@
 
 Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, AI papers and official announcements, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 6: Model Intelligence**. Model Radar turns public Hugging Face observations and reviewed first-party release metadata into a categorized, searchable release timeline. It requires no paid inference APIs or model-provider credentials.
+The project is currently in **Phase 7: Daily Curation Studio**. A local Ollama model or read-only Codex process can turn bounded Observatory evidence into a source-grounded Markdown draft. A maintainer must review and publish every note before committing it.
 
 ## Architecture
 
@@ -129,6 +129,27 @@ pnpm model-intelligence:collect -- --dry-run
 
 The normal path is the **Add a model release** or **Edit Model Radar metadata** issue form. Approved changes open a reviewable pull request. See [Model Radar](docs/model-radar.md) for provenance, classification, and operation details.
 
+## Creating a daily curated note
+
+With Ollama running and `llama3.1:8b` installed:
+
+```bash
+corepack pnpm curation:doctor
+corepack pnpm curation:daily
+```
+
+Review the generated Markdown, then publish it locally:
+
+```bash
+corepack pnpm curation:publish
+git diff
+git add data/curation
+git commit -m "curation: publish daily AI observatory note"
+git push
+```
+
+Use Codex instead with `corepack pnpm curation:daily -- --provider codex`. Both routes use the same structured output contract and neither route can commit or push. See [Daily Curation Studio](docs/daily-curation.md).
+
 ## Quality checks
 
 ```bash
@@ -154,6 +175,7 @@ packages/collectors       External source adapters and orchestration
 packages/monitoring       API health and model measurement logic
 packages/research         Research registries, provider adapters, and orchestration
 packages/model-intelligence Public metadata reconciliation and release materialization
+packages/curation         Deterministic selection and local AI-assisted daily notes
 packages/storage          Registry and observation persistence
 packages/dashboard-data   Frontend-facing aggregation
 config                    Human-managed source configuration
@@ -171,6 +193,7 @@ scripts                   Project automation entry points
 5. **Phase 4 · API health** — scheduled endpoint checks and historical summaries. ✓
 6. **Phase 5 · Research** — papers and official announcement feeds. ✓
 7. **Phase 6 · Model Intelligence** — categorized public model releases and lifecycle tracking. ✓
+8. **Phase 7 · Daily Curation Studio** — local AI-assisted, human-reviewed daily notes. ✓
 
 ## Automated data
 

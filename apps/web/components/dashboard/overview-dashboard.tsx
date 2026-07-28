@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  CurationDashboardData,
   DashboardFeedData,
   HealthIndexData,
   ModelRadarDashboardData,
@@ -28,6 +29,9 @@ export function OverviewDashboard() {
   );
   const { data: models } = useGeneratedData<ModelRadarDashboardData>(
     "/generated/models/index.json",
+  );
+  const { data: curation } = useGeneratedData<CurationDashboardData>(
+    "/generated/curation/index.json",
   );
 
   if (!data)
@@ -84,6 +88,35 @@ export function OverviewDashboard() {
         </section>
 
         <aside className="space-y-4">
+          <article className="rounded-xl border border-violet-300/25 bg-violet-300/8 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-[var(--muted)]">Curated signal</p>
+              <Link
+                className="text-xs text-violet-300 hover:text-violet-200"
+                href="/curation/"
+              >
+                Read notes
+              </Link>
+            </div>
+            {curation?.latest ? (
+              <div className="mt-3">
+                <p className="font-medium text-white">
+                  {curation.latest.headline}
+                </p>
+                <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--muted)]">
+                  {curation.latest.summary}
+                </p>
+                <p className="mt-3 text-xs text-slate-500">
+                  Reviewed {curation.latest.date} · assisted by{" "}
+                  {curation.latest.assistedBy.provider}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-slate-500">
+                No reviewed daily note yet.
+              </p>
+            )}
+          </article>
           <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-[var(--muted)]">Model radar</p>

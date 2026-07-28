@@ -1,5 +1,6 @@
 import type {
   CollectionRunReport,
+  CurationNote,
   HealthCheck,
   MonitorRegistry,
   ModelReleaseEvent,
@@ -28,6 +29,7 @@ export interface DigestIndexEntry {
   papers: number;
   announcements: number;
   modelReleases: number;
+  curated: boolean;
   runStatus?: "success" | "partial" | "failure";
 }
 
@@ -80,6 +82,7 @@ export interface DailyDigestData {
   }[];
   researchItems: DashboardResearchItem[];
   modelEvents: ModelReleaseEvent[];
+  curationNote?: CurationNote;
   latestResearchRun?: ResearchRunReport;
 }
 
@@ -102,6 +105,7 @@ export function buildDigestDashboardData(
     researchRegistry?: ResearchRegistry;
     researchReports?: ResearchRunReport[];
     modelEvents?: ModelReleaseEvent[];
+    curationNotes?: CurationNote[];
   } = {},
 ): DigestBuildResult {
   const dayLimit = options.days ?? 90;
@@ -126,6 +130,10 @@ export function buildDigestDashboardData(
   const modelEventDates = (options.modelEvents ?? []).map((item) =>
     item.occurredAt.slice(0, 10),
   );
+  const publishedNotes = (options.curationNotes ?? []).filter(
+    (note) => note.status === "published",
+  );
+  const curationDates = publishedNotes.map((note) => note.date);
   const monitorById = new Map(
     (options.monitorRegistry?.monitors ?? []).map((item) => [item.id, item]),
   );
@@ -163,6 +171,7 @@ export function buildDigestDashboardData(
       ...researchDates,
       ...researchReportDates,
       ...modelEventDates,
+      ...curationDates,
     ]),
   ]
     .sort()
@@ -184,6 +193,7 @@ export function buildDigestDashboardData(
     const dailyModelEvents = (options.modelEvents ?? [])
       .filter((item) => item.occurredAt.slice(0, 10) === date)
       .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+    const curationNote = publishedNotes.find((note) => note.date === date);
     const latestResearchRun = (options.researchReports ?? [])
       .filter((report) => report.startedAt.slice(0, 10) === date)
       .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))[0];
@@ -265,6 +275,7 @@ export function buildDigestDashboardData(
       healthEvents: dailyHealthEvents,
       researchItems: dailyResearch,
       modelEvents: dailyModelEvents,
+      ...(curationNote ? { curationNote } : {}),
       ...(latestResearchRun ? { latestResearchRun } : {}),
     });
   }
@@ -285,6 +296,7 @@ export function buildDigestDashboardData(
           papers: digest.summary.papers,
           announcements: digest.summary.announcements,
           modelReleases: digest.summary.modelReleases,
+          curated: Boolean(digest.curationNote),
           ...(digest.latestRun ? { runStatus: digest.latestRun.status } : {}),
         };
       }),

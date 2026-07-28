@@ -1,0 +1,41 @@
+import {
+  curationModelOutputSchema,
+  type CurationConfig,
+  type CurationContext,
+  type CurationModelOutput,
+} from "@noir/core";
+
+export function validateModelOutput(
+  value: unknown,
+  context: CurationContext,
+  config: CurationConfig,
+): CurationModelOutput {
+  const output = curationModelOutputSchema.parse(value);
+  if (output.highlights.length > config.output.maxHighlights)
+    throw new Error(
+      `Model returned ${output.highlights.length} highlights; maximum is ${config.output.maxHighlights}.`,
+    );
+  if (output.summary.length > config.output.maxSummaryCharacters)
+    throw new Error("Model summary exceeds the configured character limit.");
+  const evidence = new Map(
+    context.candidates.map((candidate) => [candidate.id, candidate]),
+  );
+  const used = new Set<string>();
+  for (const highlight of output.highlights) {
+    const candidate = evidence.get(highlight.sourceId);
+    if (!candidate)
+      throw new Error(`Model referenced unknown source ${highlight.sourceId}.`);
+    if (candidate.url !== highlight.sourceUrl)
+      throw new Error(
+        `Model changed the evidence URL for ${highlight.sourceId}.`,
+      );
+    if (used.has(highlight.sourceId))
+      throw new Error(`Model repeated source ${highlight.sourceId}.`);
+    if (highlight.whyItMatters.length > config.output.maxSignificanceCharacters)
+      throw new Error(
+        `Why-it-matters text for ${highlight.sourceId} exceeds the configured limit.`,
+      );
+    used.add(highlight.sourceId);
+  }
+  return output;
+}
