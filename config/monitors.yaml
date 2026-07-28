@@ -18,3 +18,20 @@ monitors:
     enabled: true
     createdAt: 2026-07-26T10:46:28.704Z
     updatedAt: 2026-07-26T10:46:28.704Z
+  - id: api-huggingface-co-api-models
+    displayName: Hugging Face Public Models API
+    description: Checks the public Hugging Face Hub models endpoint used to discover model metadata.
+    url: https://huggingface.co/api/models?limit=1
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 15000
+    degradedAfterMs: 2500
+    categoryId: foundation-model
+    tags:
+      - ai-api
+      - huggingface
+      - model-hub
+    enabled: true
+    createdAt: 2026-07-28T03:23:30.214Z
+    updatedAt: 2026-07-28T03:23:30.214Z
