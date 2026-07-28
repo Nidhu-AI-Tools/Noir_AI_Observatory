@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "runId": "30326651554-1",
+  "trigger": "schedule",
+  "startedAt": "2026-07-28T03:42:28.229Z",
+  "finishedAt": "2026-07-28T03:42:28.769Z",
+  "status": "success",
+  "totals": {
+    "configured": 2,
+    "attempted": 2,
+    "skipped": 0,
+    "healthy": 2,
+    "degraded": 0,
+    "down": 0,
+    "internalFailures": 0
+  },
+  "monitors": [
+    {
+      "monitorId": "api-api-jikan-moe-v4-anime-1",
+      "status": "healthy",
+      "latencyMs": 508
+    },
+    {
+      "monitorId": "api-huggingface-co-api-models",
+      "status": "healthy",
+      "latencyMs": 129
+    }
+  ]
+}
