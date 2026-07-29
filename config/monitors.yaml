@@ -1,5 +1,22 @@
 version: 1
 monitors:
+  - id: api-api-github-com
+    displayName: GitHub REST API
+    description: Checks the unauthenticated GitHub REST API entry point.
+    url: https://api.github.com/
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 10000
+    degradedAfterMs: 2000
+    categoryId: developer-tool
+    tags:
+      - developer-api
+      - github
+      - source-control
+    enabled: true
+    createdAt: 2026-07-29T06:31:16.847Z
+    updatedAt: 2026-07-29T06:31:16.847Z
   - id: api-api-jikan-moe-v4-anime-1
     displayName: MyAnimeList via Jikan
     description: Monitors the public Jikan endpoint for MyAnimeList anime data using the Cowboy Bebop record.
