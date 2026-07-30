@@ -2,14 +2,20 @@ import {
   curationModelOutputSchema,
   type CurationConfig,
   type CurationContext,
+  type CurationHighlight,
   type CurationModelOutput,
 } from "@noir/core";
+
+export type ValidatedCurationOutput = Omit<
+  CurationModelOutput,
+  "highlights"
+> & { highlights: CurationHighlight[] };
 
 export function validateModelOutput(
   value: unknown,
   context: CurationContext,
   config: CurationConfig,
-): CurationModelOutput {
+): ValidatedCurationOutput {
   const output = curationModelOutputSchema.parse(value);
   if (output.highlights.length > config.output.maxHighlights)
     throw new Error(
@@ -21,14 +27,10 @@ export function validateModelOutput(
     context.candidates.map((candidate) => [candidate.id, candidate]),
   );
   const used = new Set<string>();
-  for (const highlight of output.highlights) {
+  const highlights = output.highlights.map((highlight) => {
     const candidate = evidence.get(highlight.sourceId);
     if (!candidate)
       throw new Error(`Model referenced unknown source ${highlight.sourceId}.`);
-    if (candidate.url !== highlight.sourceUrl)
-      throw new Error(
-        `Model changed the evidence URL for ${highlight.sourceId}.`,
-      );
     if (used.has(highlight.sourceId))
       throw new Error(`Model repeated source ${highlight.sourceId}.`);
     if (highlight.whyItMatters.length > config.output.maxSignificanceCharacters)
@@ -36,6 +38,7 @@ export function validateModelOutput(
         `Why-it-matters text for ${highlight.sourceId} exceeds the configured limit.`,
       );
     used.add(highlight.sourceId);
-  }
-  return output;
+    return { ...highlight, sourceUrl: candidate.url };
+  });
+  return { ...output, highlights };
 }

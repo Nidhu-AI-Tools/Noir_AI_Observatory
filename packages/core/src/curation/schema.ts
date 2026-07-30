@@ -41,21 +41,24 @@ export const curationContextSchema = z
   })
   .strict();
 
-export const curationHighlightSchema = z
+export const curationModelHighlightSchema = z
   .object({
     sourceId,
     title: z.string().trim().min(1).max(300),
     summary: z.string().trim().min(1).max(800),
     whyItMatters: z.string().trim().min(1).max(800),
-    sourceUrl: z.url(),
   })
+  .strict();
+
+export const curationHighlightSchema = curationModelHighlightSchema
+  .extend({ sourceUrl: z.url() })
   .strict();
 
 export const curationModelOutputSchema = z
   .object({
     headline: z.string().trim().min(1).max(180),
     summary: z.string().trim().min(1).max(1_000),
-    highlights: z.array(curationHighlightSchema).min(1).max(8),
+    highlights: z.array(curationModelHighlightSchema).min(1).max(8),
     caveats: z.array(z.string().trim().min(1).max(500)).max(8),
   })
   .strict();
@@ -77,7 +80,7 @@ export const curationNoteSchema = z
     sourceIds: z.array(sourceId).min(1).max(50),
     headline: curationModelOutputSchema.shape.headline,
     summary: curationModelOutputSchema.shape.summary,
-    highlights: curationModelOutputSchema.shape.highlights,
+    highlights: z.array(curationHighlightSchema).min(1).max(8),
     caveats: curationModelOutputSchema.shape.caveats,
   })
   .strict()
@@ -133,6 +136,7 @@ export const curationConfigSchema = z
 export type CurationProviderKind = z.infer<typeof curationProviderKindSchema>;
 export type CurationCandidate = z.infer<typeof curationCandidateSchema>;
 export type CurationContext = z.infer<typeof curationContextSchema>;
+export type CurationHighlight = z.infer<typeof curationHighlightSchema>;
 export type CurationModelOutput = z.infer<typeof curationModelOutputSchema>;
 export type CurationNote = z.infer<typeof curationNoteSchema>;
 export type CurationConfig = z.infer<typeof curationConfigSchema>;

@@ -85,7 +85,6 @@ const output: CurationModelOutput = {
       title: paper.title,
       summary: "The paper reports an improvement on a public benchmark.",
       whyItMatters: "It may inform future evaluation work.",
-      sourceUrl: paper.url,
     },
   ],
   caveats: ["The Observatory has not independently reproduced the result."],
@@ -122,19 +121,25 @@ describe("daily curation", () => {
     );
   });
 
-  it("rejects fabricated citations", () => {
+  it("rejects unknown citations", () => {
     expect(() =>
       validateModelOutput(
         {
           ...output,
           highlights: [
-            { ...output.highlights[0], sourceUrl: "https://example.com/fake" },
+            { ...output.highlights[0], sourceId: "fabricated-source" },
           ],
         },
         context,
         config,
       ),
-    ).toThrow("changed the evidence URL");
+    ).toThrow("unknown source");
+  });
+
+  it("binds canonical evidence URLs without asking the model to copy them", () => {
+    expect(
+      validateModelOutput(output, context, config).highlights[0],
+    ).toMatchObject({ sourceId: paper.id, sourceUrl: paper.url });
   });
 
   it("uses Ollama structured output on loopback", async () => {
@@ -162,7 +167,13 @@ describe("daily curation", () => {
     expect(bodies[0]).toMatchObject({
       model: "llama3.1:8b",
       stream: false,
-      format: { type: "object" },
+      format: {
+        type: "object",
+        properties: {
+          summary: { maxLength: 700 },
+          highlights: { maxItems: 5 },
+        },
+      },
     });
   });
 
@@ -203,6 +214,7 @@ describe("daily curation", () => {
     const draft = await service.draft(context, config, provider);
     expect(draft.status).toBe("draft");
     expect(draft.contextHash).toHaveLength(64);
+    expect(draft.highlights[0]?.sourceUrl).toBe(paper.url);
     expect(service.publish(draft)).toMatchObject({
       status: "published",
       reviewedAt: "2026-07-27T13:00:00.000Z",

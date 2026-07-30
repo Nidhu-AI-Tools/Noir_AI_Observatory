@@ -10,7 +10,10 @@ import {
 } from "@noir/core";
 
 import { buildCurationPrompt } from "./prompt";
-import { CURATION_OUTPUT_JSON_SCHEMA, type CurationProvider } from "./provider";
+import {
+  buildCurationOutputJsonSchema,
+  type CurationProvider,
+} from "./provider";
 
 export interface CommandResult {
   code: number;
@@ -96,7 +99,7 @@ export class CodexCurationProvider implements CurationProvider {
     try {
       await writeFile(
         schemaFile,
-        JSON.stringify(CURATION_OUTPUT_JSON_SCHEMA),
+        JSON.stringify(buildCurationOutputJsonSchema(config)),
         "utf8",
       );
       const args = [
