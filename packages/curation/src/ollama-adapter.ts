@@ -5,7 +5,10 @@ import {
 } from "@noir/core";
 
 import { buildCurationPrompt } from "./prompt";
-import { CURATION_OUTPUT_JSON_SCHEMA, type CurationProvider } from "./provider";
+import {
+  buildCurationOutputJsonSchema,
+  type CurationProvider,
+} from "./provider";
 
 type Fetcher = typeof fetch;
 
@@ -85,7 +88,7 @@ export class OllamaCurationProvider implements CurationProvider {
       body: JSON.stringify({
         model: this.model,
         stream: false,
-        format: CURATION_OUTPUT_JSON_SCHEMA,
+        format: buildCurationOutputJsonSchema(config),
         messages: [
           {
             role: "user",

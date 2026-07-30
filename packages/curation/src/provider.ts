@@ -22,34 +22,43 @@ export interface CurationProvider {
   ): Promise<CurationModelOutput>;
 }
 
-export const CURATION_OUTPUT_JSON_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["headline", "summary", "highlights", "caveats"],
-  properties: {
-    headline: { type: "string", minLength: 1, maxLength: 180 },
-    summary: { type: "string", minLength: 1, maxLength: 1000 },
-    highlights: {
-      type: "array",
-      minItems: 1,
-      maxItems: 8,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["sourceId", "title", "summary", "whyItMatters", "sourceUrl"],
-        properties: {
-          sourceId: { type: "string", minLength: 1, maxLength: 300 },
-          title: { type: "string", minLength: 1, maxLength: 300 },
-          summary: { type: "string", minLength: 1, maxLength: 800 },
-          whyItMatters: { type: "string", minLength: 1, maxLength: 800 },
-          sourceUrl: { type: "string" },
+export function buildCurationOutputJsonSchema(config: CurationConfig) {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["headline", "summary", "highlights", "caveats"],
+    properties: {
+      headline: { type: "string", minLength: 1, maxLength: 180 },
+      summary: {
+        type: "string",
+        minLength: 1,
+        maxLength: config.output.maxSummaryCharacters,
+      },
+      highlights: {
+        type: "array",
+        minItems: 1,
+        maxItems: config.output.maxHighlights,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["sourceId", "title", "summary", "whyItMatters"],
+          properties: {
+            sourceId: { type: "string", minLength: 1, maxLength: 300 },
+            title: { type: "string", minLength: 1, maxLength: 300 },
+            summary: { type: "string", minLength: 1, maxLength: 800 },
+            whyItMatters: {
+              type: "string",
+              minLength: 1,
+              maxLength: config.output.maxSignificanceCharacters,
+            },
+          },
         },
       },
+      caveats: {
+        type: "array",
+        maxItems: 8,
+        items: { type: "string", minLength: 1, maxLength: 500 },
+      },
     },
-    caveats: {
-      type: "array",
-      maxItems: 8,
-      items: { type: "string", minLength: 1, maxLength: 500 },
-    },
-  },
-} as const;
+  } as const;
+}
