@@ -35,6 +35,23 @@ monitors:
     enabled: true
     createdAt: 2026-07-26T10:46:28.704Z
     updatedAt: 2026-07-26T10:46:28.704Z
+  - id: api-export-arxiv-org-api-query
+    displayName: arXiv Artificial Intelligence Search API
+    description: Runs a minimal cs.AI query against the arXiv Atom API.
+    url: https://export.arxiv.org/api/query?search_query=cat%3Acs.AI&start=0&max_results=1
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 30000
+    degradedAfterMs: 10000
+    categoryId: developer-tool
+    tags:
+      - artificial-intelligence
+      - arxiv
+      - research
+    enabled: true
+    createdAt: 2026-07-30T05:56:30.285Z
+    updatedAt: 2026-07-30T05:56:30.285Z
   - id: api-huggingface-co-api-models
     displayName: Hugging Face Public Models API
     description: Checks the public Hugging Face Hub models endpoint used to discover model metadata.
