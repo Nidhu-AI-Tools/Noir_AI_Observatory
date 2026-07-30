@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "runId": "30529448445-1",
+  "trigger": "schedule",
+  "startedAt": "2026-07-30T09:08:08.900Z",
+  "finishedAt": "2026-07-30T09:08:09.481Z",
+  "status": "success",
+  "totals": {
+    "configured": 4,
+    "attempted": 4,
+    "skipped": 0,
+    "healthy": 4,
+    "degraded": 0,
+    "down": 0,
+    "internalFailures": 0
+  },
+  "monitors": [
+    {
+      "monitorId": "api-api-github-com",
+      "status": "healthy",
+      "latencyMs": 82
+    },
+    {
+      "monitorId": "api-api-jikan-moe-v4-anime-1",
+      "status": "healthy",
+      "latencyMs": 492
+    },
+    {
+      "monitorId": "api-export-arxiv-org-api-query",
+      "status": "healthy",
+      "latencyMs": 225
+    },
+    {
+      "monitorId": "api-huggingface-co-api-models",
+      "status": "healthy",
+      "latencyMs": 196
+    }
+  ]
+}
