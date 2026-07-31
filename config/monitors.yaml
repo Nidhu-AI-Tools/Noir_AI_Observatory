@@ -1,5 +1,22 @@
 version: 1
 monitors:
+  - id: api-api-crossref-org-works
+    displayName: Crossref Scholarly Metadata API
+    description: Checks Crossref's public scholarly works metadata service using a zero-record request.
+    url: https://api.crossref.org/works?rows=0
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 15000
+    degradedAfterMs: 3000
+    categoryId: developer-tool
+    tags:
+      - crossref
+      - research
+      - scholarly-metadata
+    enabled: true
+    createdAt: 2026-07-31T04:58:57.787Z
+    updatedAt: 2026-07-31T04:58:57.787Z
   - id: api-api-github-com
     displayName: GitHub REST API
     description: Checks the unauthenticated GitHub REST API entry point.
