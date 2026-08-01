@@ -52,6 +52,23 @@ monitors:
     enabled: true
     createdAt: 2026-07-26T10:46:28.704Z
     updatedAt: 2026-07-26T10:46:28.704Z
+  - id: api-api-open-meteo-com-v1-forecast
+    displayName: Open-Meteo — New York Current Weather
+    description: Checks current weather retrieval for New York City through Open-Meteo.
+    url: https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current=temperature_2m
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 15000
+    degradedAfterMs: 2500
+    categoryId: developer-tool
+    tags:
+      - new-york
+      - open-data
+      - weather
+    enabled: true
+    createdAt: 2026-08-01T06:19:27.326Z
+    updatedAt: 2026-08-01T06:19:27.326Z
   - id: api-export-arxiv-org-api-query
     displayName: arXiv Artificial Intelligence Search API
     description: Runs a minimal cs.AI query against the arXiv Atom API.
