@@ -103,3 +103,20 @@ monitors:
     enabled: true
     createdAt: 2026-07-28T03:23:30.214Z
     updatedAt: 2026-07-28T03:23:30.214Z
+  - id: api-pokeapi-co-api-v2-pokemon-pikachu
+    displayName: PokéAPI
+    description: Retrieves Pikachu from the public Pokémon API.
+    url: https://pokeapi.co/api/v2/pokemon/pikachu
+    method: GET
+    expectedStatuses:
+      - 200
+    timeoutMs: 15000
+    degradedAfterMs: 2500
+    categoryId: developer-tool
+    tags:
+      - entertainment
+      - pokemon
+      - public-api
+    enabled: true
+    createdAt: 2026-08-02T17:30:01.613Z
+    updatedAt: 2026-08-02T17:30:01.613Z
