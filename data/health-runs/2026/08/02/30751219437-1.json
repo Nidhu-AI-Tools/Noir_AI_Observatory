@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "30751219437-1",
+  "trigger": "schedule",
+  "startedAt": "2026-08-02T14:02:30.447Z",
+  "finishedAt": "2026-08-02T14:02:31.876Z",
+  "status": "success",
+  "totals": {
+    "configured": 6,
+    "attempted": 6,
+    "skipped": 0,
+    "healthy": 6,
+    "degraded": 0,
+    "down": 0,
+    "internalFailures": 0
+  },
+  "monitors": [
+    {
+      "monitorId": "api-api-crossref-org-works",
+      "status": "healthy",
+      "latencyMs": 1195
+    },
+    {
+      "monitorId": "api-api-github-com",
+      "status": "healthy",
+      "latencyMs": 29
+    },
+    {
+      "monitorId": "api-api-jikan-moe-v4-anime-1",
+      "status": "healthy",
+      "latencyMs": 462
+    },
+    {
+      "monitorId": "api-api-open-meteo-com-v1-forecast",
+      "status": "healthy",
+      "latencyMs": 537
+    },
+    {
+      "monitorId": "api-export-arxiv-org-api-query",
+      "status": "healthy",
+      "latencyMs": 197
+    },
+    {
+      "monitorId": "api-huggingface-co-api-models",
+      "status": "healthy",
+      "latencyMs": 51
+    }
+  ]
+}
