@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "runId": "30734409538-1",
+  "trigger": "schedule",
+  "startedAt": "2026-08-02T05:36:23.049Z",
+  "finishedAt": "2026-08-02T05:36:31.640Z",
+  "status": "success",
+  "totals": {
+    "configured": 13,
+    "attempted": 13,
+    "succeeded": 13,
+    "failed": 0,
+    "skipped": 0,
+    "observations": 5
+  },
+  "sources": [
+    {
+      "sourceId": "github-ollama-ollama",
+      "status": "success",
+      "durationMs": 1621,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-27T01:25:40Z",
+        "externalIdsAtTimestamp": [
+          "360160718"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-27T01:25:40Z",
+        "externalIdsAtTimestamp": [
+          "360160718"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-ggml-org-llama-cpp",
+      "status": "success",
+      "durationMs": 2082,
+      "observations": 5,
+      "cursorBefore": {
+        "timestamp": "2026-07-31T22:04:52Z",
+        "externalIdsAtTimestamp": [
+          "363346985"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-08-01T22:48:38Z",
+        "externalIdsAtTimestamp": [
+          "363645504"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-huggingface-transformers",
+      "status": "success",
+      "durationMs": 707,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "github-langchain-ai-langchain",
+      "status": "success",
+      "durationMs": 630,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-30T14:56:10Z",
+        "externalIdsAtTimestamp": [
+          "362513721"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-30T14:56:10Z",
+        "externalIdsAtTimestamp": [
+          "362513721"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-langfuse-langfuse",
+      "status": "success",
+      "durationMs": 509,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-31T07:46:56Z",
+        "externalIdsAtTimestamp": [
+          "362918199"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-31T07:46:56Z",
+        "externalIdsAtTimestamp": [
+          "362918199"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-qdrant-qdrant",
+      "status": "success",
+      "durationMs": 834,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "github-vllm-project-vllm",
+      "status": "success",
+      "durationMs": 1461,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-27T01:06:58Z",
+        "externalIdsAtTimestamp": [
+          "359735987"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-27T01:06:58Z",
+        "externalIdsAtTimestamp": [
+          "359735987"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-deepseek-ai",
+      "status": "success",
+      "durationMs": 104,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-08-01T03:07:41.000Z",
+        "externalIdsAtTimestamp": [
+          "6a6c4f10abfe36920d2f90a1"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-08-01T03:07:41.000Z",
+        "externalIdsAtTimestamp": [
+          "6a6c4f10abfe36920d2f90a1"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-google",
+      "status": "success",
+      "durationMs": 171,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-28T03:38:30.000Z",
+        "externalIdsAtTimestamp": [
+          "69d747345c57785ab3303d54"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-28T03:38:30.000Z",
+        "externalIdsAtTimestamp": [
+          "69d747345c57785ab3303d54"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-meta-llama",
+      "status": "success",
+      "durationMs": 86,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-mistralai",
+      "status": "success",
+      "durationMs": 90,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-nvidia",
+      "status": "success",
+      "durationMs": 181,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-31T15:17:04.000Z",
+        "externalIdsAtTimestamp": [
+          "6a17bb413789ec777fc54b43"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-31T15:17:04.000Z",
+        "externalIdsAtTimestamp": [
+          "6a17bb413789ec777fc54b43"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-qwen",
+      "status": "success",
+      "durationMs": 87,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-22T11:58:47.000Z",
+        "externalIdsAtTimestamp": [
+          "6a3e3aa4444639d84407da62"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-22T11:58:47.000Z",
+        "externalIdsAtTimestamp": [
+          "6a3e3aa4444639d84407da62"
+        ]
+      }
+    }
+  ]
+}
