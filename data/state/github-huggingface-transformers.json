@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-huggingface-transformers",
-  "lastSuccessfulAt": "2026-08-02T05:36:27.486Z",
+  "lastSuccessfulAt": "2026-08-03T05:52:33.275Z",
   "cursor": {
     "timestamp": "2026-07-26T09:31:15.158Z",
     "externalIdsAtTimestamp": []
   },
-  "etag": "W/\"34c1bdc7d3c3157fa0718ea24d22f1b1d5d3c04e09a9609303088738016e31bb\""
+  "etag": "W/\"f6e581dd32ad73dd3684b0898f0ab23e36a6e2e42e9dcf99bcb378f37a845f98\""
 }
