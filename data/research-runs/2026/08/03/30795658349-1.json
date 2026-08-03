@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "runId": "30795658349-1",
+  "trigger": "schedule",
+  "startedAt": "2026-08-03T08:00:00.387Z",
+  "finishedAt": "2026-08-03T08:00:00.720Z",
+  "status": "failure",
+  "totals": {
+    "configured": 1,
+    "attempted": 1,
+    "skipped": 0,
+    "fetched": 0,
+    "added": 0,
+    "updated": 0,
+    "duplicatesMerged": 0,
+    "failed": 1
+  },
+  "sources": [
+    {
+      "sourceId": "arxiv-query-arxiv-artificial-intelligence",
+      "status": "failed",
+      "fetched": 0,
+      "accepted": 0,
+      "error": "Request failed with HTTP 406."
+    }
+  ]
+}
