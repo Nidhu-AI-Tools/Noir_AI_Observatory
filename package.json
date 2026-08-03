@@ -20,6 +20,7 @@
     "curation:prepare": "node --import tsx scripts/curation-cli.ts curation:prepare",
     "curation:publish": "node --import tsx scripts/curation-cli.ts curation:publish",
     "curation:render": "node --import tsx scripts/curation-cli.ts curation:render",
+    "curation:run": "bash scripts/run-daily-curation.sh",
     "curation:status": "node --import tsx scripts/curation-cli.ts curation:status",
     "curation:validate": "node --import tsx scripts/curation-cli.ts curation:validate",
     "dev": "corepack pnpm generate:sources && corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm generate:curation && corepack pnpm --filter @noir/web dev",

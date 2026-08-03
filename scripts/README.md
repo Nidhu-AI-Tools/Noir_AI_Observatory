@@ -22,4 +22,5 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `validate-model-intelligence.ts` validates model configuration, events, and run reports.
 - `generate-model-radar.ts` creates the Model Radar dashboard artifact.
 - `curation-cli.ts` prepares bounded evidence, invokes local Ollama or read-only Codex, validates drafts, and records explicit publication review.
+- `run-daily-curation.sh` guides the complete local daily workflow while keeping review, publication, and push confirmation explicit.
 - `generate-curation.ts` creates the published-note archive for the Curation dashboard.

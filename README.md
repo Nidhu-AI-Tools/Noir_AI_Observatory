@@ -134,21 +134,10 @@ The normal path is the **Add a model release** or **Edit Model Radar metadata** 
 With Ollama running and `llama3.1:8b` installed:
 
 ```bash
-corepack pnpm curation:doctor
-corepack pnpm curation:daily
+corepack pnpm curation:run
 ```
 
-Review the generated Markdown, then publish it locally:
-
-```bash
-corepack pnpm curation:publish
-git diff
-git add data/curation
-git commit -m "curation: publish daily AI observatory note"
-git push
-```
-
-Use Codex instead with `corepack pnpm curation:daily -- --provider codex`. Both routes use the same structured output contract and neither route can commit or push. See [Daily Curation Studio](docs/daily-curation.md).
+The guided script updates `Noir`, merges the latest `main`, waits for generation, opens the draft, and pauses for review before it can publish or commit. It can push only to `Noir`, after confirmation, so the note reaches `main` through your pull request. Use Codex instead with `corepack pnpm curation:run -- --provider codex`. See [Daily Curation Studio](docs/daily-curation.md).
 
 ## Quality checks
 
