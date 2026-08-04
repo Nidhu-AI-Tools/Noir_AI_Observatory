@@ -88,7 +88,11 @@ git fetch origin main
 git merge --no-edit origin/main
 
 echo "Checking the local curation provider..."
-corepack pnpm curation:doctor -- "${DOCTOR_ARGS[@]}"
+if [[ -n "$PROVIDER" || -n "$MODEL" ]]; then
+  corepack pnpm curation:doctor -- "${DOCTOR_ARGS[@]}"
+else
+  corepack pnpm curation:doctor
+fi
 
 echo "Generating the $CURATION_DATE draft. Ollama may take a few minutes; this script will wait."
 corepack pnpm curation:daily -- "${GENERATION_ARGS[@]}"
