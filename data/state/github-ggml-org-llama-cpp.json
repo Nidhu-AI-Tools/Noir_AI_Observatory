@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-ggml-org-llama-cpp",
-  "lastSuccessfulAt": "2026-08-05T05:24:58.914Z",
+  "lastSuccessfulAt": "2026-08-06T05:27:09.894Z",
   "cursor": {
-    "timestamp": "2026-08-05T00:21:08Z",
+    "timestamp": "2026-08-06T01:33:36Z",
     "externalIdsAtTimestamp": [
-      "365221305"
+      "365923257"
     ]
   },
-  "etag": "W/\"c9fc05b9e88c922ed7f737dfad84efb4a37372f825780b7ff70caa79954c3e8e\""
+  "etag": "W/\"dceac74e8a56837b0787a244cd2a21dd15daaa2c6a4ec0c5cd06a331b10a6e05\""
 }
