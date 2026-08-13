@@ -4,13 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navigationItems = [
-  ["Overview", "/"],
+  ["Today", "/"],
   ["Radar", "/radar/"],
   ["Research", "/research/"],
   ["Models", "/models/"],
-  ["Curation", "/curation/"],
   ["API Health", "/health/"],
-  ["Digests", "/digests/"],
   ["Sources", "/sources/"],
 ] as const;
 

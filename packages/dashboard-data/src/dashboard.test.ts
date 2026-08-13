@@ -1,15 +1,15 @@
 import type {
   CollectionRunReport,
+  CurationNote,
   ModelReleaseEvent,
   Observation,
 } from "@noir/core";
 import type { RegistrySnapshot } from "@noir/storage";
 import { describe, expect, it } from "vitest";
 
-import { buildDigestDashboardData } from "./digests";
-import { buildDashboardFeedData } from "./feed";
 import { buildObservationViews, isWithinWindow } from "./observation-view";
 import { buildRadarDashboardData } from "./radar";
+import { buildTodayDashboardData } from "./today";
 
 const snapshot: RegistrySnapshot = {
   taxonomy: {
@@ -162,7 +162,7 @@ const reports: CollectionRunReport[] = [
   },
 ];
 
-const now = new Date("2026-07-26T12:00:00.000Z");
+const now = new Date("2026-07-26T13:00:00.000Z");
 
 describe("Phase 3 dashboard view models", () => {
   it("enriches observations without mutating collection data", () => {
@@ -198,23 +198,30 @@ describe("Phase 3 dashboard view models", () => {
     );
   });
 
-  it("creates deterministic UTC digests, including zero-change run days", () => {
-    const result = buildDigestDashboardData(
+  it("creates deterministic UTC Today editions, including zero-change run days", () => {
+    const result = buildTodayDashboardData(
       snapshot,
       observations,
       reports,
       now,
     );
 
-    expect(result.index.dates.map((entry) => entry.date)).toEqual([
+    expect(result.index.editions.map((entry) => entry.date)).toEqual([
       "2026-07-26",
       "2026-07-25",
       "2026-07-20",
     ]);
-    expect(result.daily.get("2026-07-26")?.summary.observations).toBe(1);
-    expect(result.daily.get("2026-07-26")?.latestRun?.status).toBe("partial");
-    expect(result.daily.get("2026-07-25")?.summary.observations).toBe(0);
-    expect(result.daily.get("2026-07-25")?.latestRun?.status).toBe("success");
+    expect(result.editions.get("2026-07-26")?.counts.totalSignals).toBe(1);
+    expect(result.editions.get("2026-07-26")?.collectionRun?.status).toBe(
+      "partial",
+    );
+    expect(result.editions.get("2026-07-25")?.counts.totalSignals).toBe(0);
+    expect(result.editions.get("2026-07-25")?.collectionRun?.status).toBe(
+      "success",
+    );
+    expect(result.editions.get("2026-07-25")?.lastUpdatedAt).toBe(
+      "2026-07-25T12:00:02.000Z",
+    );
   });
 
   it("shows a promoted Hugging Face observation once as a model event", () => {
@@ -247,38 +254,144 @@ describe("Phase 3 dashboard view models", () => {
         },
       ],
     };
-    const result = buildDigestDashboardData(
+    const result = buildTodayDashboardData(
       snapshot,
       observations,
       reports,
       now,
       { modelEvents: [modelEvent] },
     );
-    const digest = result.daily.get("2026-07-20");
-    expect(digest?.summary).toMatchObject({
-      observations: 1,
-      modelRevisions: 0,
-      modelReleases: 1,
+    const edition = result.editions.get("2026-07-20");
+    expect(edition?.counts).toMatchObject({
+      ecosystem: 0,
+      models: 1,
+      totalSignals: 1,
     });
-    expect(digest?.categories).toEqual([]);
-    expect(digest?.modelEvents).toHaveLength(1);
+    expect(edition?.sections.ecosystem.items).toEqual([]);
+    expect(edition?.sections.models.items).toHaveLength(1);
   });
 
-  it("builds a compact overview feed from the same observations", () => {
-    const feed = buildDashboardFeedData(
+  it("bounds generated sections without changing full counts", () => {
+    const result = buildTodayDashboardData(
       snapshot,
       observations,
       reports,
       now,
-      1,
+      { limits: { ecosystem: 0 } },
     );
+    const edition = result.editions.get("2026-07-26");
+    expect(edition?.sections.ecosystem).toEqual({ total: 1, items: [] });
+    expect(edition?.counts.ecosystem).toBe(1);
+  });
 
-    expect(feed.recent).toHaveLength(1);
-    expect(feed.recent[0]?.source.displayName).toBe("Qdrant");
-    expect(feed.summary.last24Hours).toBe(1);
-    expect(feed.categories[0]).toMatchObject({
-      name: "Models",
-      observations: 1,
-    });
+  it("does not repeat a curated observation through its derived model event", () => {
+    const modelObservation = observations[1]!;
+    const modelEvent: ModelReleaseEvent = {
+      schemaVersion: 1,
+      id: "model-event-qwen-test",
+      modelId: "model-provider-record",
+      canonicalName: "qwen-test",
+      organization: "Qwen",
+      externalModelId: "qwen/qwen-test",
+      releaseKind: "initial-release",
+      occurredAt: modelObservation.occurredAt,
+      occurredAtInferred: false,
+      collectedAt: modelObservation.collectedAt,
+      categories: ["language-models"],
+      tags: [],
+      modalities: ["text"],
+      availability: ["open-weights"],
+      lifecycle: "active",
+      links: [{ kind: "model-card", url: modelObservation.url }],
+      provenance: [
+        {
+          kind: "huggingface-model",
+          sourceId: modelObservation.sourceId,
+          observationId: modelObservation.id,
+          url: modelObservation.url,
+          observedAt: modelObservation.collectedAt,
+        },
+      ],
+    };
+    const note: CurationNote = {
+      schemaVersion: 1,
+      date: "2026-07-20",
+      status: "published",
+      createdAt: "2026-07-26T12:00:00.000Z",
+      reviewedAt: "2026-07-26T12:30:00.000Z",
+      assistedBy: { provider: "ollama", model: "llama3.1:8b" },
+      contextHash: "a".repeat(64),
+      sourceIds: [modelObservation.id],
+      headline: "Model signal",
+      summary: "A reviewed model update.",
+      highlights: [
+        {
+          sourceId: modelObservation.id,
+          sourceUrl: modelObservation.url,
+          title: "Qwen model",
+          summary: "The model changed.",
+          whyItMatters: "The update is tracked.",
+        },
+      ],
+      caveats: [],
+    };
+    const edition = buildTodayDashboardData(
+      snapshot,
+      observations,
+      reports,
+      now,
+      { modelEvents: [modelEvent], curationNotes: [note] },
+    ).editions.get("2026-07-20");
+
+    expect(edition?.curationNote?.headline).toBe("Model signal");
+    expect(edition?.counts.models).toBe(1);
+    expect(edition?.sections.models.items).toEqual([]);
+    expect(edition?.lastUpdatedAt).toBe("2026-07-26T12:30:00.000Z");
+  });
+
+  it("excludes future records and draft notes", () => {
+    const result = buildTodayDashboardData(
+      snapshot,
+      [
+        ...observations,
+        {
+          ...observations[0]!,
+          id: "future-observation",
+          occurredAt: "2026-07-27T00:00:00.000Z",
+          collectedAt: "2026-07-27T00:01:00.000Z",
+        },
+      ],
+      reports,
+      now,
+      {
+        curationNotes: [
+          {
+            schemaVersion: 1,
+            date: "2026-07-27",
+            status: "draft",
+            createdAt: "2026-07-26T12:00:00.000Z",
+            assistedBy: { provider: "ollama", model: "llama3.1:8b" },
+            contextHash: "b".repeat(64),
+            sourceIds: [observations[0]!.id],
+            headline: "Draft",
+            summary: "Not public.",
+            highlights: [
+              {
+                sourceId: observations[0]!.id,
+                sourceUrl: observations[0]!.url,
+                title: "Draft",
+                summary: "Draft summary.",
+                whyItMatters: "Draft rationale.",
+              },
+            ],
+            caveats: [],
+          },
+        ],
+      },
+    );
+    expect(
+      result.index.editions.some((entry) => entry.date === "2026-07-27"),
+    ).toBe(false);
+    expect(result.index.editions.every((entry) => !entry.curated)).toBe(true);
   });
 });

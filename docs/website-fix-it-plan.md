@@ -39,7 +39,7 @@ returning 404 responses.
 ## Phase 1: Data integrity and link repair
 
 **Weight:** Heavy  
-**Status:** Implemented on the Noir branch  
+**Status:** Implemented on the Noir branch
 **Purpose:** Repair the canonical data before reorganizing pages that consume
 it.
 
@@ -105,6 +105,7 @@ files, preserves stable IDs, and writes a tracked migration report.
 ## Phase 2: Replace Overview, Digests, and Curation with Today
 
 **Weight:** Medium to heavy  
+**Status:** Implemented on the Noir branch
 **Purpose:** Create one useful daily landing page instead of three overlapping
 presentations.
 
