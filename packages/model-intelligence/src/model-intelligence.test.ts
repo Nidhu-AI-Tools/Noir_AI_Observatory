@@ -19,7 +19,7 @@ const observation: HuggingFaceModelObservation = {
   schemaVersion: 1,
   id: "huggingface-acme:model:reasoner:revision-1",
   sourceId: "huggingface-acme",
-  externalId: "acme/reasoner:revision-1",
+  externalId: "provider-record-1",
   externalRevision: "revision-1",
   type: "huggingface_model_revision",
   provider: "huggingface",
@@ -158,6 +158,11 @@ describe("model intelligence", () => {
     const second = await runner.run({ runId: "second", trigger: "local" });
     expect(first.events).toHaveLength(1);
     expect(first.events[0]?.releaseKind).toBe("initial-release");
+    expect(first.events[0]?.externalModelId).toBe("acme/reasoner");
+    expect(first.events[0]?.provenance[0]?.observationId).toBe(observation.id);
+    expect(first.events[0]?.modelId).toBe(
+      modelIdForExternalId(observation.externalId),
+    );
     expect(second.events).toHaveLength(0);
     expect(second.report.status).toBe("no-op");
     expect(events.values).toHaveLength(1);

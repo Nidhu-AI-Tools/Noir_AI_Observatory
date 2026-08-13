@@ -1,4 +1,8 @@
-import type { CollectionRunReport, Observation } from "@noir/core";
+import type {
+  CollectionRunReport,
+  ModelReleaseEvent,
+  Observation,
+} from "@noir/core";
 import type { RegistrySnapshot } from "@noir/storage";
 import { describe, expect, it } from "vitest";
 
@@ -211,6 +215,53 @@ describe("Phase 3 dashboard view models", () => {
     expect(result.daily.get("2026-07-26")?.latestRun?.status).toBe("partial");
     expect(result.daily.get("2026-07-25")?.summary.observations).toBe(0);
     expect(result.daily.get("2026-07-25")?.latestRun?.status).toBe("success");
+  });
+
+  it("shows a promoted Hugging Face observation once as a model event", () => {
+    const modelObservation = observations[1]!;
+    const modelEvent: ModelReleaseEvent = {
+      schemaVersion: 1,
+      id: "model-event-qwen-test",
+      modelId: "model-provider-record",
+      canonicalName: "qwen-test",
+      organization: "Qwen",
+      externalModelId: "qwen/qwen-test",
+      releaseKind: "initial-release",
+      version: "abc",
+      occurredAt: modelObservation.occurredAt,
+      occurredAtInferred: false,
+      collectedAt: modelObservation.collectedAt,
+      categories: ["language-models"],
+      tags: ["language-model"],
+      modalities: ["text"],
+      availability: ["open-weights"],
+      lifecycle: "active",
+      links: [{ kind: "model-card", url: modelObservation.url }],
+      provenance: [
+        {
+          kind: "huggingface-model",
+          sourceId: modelObservation.sourceId,
+          observationId: modelObservation.id,
+          url: modelObservation.url,
+          observedAt: modelObservation.collectedAt,
+        },
+      ],
+    };
+    const result = buildDigestDashboardData(
+      snapshot,
+      observations,
+      reports,
+      now,
+      { modelEvents: [modelEvent] },
+    );
+    const digest = result.daily.get("2026-07-20");
+    expect(digest?.summary).toMatchObject({
+      observations: 1,
+      modelRevisions: 0,
+      modelReleases: 1,
+    });
+    expect(digest?.categories).toEqual([]);
+    expect(digest?.modelEvents).toHaveLength(1);
   });
 
   it("builds a compact overview feed from the same observations", () => {

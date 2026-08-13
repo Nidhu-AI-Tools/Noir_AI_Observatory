@@ -130,6 +130,13 @@ export function buildDigestDashboardData(
   const modelEventDates = (options.modelEvents ?? []).map((item) =>
     item.occurredAt.slice(0, 10),
   );
+  const promotedObservationIds = new Set(
+    (options.modelEvents ?? []).flatMap((event) =>
+      event.provenance.flatMap((item) =>
+        item.observationId ? [item.observationId] : [],
+      ),
+    ),
+  );
   const publishedNotes = (options.curationNotes ?? []).filter(
     (note) => note.status === "published",
   );
@@ -183,7 +190,10 @@ export function buildDigestDashboardData(
     const allForDate = views.filter(
       (item) => item.occurredAt.slice(0, 10) === date,
     );
-    const displayed = allForDate.slice(0, observationLimit);
+    const standaloneForDate = allForDate.filter(
+      (item) => !promotedObservationIds.has(item.id),
+    );
+    const displayed = standaloneForDate.slice(0, observationLimit);
     const dailyHealthEvents = healthEvents
       .filter((item) => item.at.slice(0, 10) === date)
       .sort((a, b) => b.at.localeCompare(a.at));
@@ -241,12 +251,13 @@ export function buildDigestDashboardData(
       generatedAt: generatedAt.toISOString(),
       date,
       summary: {
-        observations: allForDate.length,
+        observations: standaloneForDate.length + dailyModelEvents.length,
         displayed: displayed.length,
-        hidden: Math.max(0, allForDate.length - displayed.length),
-        releases: allForDate.filter((item) => item.type === "github_release")
-          .length,
-        modelRevisions: allForDate.filter(
+        hidden: Math.max(0, standaloneForDate.length - displayed.length),
+        releases: standaloneForDate.filter(
+          (item) => item.type === "github_release",
+        ).length,
+        modelRevisions: standaloneForDate.filter(
           (item) => item.type === "huggingface_model_revision",
         ).length,
         healthTransitions: dailyHealthEvents.length,

@@ -2,6 +2,8 @@ import { listModels } from "@huggingface/hub";
 import {
   createObservationId,
   huggingFaceModelObservationSchema,
+  assertHuggingFaceOwner,
+  parseHuggingFaceModelIdentity,
   type HuggingFaceModelObservation,
   type SourceCollectionState,
   type SourceConfig,
@@ -19,7 +21,8 @@ import {
 import { withRetry } from "./retry";
 
 export interface HuggingFaceModelRecord {
-  id: string;
+  providerId: string;
+  canonicalName: string;
   private: boolean;
   gated: false | "auto" | "manual";
   task?: string;
@@ -56,7 +59,8 @@ export class OfficialHuggingFaceModelClient implements HuggingFaceModelClient {
     });
     for await (const model of iterator) {
       models.push({
-        id: model.id,
+        providerId: model.id,
+        canonicalName: model.name,
         private: model.private,
         gated: model.gated,
         ...(model.task ? { task: model.task } : {}),
@@ -131,39 +135,41 @@ export class HuggingFaceModelCollector implements ObservationCollector {
     const eligible = records
       .filter((model) => {
         if (model.private) return false;
+        assertHuggingFaceOwner(model.canonicalName, source.locator);
         const timestamp = model.updatedAt.toISOString();
-        return isAfterCursor(timestamp, model.id, cursor);
+        return isAfterCursor(timestamp, model.providerId, cursor);
       })
       .sort(
         (left, right) =>
           left.updatedAt.valueOf() - right.updatedAt.valueOf() ||
-          left.id.localeCompare(right.id),
+          left.providerId.localeCompare(right.providerId),
       );
     const limited = eligible.slice(0, context.maxObservationsPerSource);
     const observations = limited.map((model): HuggingFaceModelObservation => {
       const revision = model.sha;
       const revisionIdentity = revision ?? model.updatedAt.toISOString();
+      const identity = parseHuggingFaceModelIdentity(model.canonicalName);
       return huggingFaceModelObservationSchema.parse({
         schemaVersion: 1,
         id: createObservationId(
           "huggingface_model_revision",
           source.id,
-          model.id,
+          model.providerId,
           revisionIdentity,
         ),
         type: "huggingface_model_revision",
         provider: "huggingface",
         sourceId: source.id,
-        externalId: model.id,
+        externalId: model.providerId,
         ...(revision ? { externalRevision: revision } : {}),
-        title: model.id.split("/").at(-1) ?? model.id,
-        url: `https://huggingface.co/${model.id}`,
+        title: identity.repository,
+        url: identity.url,
         occurredAt: model.updatedAt.toISOString(),
         collectedAt: context.collectedAt.toISOString(),
         categoryId: source.categoryId,
         sourceTags: source.tags,
         details: {
-          modelId: model.id,
+          modelId: identity.canonicalName,
           ...(revision ? { revision } : {}),
           ...(model.createdAt
             ? { createdAt: new Date(model.createdAt).toISOString() }

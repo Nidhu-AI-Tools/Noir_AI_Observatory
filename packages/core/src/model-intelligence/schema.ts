@@ -70,6 +70,7 @@ export const modelProvenanceSchema = z
   .object({
     kind: modelSourceKindSchema,
     sourceId: z.string().min(1).max(300),
+    observationId: z.string().min(1).max(300).optional(),
     url: z.url(),
     observedAt: timestamp,
   })

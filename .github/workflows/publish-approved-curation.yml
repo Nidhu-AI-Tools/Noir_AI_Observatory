@@ -1,4 +1,4 @@
-name: Publish approved AI curation
+name: Publish approved daily briefing
 
 on:
   pull_request:
@@ -104,7 +104,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No publication metadata changed."
           else
-            git commit -m "curation: publish approved AI briefing"
+            git commit -m "curation: publish approved daily briefing"
             git pull --rebase origin main
             git push origin HEAD:main
           fi

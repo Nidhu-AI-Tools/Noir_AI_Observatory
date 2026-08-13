@@ -9,3 +9,4 @@ export * from "./collection/huggingface-model-collector";
 export * from "./collection/observation-collector";
 export * from "./collection/retry";
 export * from "./http-client";
+export * from "./migration/huggingface-identity-resolver";
