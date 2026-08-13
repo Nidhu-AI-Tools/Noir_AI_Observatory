@@ -88,6 +88,9 @@ git fetch origin main
 git merge --no-edit origin/main
 
 echo "Checking the local curation provider..."
+if [[ "$PROVIDER" != "codex" ]]; then
+  "$SCRIPT_DIR/ensure-ollama.sh"
+fi
 if [[ -n "$PROVIDER" || -n "$MODEL" ]]; then
   corepack pnpm curation:doctor -- "${DOCTOR_ARGS[@]}"
 else

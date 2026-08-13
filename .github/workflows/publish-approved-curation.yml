@@ -1,0 +1,116 @@
+name: Publish approved AI curation
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publish-approved-curation
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.ref == 'Noir'
+    runs-on: ubuntu-latest
+    outputs:
+      has_notes: ${{ steps.approval.outputs.has_notes }}
+    steps:
+      - name: Locate notes and verify Nidhushan approved
+        id: approval
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            const dates = files
+              .map((file) => /^data\/curation\/(\d{4})\/(\d{2})\/(\d{2})\.md$/.exec(file.filename))
+              .filter(Boolean)
+              .map((match) => `${match[1]}-${match[2]}-${match[3]}`);
+            if (!dates.length) {
+              core.notice("The merged Noir PR contained no curation note.");
+              core.setOutput("has_notes", "false");
+              return;
+            }
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            const reviewer = reviews
+              .filter((review) => review.user?.login?.toLowerCase() === "nidhushan")
+              .filter((review) => ["APPROVED", "CHANGES_REQUESTED", "DISMISSED"].includes(review.state))
+              .sort((left, right) => right.id - left.id)[0];
+            if (!reviewer || reviewer.state !== "APPROVED") {
+              core.setFailed("The merged curation PR was not approved by Nidhushan.");
+              return;
+            }
+            core.setOutput("has_notes", "true");
+            core.setOutput("dates", [...new Set(dates)].join(" "));
+
+      - name: Check out main
+        if: steps.approval.outputs.has_notes == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install pnpm
+        if: steps.approval.outputs.has_notes == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+
+      - name: Set up Node.js
+        if: steps.approval.outputs.has_notes == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.approval.outputs.has_notes == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish approved notes
+        if: steps.approval.outputs.has_notes == 'true'
+        env:
+          CURATION_DATES: ${{ steps.approval.outputs.dates }}
+        run: |
+          for date in $CURATION_DATES; do
+            pnpm curation:publish -- --date "$date" --yes
+          done
+          pnpm curation:validate
+
+      - name: Commit publication metadata
+        if: steps.approval.outputs.has_notes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/curation
+          if git diff --cached --quiet; then
+            echo "No publication metadata changed."
+          else
+            git commit -m "curation: publish approved AI briefing"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+  deploy:
+    needs: publish
+    if: needs.publish.outputs.has_notes == 'true'
+    uses: ./.github/workflows/deploy-pages.yml
+    secrets: inherit

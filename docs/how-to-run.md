@@ -26,3 +26,5 @@ corepack pnpm curation:run -- --draft-only
 ```
 
 The AI creates only a draft. The script cannot publish until you confirm that you reviewed it, and it never pushes directly to `main`.
+
+For unattended draft and pull-request creation, follow the one-time [automated curation setup](automated-curation.md).

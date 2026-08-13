@@ -23,4 +23,7 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `generate-model-radar.ts` creates the Model Radar dashboard artifact.
 - `curation-cli.ts` prepares bounded evidence, invokes local Ollama or read-only Codex, validates drafts, and records explicit publication review.
 - `run-daily-curation.sh` guides the complete local daily workflow while keeping review, publication, and push confirmation explicit.
+- `ensure-ollama.sh` starts the local Ollama service when needed and waits up to three minutes for readiness.
+- `run-automated-curation.sh` creates and pushes a source-validated draft for the scheduled local macOS job.
+- `install-curation-automation.sh` installs the daily macOS launch agent for a dedicated automation clone.
 - `generate-curation.ts` creates the published-note archive for the Curation dashboard.
