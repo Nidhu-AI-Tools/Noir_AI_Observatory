@@ -52,7 +52,7 @@ corepack pnpm check
 
 git add -- "$NOTE_PATH"
 if ! git diff --cached --quiet; then
-  git commit -m "curation: propose AI briefing for $CURATION_DATE"
+  git commit -m "curation: prepare daily briefing for $CURATION_DATE"
 fi
 
 git push origin HEAD:Noir

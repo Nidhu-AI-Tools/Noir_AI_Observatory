@@ -32,56 +32,60 @@ function recencyScore(occurredAt: string, now: Date) {
 function observationCandidates(
   observations: Observation[],
   now: Date,
+  promotedObservationIds: Set<string>,
 ): CurationCandidate[] {
-  return observations.map((item) => {
-    if (item.type === "github_release")
+  return observations
+    .filter((item) => !promotedObservationIds.has(item.id))
+    .map((item) => {
+      if (item.type === "github_release")
+        return {
+          id: item.id,
+          kind: "github-release",
+          title: item.title,
+          url: item.url,
+          occurredAt: item.occurredAt,
+          category: item.categoryId,
+          tags: item.sourceTags,
+          evidence: bounded(
+            [
+              `Release ${item.details.tagName}.`,
+              item.details.prerelease
+                ? "Marked as prerelease."
+                : "Stable release.",
+              item.details.releaseNotesExcerpt ??
+                "No release excerpt supplied.",
+            ].join(" "),
+          ),
+          score: 65 + recencyScore(item.occurredAt, now),
+          reasons: ["Tracked GitHub release", "Recent ecosystem change"],
+        } satisfies CurationCandidate;
       return {
         id: item.id,
-        kind: "github-release",
+        kind: "model-revision",
         title: item.title,
         url: item.url,
         occurredAt: item.occurredAt,
         category: item.categoryId,
-        tags: item.sourceTags,
+        tags: [...new Set([...item.sourceTags, ...item.details.tags])].slice(
+          0,
+          30,
+        ),
         evidence: bounded(
           [
-            `Release ${item.details.tagName}.`,
-            item.details.prerelease
-              ? "Marked as prerelease."
-              : "Stable release.",
-            item.details.releaseNotesExcerpt ?? "No release excerpt supplied.",
+            `Hugging Face model ${item.details.modelId}.`,
+            item.details.pipelineTag
+              ? `Pipeline ${item.details.pipelineTag}.`
+              : "",
+            item.details.libraryName
+              ? `Library ${item.details.libraryName}.`
+              : "",
+            `Gated: ${String(item.details.gated)}.`,
           ].join(" "),
         ),
-        score: 65 + recencyScore(item.occurredAt, now),
-        reasons: ["Tracked GitHub release", "Recent ecosystem change"],
+        score: 50 + recencyScore(item.occurredAt, now),
+        reasons: ["Tracked model revision", "Recent ecosystem change"],
       } satisfies CurationCandidate;
-    return {
-      id: item.id,
-      kind: "model-revision",
-      title: item.title,
-      url: item.url,
-      occurredAt: item.occurredAt,
-      category: item.categoryId,
-      tags: [...new Set([...item.sourceTags, ...item.details.tags])].slice(
-        0,
-        30,
-      ),
-      evidence: bounded(
-        [
-          `Hugging Face model ${item.details.modelId}.`,
-          item.details.pipelineTag
-            ? `Pipeline ${item.details.pipelineTag}.`
-            : "",
-          item.details.libraryName
-            ? `Library ${item.details.libraryName}.`
-            : "",
-          `Gated: ${String(item.details.gated)}.`,
-        ].join(" "),
-      ),
-      score: 50 + recencyScore(item.occurredAt, now),
-      reasons: ["Tracked model revision", "Recent ecosystem change"],
-    } satisfies CurationCandidate;
-  });
+    });
 }
 
 function researchCandidates(
@@ -207,8 +211,15 @@ export function buildCurationContext(
   const startedAt = new Date(
     finishedAt.valueOf() - config.selection.lookbackHours * 3_600_000,
   );
+  const promotedObservationIds = new Set(
+    inputs.modelEvents.flatMap((event) =>
+      event.provenance.flatMap((item) =>
+        item.observationId ? [item.observationId] : [],
+      ),
+    ),
+  );
   const eligible = [
-    ...observationCandidates(inputs.observations, now),
+    ...observationCandidates(inputs.observations, now, promotedObservationIds),
     ...researchCandidates(inputs.researchItems, now),
     ...modelCandidates(inputs.modelEvents, now),
     ...healthCandidates(inputs.healthChecks, inputs.monitors, now),

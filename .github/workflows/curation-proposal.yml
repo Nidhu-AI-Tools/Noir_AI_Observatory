@@ -1,4 +1,4 @@
-name: Open daily AI curation review
+name: Open daily briefing review
 
 on:
   push:

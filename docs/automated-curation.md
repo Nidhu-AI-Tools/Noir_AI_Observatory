@@ -27,7 +27,7 @@ launchctl kickstart -k "gui/$(id -u)/com.noir.ai-observatory-curation"
 tail -f .noir/automated-curation.log
 ```
 
-When `Noir` is pushed, **Open daily AI curation review** creates the pull request and requests your review. No GitHub CLI, personal access token, or self-hosted GitHub runner is required.
+When `Noir` is pushed, **Open daily briefing review** creates the pull request and requests your review. The pull request uses neutral maintainer-facing language; implementation provenance remains recorded inside the note metadata. No GitHub CLI, personal access token, or self-hosted GitHub runner is required.
 
 To disable the schedule:
 

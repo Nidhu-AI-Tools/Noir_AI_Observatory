@@ -84,7 +84,8 @@ describe("observation collectors", () => {
       async listRecentModels() {
         return [
           {
-            id: "Qwen/new-model",
+            providerId: "6a21fc4fd949accacad1f3b0",
+            canonicalName: "Qwen/new-model",
             private: false,
             gated: false,
             task: "text-generation",
@@ -122,7 +123,10 @@ describe("observation collectors", () => {
     );
     expect(batch.observations[0]).toMatchObject({
       type: "huggingface_model_revision",
+      externalId: "6a21fc4fd949accacad1f3b0",
       externalRevision: "abc123",
+      title: "new-model",
+      url: "https://huggingface.co/Qwen/new-model",
       details: {
         modelId: "Qwen/new-model",
         pipelineTag: "text-generation",

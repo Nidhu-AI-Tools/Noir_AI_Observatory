@@ -121,6 +121,80 @@ describe("daily curation", () => {
     );
   });
 
+  it("selects a promoted model observation only through its model event", () => {
+    const observationId = "obs_model_revision";
+    const inputs = {
+      observations: [
+        {
+          schemaVersion: 1 as const,
+          id: observationId,
+          type: "huggingface_model_revision" as const,
+          provider: "huggingface" as const,
+          sourceId: "huggingface-qwen",
+          externalId: "provider-1",
+          title: "model-one",
+          url: "https://huggingface.co/Qwen/model-one",
+          occurredAt: "2026-07-27T10:00:00.000Z",
+          collectedAt: "2026-07-27T11:00:00.000Z",
+          categoryId: "foundation-model",
+          sourceTags: ["llm"],
+          details: {
+            modelId: "Qwen/model-one",
+            lastModified: "2026-07-27T10:00:00.000Z",
+            tags: [],
+            gated: false as const,
+          },
+        },
+      ],
+      researchItems: [],
+      modelEvents: [
+        {
+          schemaVersion: 1 as const,
+          id: "model-event-one",
+          modelId: "model-provider-1",
+          canonicalName: "model-one",
+          organization: "Qwen",
+          externalModelId: "Qwen/model-one",
+          releaseKind: "initial-release" as const,
+          occurredAt: "2026-07-27T10:00:00.000Z",
+          occurredAtInferred: false,
+          collectedAt: "2026-07-27T11:00:00.000Z",
+          categories: ["language-models"],
+          tags: ["llm"],
+          modalities: ["text"],
+          availability: ["downloadable" as const],
+          lifecycle: "active" as const,
+          links: [
+            {
+              kind: "model-card" as const,
+              url: "https://huggingface.co/Qwen/model-one",
+            },
+          ],
+          provenance: [
+            {
+              kind: "huggingface-model" as const,
+              sourceId: "huggingface-qwen",
+              observationId,
+              url: "https://huggingface.co/Qwen/model-one",
+              observedAt: "2026-07-27T11:00:00.000Z",
+            },
+          ],
+        },
+      ],
+      healthChecks: [],
+      monitors: { version: 1 as const, monitors: [] },
+    };
+
+    const result = buildCurationContext(
+      inputs,
+      config,
+      new Date("2026-07-27T12:00:00.000Z"),
+    );
+    expect(result.candidates.map((candidate) => candidate.id)).toEqual([
+      "model-event-one",
+    ]);
+  });
+
   it("rejects unknown citations", () => {
     expect(() =>
       validateModelOutput(

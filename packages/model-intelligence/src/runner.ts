@@ -26,7 +26,7 @@ function eventFromObservation(
 ): ModelReleaseEvent {
   const classified = classifyObservation(item);
   const externalId = item.details.modelId;
-  const modelId = knownModel?.id ?? modelIdForExternalId(externalId);
+  const modelId = knownModel?.id ?? modelIdForExternalId(item.externalId);
   const canonicalName =
     knownModel?.canonicalName ?? externalId.split("/").at(-1) ?? externalId;
   return modelReleaseEventSchema.parse({
@@ -62,6 +62,7 @@ function eventFromObservation(
       {
         kind: "huggingface-model",
         sourceId: item.sourceId,
+        observationId: item.id,
         url: item.url,
         observedAt: item.collectedAt,
       },
@@ -182,8 +183,7 @@ export class ModelIntelligenceRunner {
     for (const item of eligible) {
       try {
         const knownModel = byExternal.get(item.details.modelId);
-        const modelId =
-          knownModel?.id ?? modelIdForExternalId(item.details.modelId);
+        const modelId = knownModel?.id ?? modelIdForExternalId(item.externalId);
         candidates.push(
           eventFromObservation(
             item,

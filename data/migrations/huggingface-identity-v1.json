@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "migrationId": "huggingface-identity-v1",
+  "appliedAt": "2026-08-13T20:41:40.265Z",
+  "strategy": "Preserved observation, event, model, cursor, and run-report IDs; repaired canonical display fields and exact provenance lineage.",
+  "totals": {
+    "observations": 118,
+    "modelEvents": 118,
+    "curationNotes": 8,
+    "unresolved": 0
+  },
+  "mappings": [
+    {
+      "owner": "deepseek-ai",
+      "providerId": "6a6c4f10abfe36920d2f90a1",
+      "canonicalName": "deepseek-ai/DeepSeek-V4-Flash-0731"
+    },
+    {
+      "owner": "google",
+      "providerId": "69a5ebb435468e1470916cd0",
+      "canonicalName": "google/gemma-4-E4B-it"
+    },
+    {
+      "owner": "google",
+      "providerId": "69a5ebd10366a06bfd73da71",
+      "canonicalName": "google/gemma-4-E2B-it"
+    },
+    {
+      "owner": "google",
+      "providerId": "69b1b2ec895b2d5026e6bc2e",
+      "canonicalName": "google/gemma-4-31B-it"
+    },
+    {
+      "owner": "google",
+      "providerId": "69b1dde5d77b87bf05eff3f9",
+      "canonicalName": "google/gemma-4-26B-A4B-it"
+    },
+    {
+      "owner": "google",
+      "providerId": "69d73f49e78f7c4dde497de6",
+      "canonicalName": "google/tipsv2-l14"
+    },
+    {
+      "owner": "google",
+      "providerId": "69d7472ba5fe0ca205d278f6",
+      "canonicalName": "google/tipsv2-b14"
+    },
+    {
+      "owner": "google",
+      "providerId": "69d747339242b7c09e92196a",
+      "canonicalName": "google/tipsv2-so400m14"
+    },
+    {
+      "owner": "google",
+      "providerId": "69d747345c57785ab3303d54",
+      "canonicalName": "google/tipsv2-g14"
+    },
+    {
+      "owner": "google",
+      "providerId": "69f11edac81f299cb2c488aa",
+      "canonicalName": "google/gemma-4-31B-it-qat-q4_0-unquantized"
+    },
+    {
+      "owner": "google",
+      "providerId": "69f27e68c803e17130bc953f",
+      "canonicalName": "google/gemma-4-26B-A4B-it-qat-q4_0-unquantized"
+    },
+    {
+      "owner": "google",
+      "providerId": "69f296294732a6ce4fbed47f",
+      "canonicalName": "google/gemma-4-E2B-it-qat-q4_0-unquantized"
+    },
+    {
+      "owner": "google",
+      "providerId": "69f2ced874fbc5fe9b9a9bbd",
+      "canonicalName": "google/gemma-4-E4B-it-qat-q4_0-unquantized"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a11001ba8f0f4aacca069ec",
+      "canonicalName": "google/gemma-4-12B-it"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a19e692ce3d4314d49d6327",
+      "canonicalName": "google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a19e6a4ca63123d87c3f478",
+      "canonicalName": "google/gemma-4-E4B-it-qat-q4_0-unquantized-assistant"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a19e6b4ce3d4314d49d6977",
+      "canonicalName": "google/gemma-4-26B-A4B-it-qat-q4_0-unquantized-assistant"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a19e6cf89a9cfd05a8cdf07",
+      "canonicalName": "google/gemma-4-31B-it-qat-q4_0-unquantized-assistant"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a1e188909f8f8e7076c1f8d",
+      "canonicalName": "google/gemma-4-E2B-it-qat-mobile-ct"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a1e18a241aa598ff91f14a6",
+      "canonicalName": "google/gemma-4-E4B-it-qat-mobile-ct"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a1f6d4fd9a2d32650036557",
+      "canonicalName": "google/gemma-4-E2B-it-qat-mobile-transformers"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a1f6d63454eb3a4d34de3bc",
+      "canonicalName": "google/gemma-4-E4B-it-qat-mobile-transformers"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a210b1c521d7408265bb5a1",
+      "canonicalName": "google/gemma-4-12B-it-qat-q4_0-unquantized"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a21fc06964e0f310e901751",
+      "canonicalName": "google/gemma-4-E4B-it-qat-w4a16-ct"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a21fc4fd949accacad1f3b0",
+      "canonicalName": "google/gemma-4-E2B-it-qat-w4a16-ct"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a21fc867f2feecc1da330f2",
+      "canonicalName": "google/gemma-4-31B-it-qat-w4a16-ct"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a22030401c589ad8ea9a17e",
+      "canonicalName": "google/gemma-4-12B-it-qat-q4_0-unquantized-assistant"
+    },
+    {
+      "owner": "google",
+      "providerId": "6a22398f22a95e10b5438ec9",
+      "canonicalName": "google/gemma-4-12B-it-qat-w4a16-ct"
+    },
+    {
+      "owner": "mistralai",
+      "providerId": "6a58b14d3c82a8f1f153e340",
+      "canonicalName": "mistralai/Shieldstral-1.0-3B"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "658d93fd90b9c2cfa328a25b",
+      "canonicalName": "nvidia/parakeet-ctc-1.1b"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "683f2b151f1ca6d52eaedc19",
+      "canonicalName": "nvidia/difix"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6840ae27d4e16ff5f93d9dde",
+      "canonicalName": "nvidia/diar_streaming_sortformer_4spk-v2"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "68462e39353d94ae82508f6b",
+      "canonicalName": "nvidia/Riva-Translate-4B-Instruct"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6849040caeee48ca832c0aa2",
+      "canonicalName": "nvidia/difix_ref"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6890b6d148203522b7cece41",
+      "canonicalName": "nvidia/parakeet-tdt-0.6b-v3"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6893bdc0777926b8574400b0",
+      "canonicalName": "nvidia/nemo-nano-codec-22khz-1.89kbps-21.5fps"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "68f7d372e3e78ab11df72c96",
+      "canonicalName": "nvidia/Fixer"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "690aeb1ca965075184844a1f",
+      "canonicalName": "nvidia/Riva-Translate-4B-Instruct-v1.1"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69211f37bdce335bcc1bd981",
+      "canonicalName": "nvidia/Alpamayo-R1-10B"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "693101e726c69e7dca6b650d",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "693a1d2611d91756faeebb62",
+      "canonicalName": "nvidia/magpie_tts_multilingual_357m"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6942025abe1cb7b5c11c24c1",
+      "canonicalName": "nvidia/nemotron-speech-streaming-en-0.6b"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "698d0ef3733f9de65426cd42",
+      "canonicalName": "nvidia/healda"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "698d2c3d8ee9e6c9c63b0f53",
+      "canonicalName": "nvidia/GEAR-SONIC"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69a635d0d4e5626fdb40ddd6",
+      "canonicalName": "nvidia/asset-harvester"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69a63b5686ac08f3aa62654f",
+      "canonicalName": "nvidia/Alpamayo-1.5-10B"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69a73973d48a908cb7de5853",
+      "canonicalName": "nvidia/Cosmos-H-Surgical"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69b247797a8d4a0b4abf6b7b",
+      "canonicalName": "nvidia/NV-Generate-MR-Brain"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69d5853e388218663868dfb4",
+      "canonicalName": "nvidia/nv-tesseract-forecasting"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69df3e90a48951eb29f9164f",
+      "canonicalName": "nvidia/Riva-Translate-4B-Instruct-v2"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69dfe052f65952a33721f120",
+      "canonicalName": "nvidia/nemotron-labs-audio-visual-flamingo-hf"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69e71dfe3d4a58e9d2bb2b94",
+      "canonicalName": "nvidia/nv-tesseract-ad-diffusion"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "69fb747512c1e39167724bec",
+      "canonicalName": "nvidia/GN1x-Tuned-Arena-G1-Static-PickNPlace"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a0351586ce81252d80b91e3",
+      "canonicalName": "nvidia/instant-nurec"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a07959985f5728e21682abd",
+      "canonicalName": "nvidia/nemotron-3.5-asr-streaming-0.6b"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a0c8a1e35660b072ecddc94",
+      "canonicalName": "nvidia/Harmonizer"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a106c53a89ee247b8e563ca",
+      "canonicalName": "nvidia/llama-nemotron-rerank-vl-1b-v2-fp8"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a1670d5f0eaf67dc702aecf",
+      "canonicalName": "nvidia/Alpamayo2-Super"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a17bb413789ec777fc54b43",
+      "canonicalName": "nvidia/Cosmos3-Super-Text2Image"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a1963ee4b4ea07054eba0d9",
+      "canonicalName": "nvidia/C-RADIOv4-1D-H"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a21152d9bec05b79cec753c",
+      "canonicalName": "nvidia/ArtiFixer"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a4423bae9a158d702f0fc19",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-Parse-2.0"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a457ecd679cb8ef3328cba7",
+      "canonicalName": "nvidia/Qwen-Image-Flash"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a458c7ce6a31bbaf190d572",
+      "canonicalName": "nvidia/Cosmos3-Edge"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a4c4fa6e9c0aa65c0332339",
+      "canonicalName": "nvidia/Cosmos3-Super-Text2Image-4Step"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a4c4fa7794e003070befccc",
+      "canonicalName": "nvidia/Cosmos3-Super-Image2Video-4Step"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a50107c0c80138d138b0c5f",
+      "canonicalName": "nvidia/Cosmos3-Edge-Policy-DROID"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a5556c6cb785d0d06890575",
+      "canonicalName": "nvidia/Ising-Calibration-1.5-31B-BF16"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a5556c7b1cb3ec9de66be02",
+      "canonicalName": "nvidia/Ising-Calibration-1.5-31B-NVFP4"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a55e6022063014e962b82cb",
+      "canonicalName": "nvidia/Nemotron-3-Embed-1B-BF16"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a55e78976284400a7aa2420",
+      "canonicalName": "nvidia/Nemotron-3-Embed-8B-BF16"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a55e97236d31ec6cb149491",
+      "canonicalName": "nvidia/Nemotron-3-Embed-1B-NVFP4"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a57b3e0b9c332a5fb66bbd6",
+      "canonicalName": "nvidia/Ising-Decoder-ColorCode-1-Fast"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a57f1d1982904cb0dfeb07c",
+      "canonicalName": "nvidia/MiniMax-M3-DSpark"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a5f4efa00b4b6af07785fe4",
+      "canonicalName": "nvidia/Cosmos-H-Dreams"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a6a3c8852e526db7cc1ae8a",
+      "canonicalName": "nvidia/NVIDIA-NemotronLabs-VoiceChat-11B"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a6d98598cf49b059474f8ea",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a723935ed9c6d16164b1076",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a738b1b58e14476af06723c",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DFlash"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a738c2270f610c661bac097",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark"
+    },
+    {
+      "owner": "nvidia",
+      "providerId": "6a73be3df7daa43518f5612f",
+      "canonicalName": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Base-BF16"
+    },
+    {
+      "owner": "qwen",
+      "providerId": "6a3e398dd7a0533dc8073fc5",
+      "canonicalName": "Qwen/Qwen3-ASR-1.7B-hf"
+    },
+    {
+      "owner": "qwen",
+      "providerId": "6a3e3aa4444639d84407da62",
+      "canonicalName": "Qwen/Qwen3-ASR-0.6B-hf"
+    },
+    {
+      "owner": "qwen",
+      "providerId": "6a768b3db58b55b6e6f28c94",
+      "canonicalName": "Qwen/Qwen3.8-2.4T-A95B-FP8"
+    },
+    {
+      "owner": "qwen",
+      "providerId": "6a768b7cf3f180fc4e95f56f",
+      "canonicalName": "Qwen/Qwen3.8-2.4T-A95B"
+    }
+  ],
+  "changedFiles": [
+    "data/observations/2026/07/26.jsonl",
+    "data/observations/2026/07/28.jsonl",
+    "data/observations/2026/07/29.jsonl",
+    "data/observations/2026/07/30.jsonl",
+    "data/observations/2026/07/31.jsonl",
+    "data/observations/2026/08/01.jsonl",
+    "data/observations/2026/08/04.jsonl",
+    "data/observations/2026/08/05.jsonl",
+    "data/observations/2026/08/06.jsonl",
+    "data/observations/2026/08/07.jsonl",
+    "data/observations/2026/08/08.jsonl",
+    "data/observations/2026/08/12.jsonl",
+    "data/observations/2026/08/13.jsonl",
+    "data/model-events/2026/07/20.jsonl",
+    "data/model-events/2026/07/21.jsonl",
+    "data/model-events/2026/07/22.jsonl",
+    "data/model-events/2026/07/23.jsonl",
+    "data/model-events/2026/07/24.jsonl",
+    "data/model-events/2026/07/27.jsonl",
+    "data/model-events/2026/07/28.jsonl",
+    "data/model-events/2026/07/29.jsonl",
+    "data/model-events/2026/07/30.jsonl",
+    "data/model-events/2026/07/31.jsonl",
+    "data/model-events/2026/08/01.jsonl",
+    "data/model-events/2026/08/03.jsonl",
+    "data/model-events/2026/08/04.jsonl",
+    "data/model-events/2026/08/05.jsonl",
+    "data/model-events/2026/08/06.jsonl",
+    "data/model-events/2026/08/07.jsonl",
+    "data/model-events/2026/08/11.jsonl",
+    "data/model-events/2026/08/12.jsonl",
+    "data/curation/2026/07/31.md",
+    "data/curation/2026/08/01.md",
+    "data/curation/2026/08/02.md",
+    "data/curation/2026/08/04.md",
+    "data/curation/2026/08/06.md",
+    "data/curation/2026/08/07.md",
+    "data/curation/2026/08/09.md",
+    "data/curation/2026/08/14.md"
+  ]
+}

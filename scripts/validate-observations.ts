@@ -4,6 +4,7 @@ import {
   JsonlObservationStore,
   YamlRegistryStore,
 } from "../packages/storage/src/index";
+import { validateObservationProviderSemantics } from "../packages/core/src/index";
 
 async function main(): Promise<void> {
   const root = process.cwd();
@@ -22,6 +23,17 @@ async function main(): Promise<void> {
     throw new Error(
       `Duplicate observation IDs: ${duplicateIds.map((item) => item.id).join(", ")}`,
     );
+  }
+  const sources = new Map(
+    registry.registry.sources.map((source) => [source.id, source]),
+  );
+  for (const observation of observations) {
+    const source = sources.get(observation.sourceId);
+    if (!source)
+      throw new Error(
+        `Observation ${observation.id} references unknown source ${observation.sourceId}.`,
+      );
+    validateObservationProviderSemantics(observation, source);
   }
   console.log(
     `Observation data is valid: ${observations.length} observations, ${reports.length} run reports, ${states.filter(Boolean).length} source states.`,
