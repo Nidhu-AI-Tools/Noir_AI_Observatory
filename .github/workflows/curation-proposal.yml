@@ -3,6 +3,8 @@ name: Open daily AI curation review
 on:
   push:
     branches: [Noir]
+    paths:
+      - "data/curation/**/*.md"
   workflow_dispatch:
 
 permissions:
@@ -55,28 +57,50 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const head = `${owner}:Noir`;
-            const title = `Curation: review AI briefing for ${process.env.NOTE_DATE}`;
+            const marker = `<!-- noir-daily-briefing -->`;
+            const reviewer = "Nidhushan";
+            const title = `Daily briefing: ${process.env.NOTE_DATE}`;
             const body = [
-              `## Daily curation proposal`,
+              marker,
+              `## Daily Observatory briefing`,
               ``,
-              `Local Ollama generated a source-bound draft at \`${process.env.NOTE_PATH}\`.`,
+              `This pull request adds the Noir AI Observatory briefing for ${process.env.NOTE_DATE}.`,
               ``,
-              `Please verify every summary, interpretation, and source link. Approve and merge only when the note is accurate. After an approved merge, automation marks the note as published on \`main\`.`,
+              `### Review checklist`,
+              ``,
+              `- Check each summary and source link.`,
+              `- Refine any interpretation that needs more context.`,
+              `- Approve and merge when the briefing is ready to publish.`,
             ].join("\n");
             const existing = await github.paginate(github.rest.pulls.list, {
               owner, repo, state: "open", head, base: "main", per_page: 100,
             });
+            const managed = existing.find((candidate) =>
+              candidate.body?.includes(marker),
+            );
             let pull;
-            if (existing.length) {
+            if (managed) {
               pull = (await github.rest.pulls.update({
-                owner, repo, pull_number: existing[0].number, title, body,
+                owner, repo, pull_number: managed.number, title, body,
               })).data;
+            } else if (existing.length) {
+              core.notice(
+                `PR #${existing[0].number} already uses Noir → main. ` +
+                `Leaving that development PR unchanged; daily briefing creation will resume after it closes.`,
+              );
+              return;
             } else {
               pull = (await github.rest.pulls.create({
                 owner, repo, head: "Noir", base: "main", title, body,
               })).data;
             }
+            if (pull.user?.login?.toLowerCase() === reviewer.toLowerCase()) {
+              core.warning(
+                `Skipping the review request because ${reviewer} authored PR #${pull.number}.`,
+              );
+              return;
+            }
             await github.rest.pulls.requestReviewers({
-              owner, repo, pull_number: pull.number, reviewers: ["Nidhushan"],
+              owner, repo, pull_number: pull.number, reviewers: [reviewer],
             });
             core.notice(`Review requested: ${pull.html_url}`);
