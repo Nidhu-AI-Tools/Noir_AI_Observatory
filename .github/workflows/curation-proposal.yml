@@ -3,6 +3,8 @@ name: Open daily briefing review
 on:
   push:
     branches: [Noir]
+    paths:
+      - "data/curation/**/*.md"
   workflow_dispatch:
 
 permissions:
@@ -55,8 +57,11 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const head = `${owner}:Noir`;
+            const marker = `<!-- noir-daily-briefing -->`;
+            const reviewer = "Nidhushan";
             const title = `Daily briefing: ${process.env.NOTE_DATE}`;
             const body = [
+              marker,
               `## Daily Observatory briefing`,
               ``,
               `This pull request adds the Noir AI Observatory briefing for ${process.env.NOTE_DATE}.`,
@@ -70,17 +75,32 @@ jobs:
             const existing = await github.paginate(github.rest.pulls.list, {
               owner, repo, state: "open", head, base: "main", per_page: 100,
             });
+            const managed = existing.find((candidate) =>
+              candidate.body?.includes(marker),
+            );
             let pull;
-            if (existing.length) {
+            if (managed) {
               pull = (await github.rest.pulls.update({
-                owner, repo, pull_number: existing[0].number, title, body,
+                owner, repo, pull_number: managed.number, title, body,
               })).data;
+            } else if (existing.length) {
+              core.notice(
+                `PR #${existing[0].number} already uses Noir → main. ` +
+                `Leaving that development PR unchanged; daily briefing creation will resume after it closes.`,
+              );
+              return;
             } else {
               pull = (await github.rest.pulls.create({
                 owner, repo, head: "Noir", base: "main", title, body,
               })).data;
             }
+            if (pull.user?.login?.toLowerCase() === reviewer.toLowerCase()) {
+              core.warning(
+                `Skipping the review request because ${reviewer} authored PR #${pull.number}.`,
+              );
+              return;
+            }
             await github.rest.pulls.requestReviewers({
-              owner, repo, pull_number: pull.number, reviewers: ["Nidhushan"],
+              owner, repo, pull_number: pull.number, reviewers: [reviewer],
             });
             core.notice(`Review requested: ${pull.html_url}`);
