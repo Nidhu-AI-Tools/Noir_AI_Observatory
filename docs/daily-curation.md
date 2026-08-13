@@ -60,41 +60,7 @@ Source text is untrusted. Prompts explicitly treat embedded instructions as data
 
 ## Safe local automation on macOS
 
-Automate draft creation, not publication. First locate Corepack:
-
-```bash
-command -v corepack
-```
-
-Create `~/Library/LaunchAgents/com.noir.curation.plist` with your absolute Corepack path and repository path:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>com.noir.curation</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/ABSOLUTE/PATH/TO/corepack</string>
-    <string>pnpm</string>
-    <string>curation:daily</string>
-  </array>
-  <key>WorkingDirectory</key>
-  <string>/ABSOLUTE/PATH/TO/Noir_AI_Observatory</string>
-  <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key><integer>18</integer>
-    <key>Minute</key><integer>0</integer>
-  </dict>
-  <key>StandardOutPath</key><string>/tmp/noir-curation.log</string>
-  <key>StandardErrorPath</key><string>/tmp/noir-curation-error.log</string>
-</dict>
-</plist>
-```
-
-Load it with `launchctl load ~/Library/LaunchAgents/com.noir.curation.plist`. The Mac must be awake and Ollama must be reachable. This job does not pull, publish, commit, or push; review remains a separate deliberate action.
+Use the repository's reviewed launch-agent template and dedicated automation clone. It starts Ollama, creates a draft on `Noir`, and opens a bot-authored pull request, but publication still requires your GitHub approval. Follow [Automated daily curation](automated-curation.md).
 
 ## Troubleshooting
 

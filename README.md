@@ -139,6 +139,8 @@ corepack pnpm curation:run
 
 The guided script updates `Noir`, merges the latest `main`, waits for generation, opens the draft, and pauses for review before it can publish or commit. It can push only to `Noir`, after confirmation, so the note reaches `main` through your pull request. Use Codex instead with `corepack pnpm curation:run -- --provider codex`. See [Daily Curation Studio](docs/daily-curation.md).
 
+For unattended daily draft generation and bot-authored review pull requests using local Ollama, see [Automated daily curation](docs/automated-curation.md).
+
 ## Quality checks
 
 ```bash

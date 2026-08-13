@@ -1,0 +1,82 @@
+name: Open daily AI curation review
+
+on:
+  push:
+    branches: [Noir]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: daily-curation-proposal
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    if: github.repository == 'Nidhu-AI-Tools/Noir_AI_Observatory'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Noir
+        uses: actions/checkout@v4
+        with:
+          ref: Noir
+          fetch-depth: 0
+
+      - name: Locate the newest proposed note
+        id: note
+        run: |
+          git fetch --no-tags origin main
+          note_path="$(git diff --name-only origin/main...HEAD -- 'data/curation/**/*.md' | sort | tail -1)"
+          if [[ -z "$note_path" ]]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          note_date="$(sed -n 's/^date: //p' "$note_path" | head -1)"
+          note_status="$(sed -n 's/^status: //p' "$note_path" | head -1)"
+          if [[ "$note_status" != "draft" ]]; then
+            echo "Newest curation note is not a draft; no review PR needed."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "date=$note_date" >> "$GITHUB_OUTPUT"
+          echo "path=$note_path" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update review pull request
+        if: steps.note.outputs.found == 'true'
+        uses: actions/github-script@v7
+        env:
+          NOTE_DATE: ${{ steps.note.outputs.date }}
+          NOTE_PATH: ${{ steps.note.outputs.path }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:Noir`;
+            const title = `Curation: review AI briefing for ${process.env.NOTE_DATE}`;
+            const body = [
+              `## Daily curation proposal`,
+              ``,
+              `Local Ollama generated a source-bound draft at \`${process.env.NOTE_PATH}\`.`,
+              ``,
+              `Please verify every summary, interpretation, and source link. Approve and merge only when the note is accurate. After an approved merge, automation marks the note as published on \`main\`.`,
+            ].join("\n");
+            const existing = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: "open", head, base: "main", per_page: 100,
+            });
+            let pull;
+            if (existing.length) {
+              pull = (await github.rest.pulls.update({
+                owner, repo, pull_number: existing[0].number, title, body,
+              })).data;
+            } else {
+              pull = (await github.rest.pulls.create({
+                owner, repo, head: "Noir", base: "main", title, body,
+              })).data;
+            }
+            await github.rest.pulls.requestReviewers({
+              owner, repo, pull_number: pull.number, reviewers: ["Nidhushan"],
+            });
+            core.notice(`Review requested: ${pull.html_url}`);
