@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "runId": "31672319640-1",
+  "trigger": "schedule",
+  "startedAt": "2026-08-13T06:01:35.516Z",
+  "finishedAt": "2026-08-13T06:01:35.852Z",
+  "status": "success",
+  "totals": {
+    "configured": 1,
+    "attempted": 1,
+    "skipped": 0,
+    "fetched": 100,
+    "added": 100,
+    "updated": 0,
+    "duplicatesMerged": 0,
+    "failed": 0
+  },
+  "sources": [
+    {
+      "sourceId": "arxiv-query-arxiv-artificial-intelligence",
+      "status": "success",
+      "fetched": 100,
+      "accepted": 100
+    }
+  ]
+}
