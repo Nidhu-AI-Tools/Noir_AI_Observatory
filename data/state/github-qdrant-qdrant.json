@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-qdrant-qdrant",
-  "lastSuccessfulAt": "2026-08-13T04:20:15.443Z",
+  "lastSuccessfulAt": "2026-08-14T04:18:08.608Z",
   "cursor": {
     "timestamp": "2026-08-05T11:26:05Z",
     "externalIdsAtTimestamp": [
       "365475963"
     ]
   },
-  "etag": "W/\"49258fd0b46c21c4aa843123e9bccf31d9f2b6eb20ccac00c2f548fe19ce0487\""
+  "etag": "W/\"c012db164238fc3ac398731d7e9223169130efc269f1dc08ecb9c060b6d4beba\""
 }
