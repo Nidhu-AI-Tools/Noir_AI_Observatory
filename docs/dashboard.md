@@ -1,15 +1,14 @@
 # Dashboard
 
-Phase 3 turns the repository dataset into a useful static interface without introducing a database or server runtime. The build reads the same validated source registry, observations, and run reports used by collection.
+The dashboard turns the repository dataset into a useful static interface without introducing a database or server runtime. The build reads the same validated registries, observations, events, checks, notes, and run reports used by collection.
 
 ## Views
 
-- **Overview** shows aggregate release/model counts, the latest observations, the most active categories, and the latest collection result.
+- **Today** is the homepage and UTC daily archive. It combines the published reviewed note, deterministic ecosystem releases, model events, research highlights, API transitions, collection status, and data freshness for one selected date.
 - **Radar** shows every tracked source and its activity in the last 24 hours, 7 days, 30 days, and all time. Search and filters are encoded in the URL where practical, so a focused view can be shared.
-- **Digests** groups observations by UTC day, category, and source. A collection report creates a digest date even when the run found no changes.
 - **Sources** remains the registry-management view and now links each source to its latest observation and focused Radar view.
 
-**API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. **Research** shows normalized papers and official announcements with shareable filters, transparent match reasons, and deterministic seven-day trends. **Models** shows the latest categorized model releases, a model catalog, lifecycle and availability filters, and category leaders. **Curation** displays only human-reviewed daily notes, with AI-assistance disclosure and direct evidence links.
+**API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. **Research** shows normalized papers and official announcements with shareable filters, transparent match reasons, and deterministic seven-day trends. **Models** shows the latest categorized model releases, a model catalog, lifecycle and availability filters, and category leaders. Published curation notes appear in their matching Today edition; draft notes are never generated for the public site.
 
 ## Generated artifacts
 
@@ -20,33 +19,34 @@ corepack pnpm generate:sources
 corepack pnpm generate:dashboard
 corepack pnpm generate:research
 corepack pnpm generate:model-radar
-corepack pnpm generate:curation
 ```
 
 The commands write:
 
 ```text
 apps/web/public/generated/sources.json
-apps/web/public/generated/activity.json
-apps/web/public/generated/feed.json
 apps/web/public/generated/radar.json
-apps/web/public/generated/digests/index.json
-apps/web/public/generated/digests/YYYY-MM-DD.json
+apps/web/public/generated/activity.json
+apps/web/public/generated/today/index.json
+apps/web/public/generated/today/YYYY-MM-DD.json
 apps/web/public/generated/health/index.json
 apps/web/public/generated/health/monitors/MONITOR_ID.json
 apps/web/public/generated/research/index.json
 apps/web/public/generated/research/days/YYYY-MM-DD.json
 apps/web/public/generated/models/index.json
-apps/web/public/generated/curation/index.json
 ```
 
-`activity.json` is retained for compatibility with Phase 2. New pages use the enriched feed, radar, and digest artifacts. Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment.
+Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment. `activity.json` remains temporarily for compatibility and is scheduled for removal in Phase 5. The old `/digests/` and `/curation/` pages redirect to Today and preserve a requested `date` query parameter, but their old generated payloads are no longer emitted.
 
-Daily artifacts are bounded to the newest 90 UTC dates and 500 displayed observations per date. A digest reports the number omitted if a high-volume day crosses the display bound. The source observations under `data/` remain the complete canonical record.
+Today artifacts are bounded to the newest 90 UTC dates. Each edition carries full counts but only the cards rendered by the homepage: up to 6 ecosystem releases, 6 model events, 8 research items, and 6 API transitions. The canonical records under `data/` remain complete. A selected edition therefore loads without downloading an entire historical catalog.
+
+The newest edition is selected by default. `/?date=YYYY-MM-DD` is the shareable archive URL. A successful collection report creates an edition even when it found no changes, allowing the page to distinguish a quiet successful day from missing data.
 
 ## Time and status semantics
 
-Activity windows are calculated relative to the artifact's `generatedAt` timestamp. Future timestamps are excluded. Digest dates use the UTC date in normalized ISO timestamps rather than the reader's locale.
+Activity windows are calculated relative to the artifact's `generatedAt` timestamp. Future timestamps are excluded. Today dates use the UTC date in normalized ISO timestamps rather than the reader's locale. `lastUpdatedAt` is derived from the latest contributing collection, research, observation, event, health, or review timestamp; it is not merely the website build time.
+
+Today uses one normalized representation per logical signal. A Hugging Face observation promoted to a model event is not repeated in the ecosystem section, and an item featured in a published note is not repeated below that note. Section totals still describe every logical signal for the date.
 
 Radar status is derived from the latest observation:
 

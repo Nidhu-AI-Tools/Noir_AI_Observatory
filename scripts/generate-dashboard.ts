@@ -3,9 +3,8 @@ import path from "node:path";
 
 import {
   buildActivityDashboardData,
-  buildDashboardFeedData,
-  buildDigestDashboardData,
   buildRadarDashboardData,
+  buildTodayDashboardData,
 } from "../packages/dashboard-data/src/index";
 import {
   JsonRunReportStore,
@@ -59,8 +58,8 @@ export async function generateDashboard(
     "public",
     "generated",
   );
-  const digestDirectory = path.join(outputDirectory, "digests");
-  const digests = buildDigestDashboardData(
+  const todayDirectory = path.join(outputDirectory, "today");
+  const today = buildTodayDashboardData(
     snapshot,
     observations,
     reports,
@@ -78,23 +77,32 @@ export async function generateDashboard(
 
   // Daily files are disposable view models. Recreate the directory so dates
   // that age out of the retention window cannot remain publicly accessible.
-  await rm(digestDirectory, { recursive: true, force: true });
+  // Remove superseded artifacts as well so a local or Pages build cannot
+  // accidentally publish stale Overview, Digests, or Curation payloads.
+  await Promise.all([
+    rm(todayDirectory, { recursive: true, force: true }),
+    rm(path.join(outputDirectory, "digests"), {
+      recursive: true,
+      force: true,
+    }),
+    rm(path.join(outputDirectory, "curation"), {
+      recursive: true,
+      force: true,
+    }),
+    rm(path.join(outputDirectory, "feed.json"), { force: true }),
+  ]);
   await Promise.all([
     writeJson(
       path.join(outputDirectory, "activity.json"),
       buildActivityDashboardData(observations, reports, generatedAt),
     ),
     writeJson(
-      path.join(outputDirectory, "feed.json"),
-      buildDashboardFeedData(snapshot, observations, reports, generatedAt),
-    ),
-    writeJson(
       path.join(outputDirectory, "radar.json"),
       buildRadarDashboardData(snapshot, observations, generatedAt),
     ),
-    writeJson(path.join(digestDirectory, "index.json"), digests.index),
-    ...[...digests.daily.entries()].map(([date, digest]) =>
-      writeJson(path.join(digestDirectory, `${date}.json`), digest),
+    writeJson(path.join(todayDirectory, "index.json"), today.index),
+    ...[...today.editions.entries()].map(([date, edition]) =>
+      writeJson(path.join(todayDirectory, `${date}.json`), edition),
     ),
   ]);
 }

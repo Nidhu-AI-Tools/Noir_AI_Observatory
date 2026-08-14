@@ -21,7 +21,7 @@ pnpm observations:validate
 pnpm generate:dashboard
 ```
 
-The generated Overview, Radar, and Daily Digest contracts are documented in [Dashboard](dashboard.md).
+The generated Today and Radar contracts are documented in [Dashboard](dashboard.md).
 
 The default first-run lookback is seven days. Override it only when intentionally bootstrapping more history:
 
