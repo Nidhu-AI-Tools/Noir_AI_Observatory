@@ -12,7 +12,7 @@ Run `pnpm category:add` or `pnpm category:edit <id>` to manage taxonomy display 
 
 ## Remote workflow
 
-The Sources dashboard links to GitHub Issue Forms for additions and edits. To activate automated pull requests:
+The Radar dashboard links to GitHub Issue Forms for additions and edits. Expand **Source details and settings** on any card to inspect its immutable ID and request changes. To activate automated pull requests:
 
 1. Create a repository label named `source:approved`.
 2. In repository Actions settings, enable the option allowing GitHub Actions to create pull requests.

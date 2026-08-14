@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   buildActivityDashboardData,
+  buildHealthDashboardData,
   buildRadarDashboardData,
   buildTodayDashboardData,
 } from "../packages/dashboard-data/src/index";
@@ -74,6 +75,13 @@ export async function generateDashboard(
       curationNotes,
     },
   );
+  const health = buildHealthDashboardData(
+    monitorRegistry,
+    snapshot,
+    healthChecks,
+    [],
+    generatedAt,
+  );
 
   // Daily files are disposable view models. Recreate the directory so dates
   // that age out of the retention window cannot remain publicly accessible.
@@ -90,6 +98,7 @@ export async function generateDashboard(
       force: true,
     }),
     rm(path.join(outputDirectory, "feed.json"), { force: true }),
+    rm(path.join(outputDirectory, "sources.json"), { force: true }),
   ]);
   await Promise.all([
     writeJson(
@@ -98,7 +107,9 @@ export async function generateDashboard(
     ),
     writeJson(
       path.join(outputDirectory, "radar.json"),
-      buildRadarDashboardData(snapshot, observations, generatedAt),
+      buildRadarDashboardData(snapshot, observations, generatedAt, {
+        healthMonitors: health.index.monitors,
+      }),
     ),
     writeJson(path.join(todayDirectory, "index.json"), today.index),
     ...[...today.editions.entries()].map(([date, edition]) =>

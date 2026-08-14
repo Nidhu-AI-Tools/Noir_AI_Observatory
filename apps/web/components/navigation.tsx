@@ -9,7 +9,6 @@ const navigationItems = [
   ["Research", "/research/"],
   ["Models", "/models/"],
   ["API Health", "/health/"],
-  ["Sources", "/sources/"],
 ] as const;
 
 export function Navigation() {

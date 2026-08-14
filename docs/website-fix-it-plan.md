@@ -150,6 +150,7 @@ presentations.
 ## Phase 3: Merge Sources into Radar
 
 **Weight:** Medium  
+**Status:** Implemented on the Noir branch
 **Purpose:** Keep the source-management capability while eliminating two nearly
 identical catalogs.
 

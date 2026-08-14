@@ -175,13 +175,37 @@ describe("Phase 3 dashboard view models", () => {
   });
 
   it("computes radar windows and explicit inactive states", () => {
-    const radar = buildRadarDashboardData(snapshot, observations, now);
+    const radar = buildRadarDashboardData(snapshot, observations, now, {
+      healthMonitors: [
+        {
+          id: "api-qdrant",
+          displayName: "Qdrant API",
+          linkedSourceId: "github-qdrant-qdrant",
+          status: "healthy",
+          enabled: true,
+        },
+      ],
+    });
 
     expect(radar.summary).toEqual({
       tracked: 3,
       enabled: 2,
+      disabled: 1,
+      categories: 2,
       withActivity: 2,
       activeLast7Days: 2,
+    });
+    expect(radar.schemaVersion).toBe(2);
+    expect(radar.sources[0]).toMatchObject({
+      id: "github-qdrant-qdrant",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+      linkedMonitor: {
+        id: "api-qdrant",
+        displayName: "Qdrant API",
+        status: "healthy",
+        enabled: true,
+      },
     });
     expect(
       radar.sources.map((source) => [
@@ -196,6 +220,32 @@ describe("Phase 3 dashboard view models", () => {
     expect(isWithinWindow("2026-07-27T00:00:00.000Z", now, 604_800_000)).toBe(
       false,
     );
+  });
+
+  it("chooses a linked monitor deterministically", () => {
+    const radar = buildRadarDashboardData(snapshot, observations, now, {
+      healthMonitors: [
+        {
+          id: "monitor-z",
+          displayName: "Zulu API",
+          linkedSourceId: "github-qdrant-qdrant",
+          status: "down",
+          enabled: true,
+        },
+        {
+          id: "monitor-a",
+          displayName: "Alpha API",
+          linkedSourceId: "github-qdrant-qdrant",
+          status: "degraded",
+          enabled: true,
+        },
+      ],
+    });
+
+    expect(radar.sources[0]?.linkedMonitor).toMatchObject({
+      id: "monitor-a",
+      status: "degraded",
+    });
   });
 
   it("creates deterministic UTC Today editions, including zero-change run days", () => {
