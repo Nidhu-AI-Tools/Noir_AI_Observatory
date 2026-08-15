@@ -1,6 +1,8 @@
 import type { Observation } from "@noir/core";
 import type { RegistrySnapshot } from "@noir/storage";
 
+import type { DashboardHealthStatus } from "./health";
+
 import {
   buildObservationViews,
   isWithinWindow,
@@ -20,6 +22,8 @@ export interface RadarSource {
   category: { id: string; name: string };
   tags: string[];
   enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
   activity: {
     total: number;
     last24Hours: number;
@@ -29,20 +33,30 @@ export interface RadarSource {
     status: RadarActivityStatus;
   };
   latestObservation?: DashboardObservation;
+  linkedMonitor?: {
+    id: string;
+    displayName: string;
+    status: DashboardHealthStatus;
+    enabled: boolean;
+  };
 }
 
 export interface RadarDashboardData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   summary: {
     tracked: number;
     enabled: number;
+    disabled: number;
+    categories: number;
     withActivity: number;
     activeLast7Days: number;
   };
   filters: {
     categories: { id: string; name: string }[];
     tags: string[];
+    kinds: RadarSource["kind"][];
+    configurationStatuses: ("enabled" | "disabled")[];
   };
   sources: RadarSource[];
 }
@@ -65,6 +79,15 @@ export function buildRadarDashboardData(
   snapshot: RegistrySnapshot,
   observations: Observation[],
   generatedAt = new Date(),
+  options: {
+    healthMonitors?: {
+      id: string;
+      displayName: string;
+      linkedSourceId?: string;
+      status: DashboardHealthStatus;
+      enabled: boolean;
+    }[];
+  } = {},
 ): RadarDashboardData {
   const views = buildObservationViews(snapshot, observations);
   const bySource = new Map<string, DashboardObservation[]>();
@@ -77,10 +100,29 @@ export function buildRadarDashboardData(
   const categories = new Map(
     snapshot.taxonomy.categories.map((category) => [category.id, category]),
   );
+  const linkedMonitors = new Map<
+    string,
+    NonNullable<RadarSource["linkedMonitor"]>
+  >();
+  for (const monitor of [...(options.healthMonitors ?? [])].sort(
+    (left, right) =>
+      left.displayName.localeCompare(right.displayName) ||
+      left.id.localeCompare(right.id),
+  )) {
+    if (!monitor.linkedSourceId || linkedMonitors.has(monitor.linkedSourceId))
+      continue;
+    linkedMonitors.set(monitor.linkedSourceId, {
+      id: monitor.id,
+      displayName: monitor.displayName,
+      status: monitor.status,
+      enabled: monitor.enabled,
+    });
+  }
   const sources = snapshot.registry.sources
     .map((source): RadarSource => {
       const activity = bySource.get(source.id) ?? [];
       const latest = activity[0];
+      const linkedMonitor = linkedMonitors.get(source.id);
       const category = categories.get(source.categoryId);
       if (!category) {
         throw new Error(
@@ -100,6 +142,8 @@ export function buildRadarDashboardData(
         category: { id: category.id, name: category.name },
         tags: source.tags,
         enabled: source.enabled,
+        createdAt: source.createdAt,
+        updatedAt: source.updatedAt,
         activity: {
           total: activity.length,
           last24Hours: activity.filter((item) =>
@@ -115,6 +159,7 @@ export function buildRadarDashboardData(
           status: activityStatus(source.enabled, latest, generatedAt),
         },
         ...(latest ? { latestObservation: latest } : {}),
+        ...(linkedMonitor ? { linkedMonitor } : {}),
       };
     })
     .sort(
@@ -127,11 +172,13 @@ export function buildRadarDashboardData(
     );
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: generatedAt.toISOString(),
     summary: {
       tracked: sources.length,
       enabled: sources.filter((source) => source.enabled).length,
+      disabled: sources.filter((source) => !source.enabled).length,
+      categories: new Set(sources.map((source) => source.category.id)).size,
       withActivity: sources.filter((source) => source.activity.total > 0)
         .length,
       activeLast7Days: sources.filter((source) => source.activity.last7Days > 0)
@@ -139,9 +186,14 @@ export function buildRadarDashboardData(
     },
     filters: {
       categories: snapshot.taxonomy.categories
+        .filter((category) =>
+          sources.some((source) => source.category.id === category.id),
+        )
         .map((category) => ({ id: category.id, name: category.name }))
         .sort((left, right) => left.name.localeCompare(right.name)),
       tags: [...new Set(sources.flatMap((source) => source.tags))].sort(),
+      kinds: [...new Set(sources.map((source) => source.kind))].sort(),
+      configurationStatuses: ["enabled", "disabled"],
     },
     sources,
   };

@@ -10,7 +10,7 @@
     "pnpm": ">=10.0.0 <11"
   },
   "scripts": {
-    "build": "corepack pnpm generate:sources && corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web build",
+    "build": "corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web build",
     "category:add": "node --import tsx scripts/registry-cli.ts category:add",
     "category:edit": "node --import tsx scripts/registry-cli.ts category:edit",
     "check": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm observations:validate && corepack pnpm health:validate && corepack pnpm research:validate && corepack pnpm model-intelligence:validate && corepack pnpm curation:validate && corepack pnpm build",
@@ -23,7 +23,7 @@
     "curation:run": "bash scripts/run-daily-curation.sh",
     "curation:status": "node --import tsx scripts/curation-cli.ts curation:status",
     "curation:validate": "node --import tsx scripts/curation-cli.ts curation:validate",
-    "dev": "corepack pnpm generate:sources && corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web dev",
+    "dev": "corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate:activity": "node --import tsx scripts/generate-activity.ts",
@@ -31,7 +31,6 @@
     "generate:health": "node --import tsx scripts/generate-health.ts",
     "generate:model-radar": "node --import tsx scripts/generate-model-radar.ts",
     "generate:research": "node --import tsx scripts/generate-research.ts",
-    "generate:sources": "node --import tsx scripts/generate-sources.ts",
     "lint": "eslint . --max-warnings 0",
     "health:run": "node --import tsx scripts/monitor-health.ts",
     "health:validate": "node --import tsx scripts/validate-health.ts",

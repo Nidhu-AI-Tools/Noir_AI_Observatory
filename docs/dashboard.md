@@ -5,8 +5,7 @@ The dashboard turns the repository dataset into a useful static interface withou
 ## Views
 
 - **Today** is the homepage and UTC daily archive. It combines the published reviewed note, deterministic ecosystem releases, model events, research highlights, API transitions, collection status, and data freshness for one selected date.
-- **Radar** shows every tracked source and its activity in the last 24 hours, 7 days, 30 days, and all time. Search and filters are encoded in the URL where practical, so a focused view can be shared.
-- **Sources** remains the registry-management view and now links each source to its latest observation and focused Radar view.
+- **Radar** shows every tracked GitHub repository and Hugging Face organization, its activity in the last 24 hours, 7 days, 30 days, and all time, and its reviewed configuration. Search and filters are encoded in the URL, so a focused view can be shared. Add and edit requests use the existing GitHub Issue Forms.
 
 **API Health** shows current endpoint state, observed availability, latency percentiles, consecutive failures, and recent checks. **Research** shows normalized papers and official announcements with shareable filters, transparent match reasons, and deterministic seven-day trends. **Models** shows the latest categorized model releases, a model catalog, lifecycle and availability filters, and category leaders. Published curation notes appear in their matching Today edition; draft notes are never generated for the public site.
 
@@ -15,8 +14,8 @@ The dashboard turns the repository dataset into a useful static interface withou
 Run:
 
 ```bash
-corepack pnpm generate:sources
 corepack pnpm generate:dashboard
+corepack pnpm generate:health
 corepack pnpm generate:research
 corepack pnpm generate:model-radar
 ```
@@ -24,7 +23,6 @@ corepack pnpm generate:model-radar
 The commands write:
 
 ```text
-apps/web/public/generated/sources.json
 apps/web/public/generated/radar.json
 apps/web/public/generated/activity.json
 apps/web/public/generated/today/index.json
@@ -36,7 +34,7 @@ apps/web/public/generated/research/days/YYYY-MM-DD.json
 apps/web/public/generated/models/index.json
 ```
 
-Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment. `activity.json` remains temporarily for compatibility and is scheduled for removal in Phase 5. The old `/digests/` and `/curation/` pages redirect to Today and preserve a requested `date` query parameter, but their old generated payloads are no longer emitted.
+Generated files are ignored and recreated by `pnpm dev`, `pnpm build`, and GitHub Pages deployment. `activity.json` remains temporarily for compatibility and is scheduled for removal in Phase 5. The old `/digests/` and `/curation/` pages redirect to Today and preserve a requested `date` query parameter. The old `/sources/` page redirects to Radar and preserves compatible filters. Their superseded generated payloads are no longer emitted.
 
 Today artifacts are bounded to the newest 90 UTC dates. Each edition carries full counts but only the cards rendered by the homepage: up to 6 ecosystem releases, 6 model events, 8 research items, and 6 API transitions. The canonical records under `data/` remain complete. A selected edition therefore loads without downloading an entire historical catalog.
 
@@ -56,6 +54,8 @@ Radar status is derived from the latest observation:
 - `earlier`: older than 30 days
 - `none`: no observation has been collected
 - `disabled`: the registry entry is disabled
+
+Radar is the management surface for GitHub repository and Hugging Face organization sources only. Research feeds and API monitors remain managed from their respective dashboards. Source IDs, kinds, and locators are immutable; display metadata, category, tags, and enabled state can be changed through a reviewed edit request.
 
 An empty observation set is valid. The dashboard explains how to run collection, and any available run report remains visible. A missing generated file produces a retryable error state instead of rendering sample content.
 
