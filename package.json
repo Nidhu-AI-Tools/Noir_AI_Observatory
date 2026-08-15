@@ -26,7 +26,6 @@
     "dev": "corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate:activity": "node --import tsx scripts/generate-activity.ts",
     "generate:dashboard": "node --import tsx scripts/generate-dashboard.ts",
     "generate:health": "node --import tsx scripts/generate-health.ts",
     "generate:model-radar": "node --import tsx scripts/generate-model-radar.ts",

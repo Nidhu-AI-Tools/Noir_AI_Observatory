@@ -1,6 +1,6 @@
 # Research and announcement intelligence
 
-Phase 5 collects metadata for AI papers and official announcements. It does not download PDFs, article bodies, or raw feeds, and it does not use an LLM to summarize or rank content.
+Research Intelligence collects metadata for AI papers and official announcements. It does not download PDFs, article bodies, or raw feeds, and it does not use an LLM to summarize or rank content.
 
 ## Source registry
 
@@ -9,7 +9,7 @@ Phase 5 collects metadata for AI papers and official announcements. It does not 
 - `arxiv_query` runs a bounded arXiv API query once per day.
 - `rss_feed` reads a public HTTPS RSS or Atom feed from an authoritative publisher.
 
-Source IDs and kinds are immutable. Display name, query or feed URL, publisher, category, tags, weight, and enabled state can be edited. Weight is an explicit value from 1 to 5 used only in the dashboard's explainable match score.
+Source IDs and kinds are immutable. Display name, query or feed URL, publisher, category, tags, weight, enabled state, and reviewed discovery defaults can be edited. `config/research-taxonomy.yaml` defines stable organization, venue, and topic IDs plus search aliases. Organization and venue defaults are valid only when every record from the source shares that authoritative provenance.
 
 Manage sources locally with:
 
@@ -61,6 +61,16 @@ The scheduled workflow runs daily at `04:37 UTC`, commits only the three researc
 
 ## Dashboard semantics
 
-The Research page supports shareable search, type, source, tag, and arXiv-category filters. Its match score is deterministic: configured source weight plus recency and overlapping-query bonuses. It is not a claim about paper quality or scientific importance.
+The Research page renders 24 records at a time and supports shareable text, organization, venue, topic, type, source, tag, arXiv-category, recent-window, and date filters. Results sort by newest, oldest, or deterministic text relevance. Relevance is a field-match policy, not a claim about paper quality or scientific importance.
+
+The generated public contract is static and bounded:
+
+```text
+apps/web/public/generated/research/index.json
+apps/web/public/generated/research/pages/NNNN.json
+apps/web/public/generated/research/search/index.json
+```
+
+The compact index and one page load initially. The search index loads lazily for catalog-wide matching, and page shards are cached. Organization and venue entries with no authoritative source are labeled `not configured`; the interface does not present missing coverage as zero publications. Computer Vision and Robotics are mapped deterministically from reviewed arXiv categories while original categories remain visible.
 
 OpenAlex citation, institution, DOI, and author enrichment is intentionally deferred until this ingestion pipeline has operated reliably.

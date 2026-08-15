@@ -48,10 +48,70 @@ describe("research dashboard data", () => {
       items,
       [],
       new Date("2026-07-26T00:00:00.000Z"),
+      24,
+      {
+        version: 1,
+        organizations: [
+          {
+            id: "google-research",
+            name: "Google Research",
+            aliases: ["Google AI"],
+          },
+        ],
+        venues: [],
+        topics: [
+          {
+            id: "artificial-intelligence",
+            name: "Artificial Intelligence",
+            aliases: ["AI"],
+            mappings: { arxivCategories: ["cs.AI"], tags: [] },
+          },
+          {
+            id: "robotics",
+            name: "Robotics",
+            aliases: [],
+            mappings: { arxivCategories: ["cs.RO"], tags: [] },
+          },
+        ],
+      },
     );
-    expect(result.summary.papers7Days).toBe(1);
-    expect(result.items[0]?.matchScore).toBe(7);
-    expect(result.items[0]?.matchReasons).toContain("Matched arXiv AI");
-    expect(result.trends.tags[0]).toEqual({ name: "ai", count: 1 });
+    expect(result.index.summary.papers7Days).toBe(1);
+    expect(result.index.pageCount).toBe(1);
+    expect(result.pages.get(1)?.items).toHaveLength(1);
+    expect(result.search.documents[0]).toMatchObject({
+      id: "arxiv:1",
+      page: 1,
+      topicIds: ["artificial-intelligence"],
+    });
+    expect(result.pages.get(1)?.items[0]?.facets.topics[0]?.id).toBe(
+      "artificial-intelligence",
+    );
+    expect(result.index.trends.topics[0]).toEqual({
+      name: "Artificial Intelligence",
+      count: 1,
+    });
+    expect(result.index.facets.organizations[0]?.status).toBe("not-configured");
+    expect(result.index.facets.topics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "robotics",
+          status: "configured-empty",
+        }),
+      ]),
+    );
+
+    const paginated = buildResearchDashboardData(
+      registry,
+      Array.from({ length: 25 }, (_, index) => ({
+        ...items[0]!,
+        id: `arxiv:${index}`,
+        arxivId: String(index),
+      })),
+      [],
+      new Date("2026-07-26T00:00:00.000Z"),
+    );
+    expect(paginated.index.pageCount).toBe(2);
+    expect(paginated.pages.get(1)?.items).toHaveLength(24);
+    expect(paginated.pages.get(2)?.items).toHaveLength(1);
   });
 });

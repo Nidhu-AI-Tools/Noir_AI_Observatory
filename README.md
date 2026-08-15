@@ -2,7 +2,7 @@
 
 Noir AI Observatory is a continuously updated view of the AI ecosystem. It tracks releases from GitHub, model revisions from Hugging Face, AI papers and official announcements, and sampled availability and latency for public AI-related APIs.
 
-The project is currently in **Phase 7: Daily Curation Studio**. A local Ollama model or read-only Codex process can turn bounded Observatory evidence into a source-grounded Markdown draft. A maintainer must review and publish every note before committing it.
+The dashboard combines a daily briefing, an ecosystem radar, research discovery, model signals, and API health history. Local Ollama or read-only Codex assistance can prepare a source-grounded daily draft; publication remains a separate reviewed step.
 
 ## Architecture
 
@@ -175,7 +175,9 @@ docs/decisions            Architecture decision records
 scripts                   Project automation entry points
 ```
 
-## Roadmap
+## Project history
+
+The original implementation milestones are retained here as project history:
 
 1. **Phase 0 · Foundation** — workspace, dashboard shell, tests, CI, and deployment. ✓
 2. **Phase 1 · Source registry** — validated GitHub and Hugging Face source management. ✓

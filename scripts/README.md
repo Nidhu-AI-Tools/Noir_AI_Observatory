@@ -6,9 +6,7 @@ Scripts should delegate business logic to workspace packages so they remain thin
 
 - `collect.ts` runs all enabled sources or one selected source and supports non-writing dry runs.
 - `validate-observations.ts` validates observations, reports, and configured source states.
-- `generate-dashboard.ts` produces the overview feed, radar, digest index, daily digest files, and the backward-compatible activity feed.
-- `generate-activity.ts` remains available for backward-compatible activity-only generation.
-- `generate-sources.ts` produces the frontend-sized source registry.
+- `generate-dashboard.ts` produces Radar plus the compact Today index and bounded daily editions, and removes superseded generated artifacts.
 - `monitor-cli.ts` manages and dry-checks public API monitors.
 - `monitor-health.ts` executes enabled monitors and persists normalized samples.
 - `validate-health.ts` validates monitor configuration and health datasets.
@@ -16,14 +14,13 @@ Scripts should delegate business logic to workspace packages so they remain thin
 - `research-cli.ts` manages and dry-checks arXiv query and RSS/Atom sources.
 - `collect-research.ts` runs incremental research collection and writes a run report even when nothing changes.
 - `validate-research.ts` validates research configuration, canonical items, and reports.
-- `generate-research.ts` creates the bounded Research dashboard index and daily artifacts.
+- `generate-research.ts` creates the compact Research index, lazy search index, and bounded page shards.
 - `model-intelligence-cli.ts` manages reviewed model metadata and categories.
 - `collect-model-intelligence.ts` materializes deduplicated model release events from public observations and reviewed overrides.
 - `validate-model-intelligence.ts` validates model configuration, events, and run reports.
-- `generate-model-radar.ts` creates the Model Radar dashboard artifact.
+- `generate-model-radar.ts` creates the compact Model Radar dashboard artifact and enforces its payload budget.
 - `curation-cli.ts` prepares bounded evidence, invokes local Ollama or read-only Codex, validates drafts, and records explicit publication review.
 - `run-daily-curation.sh` guides the complete local daily workflow while keeping review, publication, and push confirmation explicit.
 - `ensure-ollama.sh` starts the local Ollama service when needed and waits up to three minutes for readiness.
 - `run-automated-curation.sh` creates and pushes a source-validated draft for the scheduled local macOS job.
 - `install-curation-automation.sh` installs the daily macOS launch agent for a dedicated automation clone.
-- `generate-curation.ts` creates the published-note archive for the Curation dashboard.

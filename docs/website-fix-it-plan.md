@@ -191,6 +191,7 @@ not every registry in the project.
 ## Phase 4: Research discovery, search, facets, and pagination
 
 **Weight:** Heavy; keep this phase independent  
+**Status:** Implemented on the Noir branch
 **Purpose:** Turn Research into a focused discovery tool without loading or
 rendering the entire catalog.
 
@@ -320,6 +321,7 @@ Keep the site static and avoid a database dependency:
 ## Phase 5: Payload cleanup, dead artifacts, and public wording
 
 **Weight:** Light to medium; group the smaller cleanup items  
+**Status:** Implemented on the Noir branch
 **Purpose:** Remove hidden duplication and internal implementation language.
 
 ### Generated data cleanup

@@ -52,10 +52,30 @@ body:
     id: weight
     attributes:
       label: Source weight
-      description: Match-ranking weight from 1 (low) to 5 (high).
+      description: Reviewed source-priority metadata from 1 (low) to 5 (high).
       options: ["3", "1", "2", "4", "5"]
     validations:
       required: true
+  - type: input
+    id: organization-ids
+    attributes:
+      label: Organization IDs
+      description: Optional comma-separated IDs from config/research-taxonomy.yaml. Use only when every record from this authoritative source belongs to the organization.
+  - type: input
+    id: venue-ids
+    attributes:
+      label: Venue IDs
+      description: Optional comma-separated IDs from config/research-taxonomy.yaml. Use only for an authoritative venue source.
+  - type: input
+    id: topic-ids
+    attributes:
+      label: Topic IDs
+      description: Optional reviewed topic defaults. Prefer taxonomy mappings from structured provider categories.
+  - type: textarea
+    id: coverage-description
+    attributes:
+      label: Coverage description
+      description: Briefly state what this source authoritatively covers and any known limitation.
   - type: textarea
     id: reason
     attributes:

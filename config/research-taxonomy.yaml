@@ -1,0 +1,45 @@
+version: 1
+organizations:
+  - id: google-research
+    name: Google Research
+    aliases:
+      - Google AI
+  - id: google-deepmind
+    name: Google DeepMind
+    aliases:
+      - DeepMind
+  - id: meta-ai
+    name: Meta AI
+    aliases:
+      - Meta
+      - FAIR
+      - Facebook AI Research
+venues:
+  - id: icml
+    name: ICML
+    aliases:
+      - International Conference on Machine Learning
+  - id: neurips
+    name: NeurIPS
+    aliases:
+      - NIPS
+      - Neural Information Processing Systems
+topics:
+  - id: computer-vision
+    name: Computer Vision
+    aliases:
+      - Vision
+      - CV
+    mappings:
+      arxivCategories:
+        - cs.CV
+      tags: []
+  - id: robotics
+    name: Robotics
+    aliases:
+      - Robot Learning
+      - Autonomous Robots
+    mappings:
+      arxivCategories:
+        - cs.RO
+      tags: []

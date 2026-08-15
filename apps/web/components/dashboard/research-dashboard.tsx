@@ -2,12 +2,25 @@
 
 import type {
   DashboardResearchItem,
-  ResearchDashboardData,
+  ResearchCoverageEntry,
+  ResearchIndexData,
 } from "@noir/dashboard-data";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useGeneratedData } from "../../hooks/use-generated-data";
+import { useResearchResults } from "../../hooks/use-research-results";
 import { formatDateTime } from "../../lib/dashboard-format";
+import { deriveRunDisplayStatus } from "../../lib/run-status";
+import {
+  defaultResearchUrlState,
+  parseResearchUrl,
+  researchPath,
+  resetResearchPage,
+  type ResearchSort,
+  type ResearchType,
+  type ResearchUrlState,
+  type ResearchWindow,
+} from "../../lib/research-url";
 import { EmptyState } from "../empty-state";
 import { FilterSelect } from "./filter-select";
 import { GeneratedDataState } from "./generated-data-state";
@@ -19,82 +32,102 @@ const repositoryUrl =
   "https://github.com/Nidhu-AI-Tools/Noir_AI_Observatory";
 
 export function ResearchDashboard() {
-  const { data, error, loading, retry } =
-    useGeneratedData<ResearchDashboardData>("/generated/research/index.json");
-  const [query, setQuery] = useState("");
-  const [type, setType] = useState("all");
-  const [source, setSource] = useState("all");
-  const [tag, setTag] = useState("all");
-  const [category, setCategory] = useState("all");
-  const [arxivCategory, setArxivCategory] = useState("all");
+  const { data, error, loading, retry } = useGeneratedData<ResearchIndexData>(
+    "/generated/research/index.json",
+  );
+  const [filters, setFilters] = useState<ResearchUrlState>(
+    defaultResearchUrlState,
+  );
   const [urlReady, setUrlReady] = useState(false);
+  const results = useResearchResults(data, filters);
+  const resultsHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    const parameters = new URLSearchParams(window.location.search);
+    const read = () => setFilters(parseResearchUrl(window.location.search));
     queueMicrotask(() => {
-      setQuery(parameters.get("q") ?? "");
-      setType(parameters.get("type") ?? "all");
-      setSource(parameters.get("source") ?? "all");
-      setTag(parameters.get("tag") ?? "all");
-      setCategory(parameters.get("category") ?? "all");
-      setArxivCategory(parameters.get("arxiv") ?? "all");
+      const initial = parseResearchUrl(window.location.search);
+      setFilters(initial);
+      window.history.replaceState(
+        null,
+        "",
+        researchPath(initial, window.location.pathname),
+      );
       setUrlReady(true);
     });
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
   }, []);
+
   useEffect(() => {
+    if (!urlReady || results.loading || results.page === filters.page) return;
+    const corrected = { ...filters, page: results.page };
+    queueMicrotask(() => {
+      setFilters(corrected);
+      window.history.replaceState(
+        null,
+        "",
+        researchPath(corrected, window.location.pathname),
+      );
+    });
+  }, [filters, results.loading, results.page, urlReady]);
+
+  const commit = (
+    next: ResearchUrlState,
+    history: "push" | "replace" = "push",
+  ) => {
+    setFilters(next);
     if (!urlReady) return;
-    const parameters = new URLSearchParams();
-    if (query) parameters.set("q", query);
-    if (type !== "all") parameters.set("type", type);
-    if (source !== "all") parameters.set("source", source);
-    if (tag !== "all") parameters.set("tag", tag);
-    if (category !== "all") parameters.set("category", category);
-    if (arxivCategory !== "all") parameters.set("arxiv", arxivCategory);
-    window.history.replaceState(
+    window.history[history === "push" ? "pushState" : "replaceState"](
       null,
       "",
-      `${window.location.pathname}${parameters.size ? `?${parameters}` : ""}`,
+      researchPath(next, window.location.pathname),
     );
-  }, [arxivCategory, category, query, source, tag, type, urlReady]);
+  };
 
-  const items = useMemo(
-    () =>
-      data?.items.filter((item) => {
-        const text = query.trim().toLowerCase();
-        return (
-          (!text ||
-            [
-              item.title,
-              item.summaryExcerpt ?? "",
-              ...item.tags,
-              ...item.sourceNames,
-              ...(item.type === "research_paper"
-                ? item.authors
-                : [item.publisher]),
-            ].some((value) => value.toLowerCase().includes(text))) &&
-          (type === "all" || item.type === type) &&
-          (source === "all" || item.sourceIds.includes(source)) &&
-          (tag === "all" || item.tags.includes(tag)) &&
-          (category === "all" || item.category === category) &&
-          (arxivCategory === "all" ||
-            (item.type === "research_paper" &&
-              item.categories.includes(arxivCategory)))
-        );
-      }) ?? [],
-    [arxivCategory, category, data, query, source, tag, type],
-  );
+  const update = (
+    values: Partial<Omit<ResearchUrlState, "page">>,
+    history: "push" | "replace" = "push",
+  ) => commit(resetResearchPage(filters, values), history);
+  const changePage = (page: number) => {
+    commit({ ...filters, page });
+    queueMicrotask(() => resultsHeading.current?.focus());
+  };
 
   if (!data)
     return (
       <GeneratedDataState error={error} loading={loading} onRetry={retry} />
     );
+
+  const selectedCoverage = [
+    filters.organization !== "all"
+      ? data.facets.organizations.find(
+          (value) => value.id === filters.organization,
+        )
+      : undefined,
+    filters.venue !== "all"
+      ? data.facets.venues.find((value) => value.id === filters.venue)
+      : undefined,
+    filters.topic !== "all"
+      ? data.facets.topics.find((value) => value.id === filters.topic)
+      : undefined,
+  ].filter((value): value is ResearchCoverageEntry => Boolean(value));
+  const invalidDateRange =
+    Boolean(filters.from && filters.to) && filters.from > filters.to;
+  const latestRunStatus = data.latestRun
+    ? deriveRunDisplayStatus(
+        data.latestRun.status,
+        data.latestRun.finishedAt,
+        data.generatedAt,
+      )
+    : undefined;
+
   return (
     <div className="space-y-6">
       <section
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
         aria-label="Research statistics"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
-        <MetricCard label="Papers today" value={data.summary.papersToday} />
+        <MetricCard label="Tracked records" value={data.summary.total} />
         <MetricCard label="Papers · 7 days" value={data.summary.papers7Days} />
         <MetricCard
           label="Announcements · 7 days"
@@ -107,8 +140,8 @@ export function ResearchDashboard() {
         {data.latestRun ? (
           <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
             <StatusBadge
-              label={`Latest run: ${data.latestRun.status}`}
-              tone={data.latestRun.status}
+              label={latestRunStatus!.label}
+              tone={latestRunStatus!.tone}
             />
             <span>{formatDateTime(data.latestRun.finishedAt)}</span>
           </div>
@@ -125,189 +158,267 @@ export function ResearchDashboard() {
         </a>
       </div>
 
-      <section className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-2 xl:grid-cols-6">
-        <label>
-          <span className="sr-only">Search research</span>
-          <input
-            className="w-full rounded-lg border border-[var(--border)] bg-[#0c1015] px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search title, author, publisher, or tag"
-            type="search"
-            value={query}
+      <section className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <label>
+            <span className="sr-only">Search research</span>
+            <input
+              className="w-full rounded-lg border border-[var(--border)] bg-[#0c1015] px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400"
+              onChange={(event) =>
+                update({ query: event.target.value }, "replace")
+              }
+              placeholder="Search papers, authors, labs, or topics"
+              type="search"
+              value={filters.query}
+            />
+          </label>
+          <FacetSelect
+            label="Organization"
+            onChange={(organization) => update({ organization })}
+            values={data.facets.organizations}
+            value={filters.organization}
           />
-        </label>
-        <FilterSelect label="Content type" onChange={setType} value={type}>
-          <option value="all">All content</option>
-          <option value="research_paper">Research papers</option>
-          <option value="official_announcement">Announcements</option>
-        </FilterSelect>
-        <FilterSelect
-          label="Tracked source"
-          onChange={setSource}
-          value={source}
-        >
-          <option value="all">All sources</option>
-          {data.filters.sources.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </FilterSelect>
-        <FilterSelect label="Tag" onChange={setTag} value={tag}>
-          <option value="all">All tags</option>
-          {data.filters.tags.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </FilterSelect>
-        <FilterSelect label="Category" onChange={setCategory} value={category}>
-          <option value="all">All categories</option>
-          {data.filters.categories.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </FilterSelect>
-        <FilterSelect
-          label="arXiv category"
-          onChange={setArxivCategory}
-          value={arxivCategory}
-        >
-          <option value="all">All arXiv categories</option>
-          {data.filters.arxivCategories.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </FilterSelect>
+          <FacetSelect
+            label="Venue"
+            onChange={(venue) => update({ venue })}
+            values={data.facets.venues}
+            value={filters.venue}
+          />
+          <FacetSelect
+            label="Topic"
+            onChange={(topic) => update({ topic })}
+            values={data.facets.topics}
+            value={filters.topic}
+          />
+          <FilterSelect
+            label="Content type"
+            onChange={(type) => update({ type: type as ResearchType })}
+            value={filters.type}
+          >
+            <option value="all">All content</option>
+            <option value="research_paper">Research papers</option>
+            <option value="official_announcement">Announcements</option>
+          </FilterSelect>
+        </div>
+
+        <details>
+          <summary className="cursor-pointer text-sm font-medium text-violet-300 hover:text-violet-200">
+            More filters
+          </summary>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <FilterSelect
+              label="Tracked source"
+              onChange={(source) => update({ source })}
+              value={filters.source}
+            >
+              <option value="all">All sources</option>
+              {data.facets.sources.map((value) => (
+                <option key={value.id} value={value.id}>
+                  {value.name} ({value.count})
+                </option>
+              ))}
+            </FilterSelect>
+            <FilterSelect
+              label="Tag"
+              onChange={(tag) => update({ tag })}
+              value={filters.tag}
+            >
+              <option value="all">All tags</option>
+              {data.facets.tags.map((value) => (
+                <option key={value.id} value={value.id}>
+                  {value.name} ({value.count})
+                </option>
+              ))}
+            </FilterSelect>
+            <FilterSelect
+              label="arXiv category"
+              onChange={(arxiv) => update({ arxiv })}
+              value={filters.arxiv}
+            >
+              <option value="all">All arXiv categories</option>
+              {data.facets.arxivCategories.map((value) => (
+                <option key={value.id} value={value.id}>
+                  {value.name} ({value.count})
+                </option>
+              ))}
+            </FilterSelect>
+            <FilterSelect
+              label="Recent window"
+              onChange={(window) =>
+                update({ window: window as ResearchWindow })
+              }
+              value={filters.window}
+            >
+              <option value="all">Any date</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="1y">Last year</option>
+            </FilterSelect>
+            <label className="text-xs text-slate-400">
+              From date
+              <input
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[#0c1015] px-3 py-2 text-sm text-white"
+                onChange={(event) => update({ from: event.target.value })}
+                type="date"
+                value={filters.from}
+              />
+            </label>
+            <label className="text-xs text-slate-400">
+              To date
+              <input
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[#0c1015] px-3 py-2 text-sm text-white"
+                onChange={(event) => update({ to: event.target.value })}
+                type="date"
+                value={filters.to}
+              />
+            </label>
+          </div>
+        </details>
       </section>
 
-      {items.length === 0 ? (
+      {selectedCoverage
+        .filter((coverage) => coverage.status !== "available")
+        .map((coverage) => (
+          <div
+            className="rounded-lg border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-sm text-amber-100"
+            key={coverage.id}
+          >
+            <strong>{coverage.name}</strong> coverage is{" "}
+            {coverage.status === "not-configured"
+              ? "not configured"
+              : "configured but currently empty"}
+            . The Observatory is not claiming that no publications exist.
+          </div>
+        ))}
+      {invalidDateRange ? (
+        <div className="rounded-lg border border-rose-400/20 bg-rose-400/5 px-4 py-3 text-sm text-rose-100">
+          The start date must not be later than the end date.
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2
+            className="text-xl font-semibold text-white outline-none"
+            ref={resultsHeading}
+            tabIndex={-1}
+          >
+            Research results
+          </h2>
+          <p aria-live="polite" className="mt-1 text-sm text-[var(--muted)]">
+            {results.loading
+              ? "Loading results…"
+              : `${results.total} results · page ${results.page} of ${Math.max(1, results.pageCount)}`}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <FilterSelect
+            label="Sort results"
+            onChange={(sort) => update({ sort: sort as ResearchSort })}
+            value={
+              filters.sort === "relevance" && !filters.query
+                ? "newest"
+                : filters.sort
+            }
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option disabled={!filters.query} value="relevance">
+              Search relevance
+            </option>
+          </FilterSelect>
+          <button
+            className="text-sm font-medium text-violet-300 hover:text-violet-200"
+            onClick={() => commit(defaultResearchUrlState)}
+            type="button"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      {results.error ? (
+        <GeneratedDataState
+          error={results.error}
+          loading={false}
+          onRetry={results.retry}
+        />
+      ) : !results.loading && results.items.length === 0 ? (
         <EmptyState
-          title={
-            data.items.length
-              ? "No research matches"
-              : "No research indexed yet"
-          }
-          description={
-            data.items.length
-              ? "Try clearing one or more filters."
-              : "Add an arXiv query or official RSS/Atom feed, then run the research collector."
-          }
+          description="Try clearing one or more filters. If a selected facet is not configured, add an authoritative research source first."
+          title="No research matches"
         />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {items.map((item) => (
+        <div
+          aria-busy={results.loading}
+          className={`grid gap-4 lg:grid-cols-2 ${results.loading ? "opacity-60" : ""}`}
+        >
+          {results.items.map((item) => (
             <ResearchCard item={item} key={item.id} />
           ))}
         </div>
       )}
 
-      {data.trends.tags.length > 0 ||
-      data.trends.arxivCategories.length > 0 ||
-      data.trends.publishers.length > 0 ? (
-        <section className="grid gap-4 lg:grid-cols-3">
-          <TrendList title="Frequent tags · 7 days" values={data.trends.tags} />
-          <TrendList
-            title="arXiv categories · 7 days"
-            values={data.trends.arxivCategories}
-          />
-          <TrendList
-            title="Publishers · 7 days"
-            values={data.trends.publishers}
-          />
-        </section>
-      ) : null}
+      <ResearchPagination
+        current={results.page}
+        onChange={changePage}
+        pages={results.pageCount}
+      />
 
-      {data.sources.length > 0 ? (
-        <section>
-          <div className="mb-4 border-b border-[var(--border)] pb-3">
-            <h2 className="text-xl font-semibold text-white">
-              Tracked research sources
-            </h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Review immutable IDs and request changes to queries, categories,
-              tags, weights, or status.
-            </p>
-          </div>
-          <div className="grid gap-3 lg:grid-cols-2">
-            {data.sources.map((tracked) => (
-              <article
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
-                key={tracked.id}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-medium text-white">
-                      {tracked.displayName}
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-500">{tracked.id}</p>
-                  </div>
-                  <StatusBadge
-                    label={tracked.enabled ? "Enabled" : "Disabled"}
-                    tone={tracked.enabled ? "success" : "neutral"}
-                  />
-                </div>
-                <p className="mt-3 text-sm break-all text-[var(--muted)]">
-                  {tracked.kind} · {tracked.locator}
-                </p>
-                <div className="mt-4 flex items-center justify-between gap-3 text-xs">
-                  <span className="text-slate-500">
-                    {tracked.category} · weight {tracked.weight}
-                  </span>
-                  <a
-                    className="text-violet-300 hover:text-violet-200"
-                    href={`${repositoryUrl}/issues/new?template=edit-research-source.yml&title=${encodeURIComponent(`[Research Edit] ${tracked.id}`)}`}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Request edit
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <ResearchSourceManagement index={data} />
     </div>
   );
 }
 
-export function ResearchCard({
-  item,
-  compact = false,
+function FacetSelect({
+  label,
+  onChange,
+  value,
+  values,
 }: {
-  item: DashboardResearchItem;
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+  values: ResearchCoverageEntry[];
+}) {
+  return (
+    <FilterSelect label={label} onChange={onChange} value={value}>
+      <option value="all">All {label.toLowerCase()}s</option>
+      {values.map((facet) => (
+        <option key={facet.id} value={facet.id}>
+          {facet.name} ({facet.count})
+          {facet.status === "not-configured" ? " · not configured" : ""}
+        </option>
+      ))}
+    </FilterSelect>
+  );
+}
+
+export function ResearchCard({
+  compact = false,
+  item,
+}: {
   compact?: boolean;
+  item: DashboardResearchItem;
 }) {
   const authors =
     item.type === "research_paper" ? item.authors.join(", ") : item.publisher;
   return (
     <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium text-violet-300">
-            {item.type === "research_paper"
-              ? `Paper · ${item.primaryCategory}`
-              : `Announcement · ${item.publisher}`}
-          </p>
-          <a
-            className="mt-2 block text-lg leading-6 font-semibold text-white hover:text-violet-200"
-            href={item.url}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {item.title}
-          </a>
-        </div>
-        <span
-          className="shrink-0 rounded-full border border-violet-400/20 bg-violet-400/5 px-2.5 py-1 text-xs text-violet-200"
-          title={item.matchReasons.join(" · ")}
-        >
-          Match {item.matchScore}
-        </span>
-      </div>
+      <p className="text-xs font-medium text-violet-300">
+        {item.type === "research_paper"
+          ? `Paper · ${item.primaryCategory}`
+          : `Announcement · ${item.publisher}`}
+      </p>
+      <a
+        className="mt-2 block text-lg leading-6 font-semibold text-white hover:text-violet-200"
+        href={item.url}
+        rel="noreferrer"
+        target="_blank"
+      >
+        {item.title}
+      </a>
       <p className="mt-2 line-clamp-2 text-sm text-[var(--muted)]">{authors}</p>
       {!compact && item.summaryExcerpt ? (
         <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-300">
@@ -315,6 +426,27 @@ export function ResearchCard({
         </p>
       ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
+        {[
+          ...item.facets.organizations,
+          ...item.facets.venues,
+          ...item.facets.topics,
+        ].map((facet) => (
+          <span
+            className="rounded-md border border-violet-400/20 bg-violet-400/5 px-2 py-1 text-xs text-violet-200"
+            key={`${facet.id}:${facet.name}`}
+            title={facet.evidence
+              .map((evidence) =>
+                evidence.kind === "source-configuration"
+                  ? `Configured by ${evidence.sourceId}`
+                  : evidence.kind === "provider-metadata"
+                    ? `${evidence.provider} ${evidence.field}: ${evidence.value}`
+                    : `Mapped from ${evidence.input}`,
+              )
+              .join(" · ")}
+          >
+            {facet.name}
+          </span>
+        ))}
         {item.tags.map((value) => (
           <span
             className="rounded-md bg-white/5 px-2 py-1 text-xs text-slate-400"
@@ -328,9 +460,7 @@ export function ResearchCard({
         <time dateTime={item.publishedAt}>
           {formatDateTime(item.publishedAt)}
         </time>
-        <span title={item.matchReasons.join(" · ")}>
-          Why: {item.sourceNames.join(", ")}
-        </span>
+        <span>Tracked via {item.sourceNames.join(", ")}</span>
         {item.type === "research_paper" ? (
           <a
             className="text-violet-300 hover:text-violet-200"
@@ -341,37 +471,113 @@ export function ResearchCard({
             PDF
           </a>
         ) : null}
-        <a
-          className="text-violet-300 hover:text-violet-200"
-          href={`${repositoryUrl}/issues/new?template=edit-research-source.yml&title=${encodeURIComponent(`[Research Edit] ${item.sourceIds[0] ?? ""}`)}`}
-          rel="noreferrer"
-          target="_blank"
-        >
-          Request source edit
-        </a>
       </div>
     </article>
   );
 }
 
-function TrendList({
-  title,
-  values,
+function ResearchPagination({
+  current,
+  onChange,
+  pages,
 }: {
-  title: string;
-  values: { name: string; count: number }[];
+  current: number;
+  onChange: (page: number) => void;
+  pages: number;
 }) {
+  if (pages <= 1) return null;
+  const values = [...new Set([1, current - 1, current, current + 1, pages])]
+    .filter((page) => page >= 1 && page <= pages)
+    .sort((a, b) => a - b);
   return (
-    <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <h2 className="font-medium text-white">{title}</h2>
-      <ol className="mt-4 space-y-2">
-        {values.slice(0, 6).map((item) => (
-          <li className="flex justify-between gap-3 text-sm" key={item.name}>
-            <span className="text-[var(--muted)]">{item.name}</span>
-            <span className="text-white">{item.count}</span>
-          </li>
+    <nav
+      aria-label="Research pagination"
+      className="flex flex-wrap justify-center gap-2"
+    >
+      <button
+        className="rounded-md border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40"
+        disabled={current === 1}
+        onClick={() => onChange(current - 1)}
+        type="button"
+      >
+        Previous
+      </button>
+      {values.map((page, index) => (
+        <span className="contents" key={page}>
+          {index > 0 && page - values[index - 1]! > 1 ? (
+            <span className="px-1 py-2 text-slate-500">…</span>
+          ) : null}
+          <button
+            aria-current={page === current ? "page" : undefined}
+            className="rounded-md border border-[var(--border)] px-3 py-2 text-sm aria-[current=page]:border-violet-400/50 aria-[current=page]:bg-violet-400/10 aria-[current=page]:text-violet-200"
+            onClick={() => onChange(page)}
+            type="button"
+          >
+            {page}
+          </button>
+        </span>
+      ))}
+      <button
+        className="rounded-md border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40"
+        disabled={current === pages}
+        onClick={() => onChange(current + 1)}
+        type="button"
+      >
+        Next
+      </button>
+    </nav>
+  );
+}
+
+function ResearchSourceManagement({ index }: { index: ResearchIndexData }) {
+  if (!index.sources.length) return null;
+  return (
+    <details className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+      <summary className="cursor-pointer text-lg font-semibold text-white">
+        Manage tracked research sources
+      </summary>
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+        {index.sources.map((source) => (
+          <article
+            className="rounded-lg border border-[var(--border)] bg-black/15 p-4"
+            key={source.id}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-medium text-white">{source.displayName}</h3>
+                <code className="mt-1 block text-xs text-slate-500">
+                  {source.id}
+                </code>
+              </div>
+              <StatusBadge
+                label={source.enabled ? "Enabled" : "Disabled"}
+                tone={source.enabled ? "success" : "neutral"}
+              />
+            </div>
+            <p className="mt-3 text-sm break-all text-[var(--muted)]">
+              {source.kind} · {source.locator}
+            </p>
+            {source.coverageDescription ? (
+              <p className="mt-2 text-xs text-slate-400">
+                {source.coverageDescription}
+              </p>
+            ) : null}
+            <div className="mt-4 flex items-center justify-between gap-3 text-xs">
+              <span className="text-slate-500">
+                {source.category} · weight {source.weight}
+              </span>
+              <a
+                className="text-violet-300 hover:text-violet-200"
+                href={`${repositoryUrl}/issues/new?template=edit-research-source.yml&title=${encodeURIComponent(`[Research Edit] ${source.id}`)}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Request edit
+              </a>
+            </div>
+          </article>
         ))}
-      </ol>
-    </article>
+      </div>
+    </details>
   );
 }

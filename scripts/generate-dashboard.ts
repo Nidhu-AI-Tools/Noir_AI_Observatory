@@ -2,7 +2,6 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
-  buildActivityDashboardData,
   buildHealthDashboardData,
   buildRadarDashboardData,
   buildTodayDashboardData,
@@ -18,7 +17,40 @@ import {
   YamlMonitorRegistryStore,
   YamlRegistryStore,
   YamlResearchRegistryStore,
+  YamlResearchTaxonomyStore,
 } from "../packages/storage/src/index";
+
+const todayPayloadBudget = 250 * 1024;
+
+function jsonSize(value: unknown): number {
+  return Buffer.byteLength(`${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+export async function removeObsoleteDashboardArtifacts(
+  outputDirectory: string,
+): Promise<void> {
+  await Promise.all([
+    rm(path.join(outputDirectory, "activity.json"), { force: true }),
+    rm(path.join(outputDirectory, "feed.json"), { force: true }),
+    rm(path.join(outputDirectory, "sources.json"), { force: true }),
+    rm(path.join(outputDirectory, "digests"), {
+      recursive: true,
+      force: true,
+    }),
+    rm(path.join(outputDirectory, "curation"), {
+      recursive: true,
+      force: true,
+    }),
+    rm(path.join(outputDirectory, "model-lab"), {
+      recursive: true,
+      force: true,
+    }),
+    rm(path.join(outputDirectory, "research", "days"), {
+      recursive: true,
+      force: true,
+    }),
+  ]);
+}
 
 async function writeJson(filePath: string, value: unknown): Promise<void> {
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -36,6 +68,7 @@ export async function generateDashboard(
     healthChecks,
     monitorRegistry,
     researchRegistry,
+    researchTaxonomy,
     researchItems,
     researchReports,
     modelEvents,
@@ -47,6 +80,7 @@ export async function generateDashboard(
     new JsonlHealthCheckStore(rootDirectory).readAll(),
     new YamlMonitorRegistryStore(rootDirectory).read(),
     new YamlResearchRegistryStore(rootDirectory).read(),
+    new YamlResearchTaxonomyStore(rootDirectory).read(),
     new JsonlResearchItemStore(rootDirectory).readAll(),
     new JsonResearchRunReportStore(rootDirectory).readAll(),
     new JsonlModelReleaseEventStore(rootDirectory).readAll(),
@@ -69,12 +103,22 @@ export async function generateDashboard(
       healthChecks,
       monitorRegistry,
       researchRegistry,
+      researchTaxonomy,
       researchItems,
       researchReports,
       modelEvents,
       curationNotes,
     },
   );
+  const largestEditionSize = Math.max(
+    0,
+    ...[...today.editions.values()].map(jsonSize),
+  );
+  const initialTodaySize = jsonSize(today.index) + largestEditionSize;
+  if (initialTodaySize > todayPayloadBudget)
+    throw new Error(
+      `Today initial payload is ${initialTodaySize} bytes; budget is ${todayPayloadBudget}.`,
+    );
   const health = buildHealthDashboardData(
     monitorRegistry,
     snapshot,
@@ -89,22 +133,9 @@ export async function generateDashboard(
   // accidentally publish stale Overview, Digests, or Curation payloads.
   await Promise.all([
     rm(todayDirectory, { recursive: true, force: true }),
-    rm(path.join(outputDirectory, "digests"), {
-      recursive: true,
-      force: true,
-    }),
-    rm(path.join(outputDirectory, "curation"), {
-      recursive: true,
-      force: true,
-    }),
-    rm(path.join(outputDirectory, "feed.json"), { force: true }),
-    rm(path.join(outputDirectory, "sources.json"), { force: true }),
+    removeObsoleteDashboardArtifacts(outputDirectory),
   ]);
   await Promise.all([
-    writeJson(
-      path.join(outputDirectory, "activity.json"),
-      buildActivityDashboardData(observations, reports, generatedAt),
-    ),
     writeJson(
       path.join(outputDirectory, "radar.json"),
       buildRadarDashboardData(snapshot, observations, generatedAt, {

@@ -1,4 +1,3 @@
-export * from "./activity";
 export * from "./health";
 export * from "./models";
 export * from "./observation-view";

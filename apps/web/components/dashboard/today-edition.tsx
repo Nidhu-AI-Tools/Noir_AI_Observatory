@@ -1,7 +1,7 @@
-import type { ModelReleaseEvent } from "@noir/core";
 import type {
   TodayEditionData,
   TodayHealthTransition,
+  TodayModelSignal,
 } from "@noir/dashboard-data";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -130,7 +130,7 @@ export function TodayEdition({ edition }: { edition: TodayEditionData }) {
         href="/models/"
         items={edition.sections.models.items}
         linkLabel="Explore Models"
-        title="Model releases and updates"
+        title="Model signals"
         total={edition.sections.models.total}
       >
         <div className="grid gap-3 lg:grid-cols-2">
@@ -214,17 +214,16 @@ function TodaySection<T>({
   );
 }
 
-function ModelEventCard({ event }: { event: ModelReleaseEvent }) {
-  const sourceUrl = event.links[0]?.url ?? event.provenance[0]!.url;
+function ModelEventCard({ event }: { event: TodayModelSignal }) {
   return (
     <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
       <p className="text-xs tracking-wider text-violet-300 uppercase">
-        {event.releaseKind}
+        {event.signalKind.replaceAll("-", " ")}
       </p>
       <h3 className="mt-2 font-semibold text-white">
         <a
           className="hover:text-violet-200"
-          href={sourceUrl}
+          href={event.sourceUrl}
           rel="noreferrer"
           target="_blank"
         >
@@ -239,7 +238,7 @@ function ModelEventCard({ event }: { event: ModelReleaseEvent }) {
         dateTime={event.occurredAt}
       >
         {formatDateTime(event.occurredAt)}
-        {event.occurredAtInferred ? " · first observed" : ""}
+        {event.dateBasis === "first-observed" ? " · first observed" : ""}
       </time>
     </article>
   );

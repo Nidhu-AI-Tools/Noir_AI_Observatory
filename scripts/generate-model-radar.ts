@@ -8,6 +8,8 @@ import {
   YamlModelCategoryStore,
 } from "../packages/storage/src/index";
 
+const modelPayloadBudget = 250 * 1024;
+
 export async function generateModelRadar(
   root = process.cwd(),
   now = new Date(),
@@ -28,10 +30,12 @@ export async function generateModelRadar(
   );
   await rm(directory, { recursive: true, force: true });
   await mkdir(directory, { recursive: true });
-  await writeFile(
-    path.join(directory, "index.json"),
-    `${JSON.stringify(value, null, 2)}\n`,
-    "utf8",
-  );
+  const serialized = `${JSON.stringify(value, null, 2)}\n`;
+  const size = Buffer.byteLength(serialized, "utf8");
+  if (size > modelPayloadBudget)
+    throw new Error(
+      `Models index is ${size} bytes; budget is ${modelPayloadBudget}.`,
+    );
+  await writeFile(path.join(directory, "index.json"), serialized, "utf8");
 }
 if (import.meta.url === `file://${process.argv[1]}`) await generateModelRadar();

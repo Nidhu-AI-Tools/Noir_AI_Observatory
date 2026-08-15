@@ -8,8 +8,12 @@ import type {
 import {
   ResearchAdapterRegistry,
   ResearchRegistryService,
+  validateResearchDiscoveryConfiguration,
 } from "../packages/research/src/index";
-import { YamlResearchRegistryStore } from "../packages/storage/src/index";
+import {
+  YamlResearchRegistryStore,
+  YamlResearchTaxonomyStore,
+} from "../packages/storage/src/index";
 
 const argv = process.argv.slice(2);
 const command = argv[0] ?? "help";
@@ -41,6 +45,14 @@ function list(value: string) {
 function boolean(value: string) {
   return ["true", "yes", "1", "enabled"].includes(value.toLowerCase());
 }
+function facetDefaults() {
+  const organizations = list(option("organizations") ?? "");
+  const venues = list(option("venues") ?? "");
+  const topics = list(option("topics") ?? "");
+  return organizations.length || venues.length || topics.length
+    ? { organizations, venues, topics }
+    : undefined;
+}
 
 async function main() {
   const service = new ResearchRegistryService(
@@ -48,6 +60,10 @@ async function main() {
   );
   if (command === "research-source:validate") {
     const registry = await service.validate();
+    validateResearchDiscoveryConfiguration(
+      registry,
+      await new YamlResearchTaxonomyStore(process.cwd()).read(),
+    );
     console.log(
       `Research registry is valid: ${registry.sources.length} sources.`,
     );
@@ -77,6 +93,10 @@ async function main() {
       category: option("category") ?? (await ask("Category")),
       tags: list(option("tags") ?? (await ask("Tags, comma-separated"))),
       weight: Number(option("weight") ?? "3"),
+      ...(facetDefaults() ? { facetDefaults: facetDefaults()! } : {}),
+      ...(option("coverage-description")
+        ? { coverageDescription: option("coverage-description")! }
+        : {}),
     };
     const candidate: ResearchSourceCandidate =
       kind === "arxiv_query"
@@ -117,6 +137,10 @@ async function main() {
       ...(option("weight") ? { weight: Number(option("weight")) } : {}),
       ...(option("enabled")
         ? { enabled: boolean(option("enabled") ?? "") }
+        : {}),
+      ...(facetDefaults() ? { facetDefaults: facetDefaults()! } : {}),
+      ...(option("coverage-description")
+        ? { coverageDescription: option("coverage-description")! }
         : {}),
     };
     const updated = await service.update(id, update);
