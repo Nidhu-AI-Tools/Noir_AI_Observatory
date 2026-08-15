@@ -5,6 +5,7 @@ import type {
   MonitorRegistry,
   ModelReleaseEvent,
   Observation,
+  ResearchDiscoveryTaxonomy,
   ResearchItem,
   ResearchRegistry,
   ResearchRunReport,
@@ -19,6 +20,10 @@ import {
   buildResearchDashboardData,
   type DashboardResearchItem,
 } from "./research";
+import {
+  classifyPublicModelSignal,
+  type PublicModelSignalKind,
+} from "./models";
 
 export interface TodaySection<T> {
   total: number;
@@ -52,13 +57,38 @@ export interface TodayIndexEntry {
 }
 
 export interface TodayIndexData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   editions: TodayIndexEntry[];
 }
 
+export interface TodayCurationNote {
+  date: string;
+  reviewed: true;
+  headline: string;
+  summary: string;
+  highlights: {
+    title: string;
+    summary: string;
+    whyItMatters: string;
+    sourceUrl: string;
+  }[];
+  caveats: string[];
+}
+
+export interface TodayModelSignal {
+  id: string;
+  canonicalName: string;
+  organization: string;
+  signalKind: PublicModelSignalKind;
+  categories: string[];
+  occurredAt: string;
+  dateBasis: "published" | "first-observed";
+  sourceUrl: string;
+}
+
 export interface TodayEditionData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   lastUpdatedAt: string;
   date: string;
@@ -79,10 +109,10 @@ export interface TodayEditionData {
     added: number;
     failed: number;
   };
-  curationNote?: CurationNote;
+  curationNote?: TodayCurationNote;
   sections: {
     ecosystem: TodaySection<DashboardObservation>;
-    models: TodaySection<ModelReleaseEvent>;
+    models: TodaySection<TodayModelSignal>;
     research: TodaySection<DashboardResearchItem>;
     health: TodaySection<TodayHealthTransition>;
   };
@@ -185,6 +215,7 @@ export function buildTodayDashboardData(
     monitorRegistry?: MonitorRegistry;
     researchItems?: ResearchItem[];
     researchRegistry?: ResearchRegistry;
+    researchTaxonomy?: ResearchDiscoveryTaxonomy;
     researchReports?: ResearchRunReport[];
     modelEvents?: ModelReleaseEvent[];
     curationNotes?: CurationNote[];
@@ -209,13 +240,14 @@ export function buildTodayDashboardData(
     (item) => !promotedObservationIds.has(item.id),
   );
   const researchViews = options.researchRegistry
-    ? buildResearchDashboardData(
+    ? (buildResearchDashboardData(
         options.researchRegistry,
         options.researchItems ?? [],
         options.researchReports ?? [],
         generatedAt,
         Number.MAX_SAFE_INTEGER,
-      ).items
+        options.researchTaxonomy,
+      ).pages.get(1)?.items ?? [])
     : [];
   const collectionReports = reports.filter(
     (report) => report.finishedAt <= generatedAtIso,
@@ -312,7 +344,6 @@ export function buildTodayDashboardData(
       .filter((item) => !isCurated(item.id, item.url))
       .sort(
         (left, right) =>
-          right.matchScore - left.matchScore ||
           right.publishedAt.localeCompare(left.publishedAt) ||
           left.id.localeCompare(right.id),
       );
@@ -337,8 +368,23 @@ export function buildTodayDashboardData(
       totalSignals:
         ecosystem.length + models.length + research.length + health.length,
     };
+    const publicCurationNote: TodayCurationNote | undefined = curationNote
+      ? {
+          date: curationNote.date,
+          reviewed: true,
+          headline: curationNote.headline,
+          summary: curationNote.summary,
+          highlights: curationNote.highlights.map((highlight) => ({
+            title: highlight.title,
+            summary: highlight.summary,
+            whyItMatters: highlight.whyItMatters,
+            sourceUrl: highlight.sourceUrl,
+          })),
+          caveats: curationNote.caveats,
+        }
+      : undefined;
     editions.set(date, {
-      schemaVersion: 1,
+      schemaVersion: 2,
       generatedAt: generatedAtIso,
       lastUpdatedAt: latestTimestamp([
         collectionRun?.finishedAt,
@@ -377,7 +423,7 @@ export function buildTodayDashboardData(
             },
           }
         : {}),
-      ...(curationNote ? { curationNote } : {}),
+      ...(publicCurationNote ? { curationNote: publicCurationNote } : {}),
       sections: {
         ecosystem: {
           total: ecosystem.length,
@@ -385,7 +431,18 @@ export function buildTodayDashboardData(
         },
         models: {
           total: models.length,
-          items: visibleModels.slice(0, limits.models),
+          items: visibleModels.slice(0, limits.models).map((event) => ({
+            id: event.id,
+            canonicalName: event.canonicalName,
+            organization: event.organization,
+            signalKind: classifyPublicModelSignal(event),
+            categories: event.categories,
+            occurredAt: event.occurredAt,
+            dateBasis: event.occurredAtInferred
+              ? "first-observed"
+              : "published",
+            sourceUrl: event.links[0]?.url ?? event.provenance[0]!.url,
+          })),
         },
         research: {
           total: research.length,
@@ -401,7 +458,7 @@ export function buildTodayDashboardData(
 
   return {
     index: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       generatedAt: generatedAtIso,
       editions: dates.map((date) => {
         const edition = editions.get(date);

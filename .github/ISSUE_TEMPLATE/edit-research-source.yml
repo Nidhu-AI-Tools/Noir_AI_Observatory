@@ -40,6 +40,7 @@ body:
     id: weight
     attributes:
       label: Source weight
+      description: Reviewed source-priority metadata from 1 (low) to 5 (high).
       options: [unchanged, "1", "2", "3", "4", "5"]
     validations:
       required: true
@@ -50,6 +51,26 @@ body:
       options: [unchanged, enabled, disabled]
     validations:
       required: true
+  - type: input
+    id: organization-ids
+    attributes:
+      label: Organization IDs
+      description: Optional complete comma-separated list. Leave all facet fields empty to preserve current defaults.
+  - type: input
+    id: venue-ids
+    attributes:
+      label: Venue IDs
+      description: Optional complete comma-separated list.
+  - type: input
+    id: topic-ids
+    attributes:
+      label: Topic IDs
+      description: Optional complete comma-separated list.
+  - type: textarea
+    id: coverage-description
+    attributes:
+      label: Coverage description
+      description: Optional. Leave empty to preserve the current description.
   - type: textarea
     id: reason
     attributes:

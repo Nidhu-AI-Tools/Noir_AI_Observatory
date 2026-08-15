@@ -256,6 +256,7 @@ describe("Phase 3 dashboard view models", () => {
       now,
     );
 
+    expect(result.index.schemaVersion).toBe(2);
     expect(result.index.editions.map((entry) => entry.date)).toEqual([
       "2026-07-26",
       "2026-07-25",
@@ -319,6 +320,11 @@ describe("Phase 3 dashboard view models", () => {
     });
     expect(edition?.sections.ecosystem.items).toEqual([]);
     expect(edition?.sections.models.items).toHaveLength(1);
+    expect(edition?.sections.models.items[0]).toMatchObject({
+      signalKind: "first-observed",
+      sourceUrl: modelObservation.url,
+    });
+    expect(edition?.sections.models.items[0]).not.toHaveProperty("provenance");
   });
 
   it("bounds generated sections without changing full counts", () => {
@@ -394,6 +400,9 @@ describe("Phase 3 dashboard view models", () => {
     ).editions.get("2026-07-20");
 
     expect(edition?.curationNote?.headline).toBe("Model signal");
+    expect(edition?.curationNote).not.toHaveProperty("assistedBy");
+    expect(edition?.curationNote).not.toHaveProperty("contextHash");
+    expect(edition?.curationNote).not.toHaveProperty("sourceIds");
     expect(edition?.counts.models).toBe(1);
     expect(edition?.sections.models.items).toEqual([]);
     expect(edition?.lastUpdatedAt).toBe("2026-07-26T12:30:00.000Z");

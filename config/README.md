@@ -6,6 +6,7 @@ This directory contains human-managed, versioned configuration.
 - `taxonomy.yaml` defines stable categories referenced by sources.
 - `monitors.yaml` defines public HTTPS endpoints, expected statuses, latency thresholds, and optional source links.
 - `research-sources.yaml` defines arXiv queries and official public RSS or Atom feeds.
+- `research-taxonomy.yaml` defines stable research organizations, venues, topics, aliases, and deterministic provider-category mappings.
 - `model-categories.yaml` defines the stable Model Radar taxonomy.
 - `model-overrides.yaml` stores reviewed metadata for API-only models and corrections to automatically observed models.
 - `model-intelligence.yaml` bounds daily release-event materialization.

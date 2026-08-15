@@ -3,11 +3,13 @@
 import type {
   ModelCatalogEntry,
   ModelRadarDashboardData,
+  PublicModelSignalKind,
 } from "@noir/dashboard-data";
 import { useMemo, useState } from "react";
 
 import { useGeneratedData } from "../../hooks/use-generated-data";
 import { formatDateTime } from "../../lib/dashboard-format";
+import { deriveRunDisplayStatus } from "../../lib/run-status";
 import { EmptyState } from "../empty-state";
 import { FilterSelect } from "./filter-select";
 import { GeneratedDataState } from "./generated-data-state";
@@ -25,6 +27,7 @@ export function ModelRadarDashboard() {
   const [category, setCategory] = useState("all");
   const [organization, setOrganization] = useState("all");
   const [availability, setAvailability] = useState("all");
+  const [lifecycle, setLifecycle] = useState("all");
   const models = useMemo(
     () =>
       data?.models.filter((model) => {
@@ -42,42 +45,54 @@ export function ModelRadarDashboard() {
           (availability === "all" ||
             model.availability.includes(
               availability as ModelCatalogEntry["availability"][number],
-            ))
+            )) &&
+          (lifecycle === "all" || model.lifecycle === lifecycle)
         );
       }) ?? [],
-    [availability, category, data, organization, query],
+    [availability, category, data, lifecycle, organization, query],
   );
   if (!data)
     return (
       <GeneratedDataState error={error} loading={loading} onRetry={retry} />
     );
+  const latestRunStatus = data.latestRun
+    ? deriveRunDisplayStatus(
+        data.latestRun.status,
+        data.latestRun.finishedAt,
+        data.generatedAt,
+      )
+    : undefined;
   return (
     <div className="space-y-6">
       <aside className="rounded-xl border border-violet-300/25 bg-violet-300/10 p-4 text-sm text-violet-100">
         {data.definition}
       </aside>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <MetricCard label="Tracked models" value={data.summary.models} />
-        <MetricCard label="Releases today" value={data.summary.releasesToday} />
+        <MetricCard label="Signals today" value={data.summary.signalsToday} />
         <MetricCard
-          label="Releases · 7 days"
-          value={data.summary.releases7Days}
+          label="Signals · 7 days"
+          value={data.summary.signals7Days}
         />
         <MetricCard
-          label="Organizations"
-          value={data.summary.activeOrganizations}
+          label="First observed today"
+          value={data.summary.firstObservedToday}
+        />
+        <MetricCard
+          label="Confirmed releases"
+          value={data.summary.confirmedReleasesToday}
+        />
+        <MetricCard
+          label="Revisions today"
+          value={data.summary.revisionsToday}
         />
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         {data.latestRun ? (
           <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
             <StatusBadge
-              label={`Latest run: ${data.latestRun.status}`}
-              tone={
-                data.latestRun.status === "no-op"
-                  ? "partial"
-                  : data.latestRun.status
-              }
+              label={latestRunStatus!.label}
+              tone={latestRunStatus!.tone}
             />
             <span>{formatDateTime(data.latestRun.finishedAt)}</span>
           </div>
@@ -92,7 +107,7 @@ export function ModelRadarDashboard() {
           target="_blank"
           rel="noreferrer"
         >
-          Add model release
+          Add model information
         </a>
       </div>
       <section>
@@ -101,43 +116,46 @@ export function ModelRadarDashboard() {
             Latest by category
           </h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Newest observed release in each category.
+            Newest tracked model signal in each category.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {data.latestByCategory.map((item) => (
-            <article
-              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
-              key={item.id}
-            >
-              <p className="text-xs tracking-wider text-violet-300 uppercase">
-                {item.name}
-              </p>
-              {item.model ? (
-                <>
-                  <h3 className="mt-2 font-semibold text-white">
-                    {item.model.canonicalName}
-                  </h3>
-                  <p className="mt-1 text-sm text-[var(--muted)]">
-                    {item.model.organization}
-                  </p>
-                  <time className="mt-3 block text-xs text-slate-500">
-                    {formatDateTime(item.model.latestReleaseAt)}
-                    {item.model.latestReleaseAtInferred
-                      ? " · first observed"
-                      : ""}
-                  </time>
-                </>
-              ) : (
-                <p className="mt-3 text-sm text-slate-500">
-                  No model observed.
+          {data.latestByCategory.map((item) => {
+            const model = item.modelId
+              ? data.models.find((candidate) => candidate.id === item.modelId)
+              : undefined;
+            return (
+              <article
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
+                key={item.id}
+              >
+                <p className="text-xs tracking-wider text-violet-300 uppercase">
+                  {item.name}
                 </p>
-              )}
-            </article>
-          ))}
+                {model ? (
+                  <>
+                    <h3 className="mt-2 font-semibold text-white">
+                      {model.canonicalName}
+                    </h3>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      {model.organization}
+                    </p>
+                    <time className="mt-3 block text-xs text-slate-500">
+                      {formatDateTime(model.latestSignalAt)} ·{" "}
+                      {signalLabel(model.latestSignalKind)}
+                    </time>
+                  </>
+                ) : (
+                  <p className="mt-3 text-sm text-slate-500">
+                    No model observed.
+                  </p>
+                )}
+              </article>
+            );
+          })}
         </div>
       </section>
-      <section className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-2 xl:grid-cols-5">
         <label>
           <span className="sr-only">Search models</span>
           <input
@@ -169,6 +187,18 @@ export function ModelRadarDashboard() {
           ))}
         </FilterSelect>
         <FilterSelect
+          label="Lifecycle"
+          onChange={setLifecycle}
+          value={lifecycle}
+        >
+          <option value="all">All lifecycle states</option>
+          {data.filters.lifecycle.map((item) => (
+            <option value={item} key={item}>
+              {item}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
           label="Availability"
           onChange={setAvailability}
           value={availability}
@@ -189,7 +219,7 @@ export function ModelRadarDashboard() {
           description={
             data.models.length
               ? "Clear one or more filters."
-              : "Run model intelligence after collecting Hugging Face observations, or add a reviewed model release."
+              : "Run model intelligence after collecting Hugging Face observations, or add reviewed model information."
           }
         />
       ) : (
@@ -244,15 +274,15 @@ function ModelCard({ model }: { model: ModelCatalogEntry }) {
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div>
-          <dt className="text-slate-500">Latest release</dt>
+          <dt className="text-slate-500">Latest signal</dt>
           <dd className="mt-1 text-white">
-            {formatDateTime(model.latestReleaseAt)}
-            {model.latestReleaseAtInferred ? " (inferred)" : ""}
+            {formatDateTime(model.latestSignalAt)} ·{" "}
+            {signalLabel(model.latestSignalKind)}
           </dd>
         </div>
         <div>
-          <dt className="text-slate-500">Release events</dt>
-          <dd className="mt-1 text-white">{model.releaseCount}</dd>
+          <dt className="text-slate-500">Tracked signals</dt>
+          <dd className="mt-1 text-white">{model.signalCount}</dd>
         </div>
         {model.license ? (
           <div>
@@ -284,4 +314,15 @@ function ModelCard({ model }: { model: ModelCatalogEntry }) {
       </div>
     </article>
   );
+}
+
+function signalLabel(kind: PublicModelSignalKind): string {
+  const labels: Record<PublicModelSignalKind, string> = {
+    "confirmed-release": "confirmed release",
+    "first-observed": "first observed",
+    revision: "revision",
+    "lifecycle-change": "lifecycle change",
+    "other-update": "update",
+  };
+  return labels[kind];
 }

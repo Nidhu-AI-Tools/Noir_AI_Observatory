@@ -9,7 +9,7 @@ export default function HealthPage() {
   return (
     <div className="space-y-8">
       <PageHeading
-        description="Inspect observed availability, latency, recent failures, and eventually model-specific API behavior."
+        description="Inspect observed availability, latency, recent failures, and status history for tracked public APIs."
         eyebrow="API health"
         title="Operational signals from tracked APIs"
       />

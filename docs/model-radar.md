@@ -1,6 +1,6 @@
 # Model Radar
 
-Model Radar maintains a public, auditable timeline of AI model releases. It answers “what was released recently, by whom, and in which category?” It does not claim that the newest model is the best model.
+Model Radar maintains a public, auditable view of AI model signals. It distinguishes confirmed releases, first observations, provider revisions, and lifecycle changes. It does not claim that the newest model is the best model or that every provider update is a launch.
 
 ## Inputs and cost
 
@@ -56,13 +56,15 @@ corepack pnpm generate:model-radar
 
 Hugging Face pipeline tags and model tags map conservatively to stable categories in `config/model-categories.yaml`. When metadata is insufficient, the first version falls back to `language-models`. Reviewed overrides take precedence for category, tags, modalities, availability, organization, and descriptive metadata.
 
-Every event preserves its public URL, source ID, observation time, release time, and whether a timestamp was inferred. Historical events are append-only; corrections create a new reviewed event rather than silently rewriting history.
+Every canonical event preserves its public URL, source ID, observation time, event time, and whether a timestamp was inferred. Historical events are append-only; corrections create a new reviewed event rather than silently rewriting history.
+
+The public Models index is intentionally compact. It publishes one card projection per model, aggregate signal counts, and category-leader model IDs. Full event arrays and provenance stay in the canonical dataset and can support a future lazy model-detail view without expanding the main index.
 
 ## First-run acceptance
 
 1. Confirm at least one enabled Hugging Face organization has produced a model observation, or merge one reviewed model override.
 2. Run **Actions → Collect model intelligence → Run workflow**.
 3. Confirm the commit touches only `data/model-events/**` and `data/model-runs/**`.
-4. Confirm the Models page shows the release, evidence link, category, and availability.
+4. Confirm the Models page shows the signal type, evidence link, category, and availability.
 5. Run the workflow again and confirm it writes a new run report but no duplicate event.
 6. Let the next scheduled run finish without manual approval and confirm Pages updates.

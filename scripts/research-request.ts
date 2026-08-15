@@ -5,8 +5,12 @@ import type {
 import {
   ResearchAdapterRegistry,
   ResearchRegistryService,
+  validateResearchDiscoveryConfiguration,
 } from "../packages/research/src/index";
-import { YamlResearchRegistryStore } from "../packages/storage/src/index";
+import {
+  YamlResearchRegistryStore,
+  YamlResearchTaxonomyStore,
+} from "../packages/storage/src/index";
 import { parseIssueFormBody, requireIssueField } from "./issue-form";
 
 function list(value: string) {
@@ -23,6 +27,7 @@ async function main() {
   const service = new ResearchRegistryService(
     new YamlResearchRegistryStore(process.cwd()),
   );
+  const taxonomy = await new YamlResearchTaxonomyStore(process.cwd()).read();
   if (title.startsWith("[Research Add]")) {
     const kind = requireIssueField(
       fields,
@@ -33,6 +38,17 @@ async function main() {
       category: requireIssueField(fields, "Category"),
       tags: list(requireIssueField(fields, "Tags")),
       weight: Number(requireIssueField(fields, "Source weight")),
+      ...(() => {
+        const organizations = list(fields.get("organization ids") ?? "");
+        const venues = list(fields.get("venue ids") ?? "");
+        const topics = list(fields.get("topic ids") ?? "");
+        return organizations.length || venues.length || topics.length
+          ? { facetDefaults: { organizations, venues, topics } }
+          : {};
+      })(),
+      ...(fields.get("coverage description")
+        ? { coverageDescription: fields.get("coverage description")! }
+        : {}),
     };
     const candidate: ResearchSourceCandidate =
       kind === "arxiv_query"
@@ -44,6 +60,7 @@ async function main() {
             publisher: requireIssueField(fields, "Publisher"),
           };
     const source = await service.add(candidate);
+    validateResearchDiscoveryConfiguration(await service.validate(), taxonomy);
     const now = new Date();
     const items = await new ResearchAdapterRegistry()
       .get(source.kind)
@@ -79,11 +96,29 @@ async function main() {
         ? { weight: Number(fields.get("source weight")) }
         : {}),
       ...(status === "unchanged" ? {} : { enabled: status === "enabled" }),
+      ...(() => {
+        const hasFacets = ["organization ids", "venue ids", "topic ids"].some(
+          (field) => fields.get(field),
+        );
+        return hasFacets
+          ? {
+              facetDefaults: {
+                organizations: list(fields.get("organization ids") ?? ""),
+                venues: list(fields.get("venue ids") ?? ""),
+                topics: list(fields.get("topic ids") ?? ""),
+              },
+            }
+          : {};
+      })(),
+      ...(fields.get("coverage description")
+        ? { coverageDescription: fields.get("coverage description")! }
+        : {}),
     };
     const updated = await service.update(
       requireIssueField(fields, "Research source ID"),
       update,
     );
+    validateResearchDiscoveryConfiguration(await service.validate(), taxonomy);
     console.log(`Prepared research source edit: ${updated.id}`);
     return;
   }

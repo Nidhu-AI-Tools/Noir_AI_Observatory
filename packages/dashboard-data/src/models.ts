@@ -4,6 +4,13 @@ import type {
   ModelReleaseEvent,
 } from "@noir/core";
 
+export type PublicModelSignalKind =
+  | "confirmed-release"
+  | "first-observed"
+  | "revision"
+  | "lifecycle-change"
+  | "other-update";
+
 export type ModelCatalogEntry = {
   id: string;
   canonicalName: string;
@@ -13,49 +20,66 @@ export type ModelCatalogEntry = {
   categories: string[];
   categoryNames: string[];
   tags: string[];
-  modalities: string[];
   availability: ModelReleaseEvent["availability"];
   lifecycle: ModelReleaseEvent["lifecycle"];
   license?: string;
-  parameterCount?: string;
-  contextWindow?: string;
   links: ModelReleaseEvent["links"];
-  latestReleaseAt: string;
-  latestReleaseAtInferred: boolean;
-  firstObservedAt: string;
-  lastObservedAt: string;
-  releaseCount: number;
-  latestEvent: ModelReleaseEvent;
-  releases: ModelReleaseEvent[];
+  latestSignalAt: string;
+  latestSignalKind: PublicModelSignalKind;
+  signalCount: number;
 };
 
 export interface ModelRadarDashboardData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   definition: string;
   summary: {
     models: number;
-    releasesToday: number;
-    releases7Days: number;
-    openWeightModels: number;
-    apiModels: number;
-    activeOrganizations: number;
+    signalsToday: number;
+    signals7Days: number;
+    confirmedReleasesToday: number;
+    firstObservedToday: number;
+    revisionsToday: number;
   };
   latestRun?: ModelIntelligenceRunReport;
   latestByCategory: {
     id: string;
     name: string;
-    model?: ModelCatalogEntry;
+    modelId?: string;
   }[];
   filters: {
     categories: { id: string; name: string }[];
     organizations: string[];
     availability: string[];
-    modalities: string[];
     lifecycle: string[];
   };
   models: ModelCatalogEntry[];
-  recentEvents: ModelReleaseEvent[];
+}
+
+export function classifyPublicModelSignal(
+  event: ModelReleaseEvent,
+): PublicModelSignalKind {
+  if (event.releaseKind === "deprecation" || event.releaseKind === "retirement")
+    return "lifecycle-change";
+  const sourceKinds = new Set(event.provenance.map((value) => value.kind));
+  if (event.releaseKind === "update")
+    return sourceKinds.has("huggingface-model") ? "revision" : "other-update";
+  if (
+    event.occurredAtInferred ||
+    (event.releaseKind === "initial-release" &&
+      sourceKinds.size === 1 &&
+      sourceKinds.has("huggingface-model"))
+  )
+    return "first-observed";
+  if (
+    (event.releaseKind === "initial-release" ||
+      event.releaseKind === "new-version") &&
+    [...sourceKinds].some((kind) =>
+      ["github-release", "official-announcement", "manual"].includes(kind),
+    )
+  )
+    return "confirmed-release";
+  return "other-update";
 }
 
 export function buildModelRadarDashboardData(
@@ -64,22 +88,24 @@ export function buildModelRadarDashboardData(
   reports: ModelIntelligenceRunReport[],
   generatedAt = new Date(),
 ): ModelRadarDashboardData {
+  const generatedAtIso = generatedAt.toISOString();
+  const visibleEvents = events.filter(
+    (event) => event.occurredAt <= generatedAtIso,
+  );
   const categoryNames = new Map(
     categories.categories.map((category) => [category.id, category.name]),
   );
   const grouped = new Map<string, ModelReleaseEvent[]>();
-  for (const event of events)
+  for (const event of visibleEvents)
     grouped.set(event.modelId, [...(grouped.get(event.modelId) ?? []), event]);
   const models = [...grouped.entries()]
     .map(([id, values]): ModelCatalogEntry => {
-      const releases = [...values].sort((a, b) =>
-        b.occurredAt.localeCompare(a.occurredAt),
+      const signals = [...values].sort(
+        (a, b) =>
+          b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
       );
-      const latest = releases[0];
-      if (!latest) throw new Error(`Model ${id} has no release events.`);
-      const firstObservedAt = [...values].sort((a, b) =>
-        a.collectedAt.localeCompare(b.collectedAt),
-      )[0]!.collectedAt;
+      const latest = signals[0];
+      if (!latest) throw new Error(`Model ${id} has no signals.`);
       return {
         id,
         canonicalName: latest.canonicalName,
@@ -93,59 +119,50 @@ export function buildModelRadarDashboardData(
           (category) => categoryNames.get(category) ?? category,
         ),
         tags: latest.tags,
-        modalities: latest.modalities,
         availability: latest.availability,
         lifecycle: latest.lifecycle,
         ...(latest.license ? { license: latest.license } : {}),
-        ...(latest.parameterCount
-          ? { parameterCount: latest.parameterCount }
-          : {}),
-        ...(latest.contextWindow
-          ? { contextWindow: latest.contextWindow }
-          : {}),
         links: latest.links,
-        latestReleaseAt: latest.occurredAt,
-        latestReleaseAtInferred: latest.occurredAtInferred,
-        firstObservedAt,
-        lastObservedAt: releases
-          .map((event) => event.collectedAt)
-          .sort()
-          .at(-1)!,
-        releaseCount: releases.length,
-        latestEvent: latest,
-        releases,
+        latestSignalAt: latest.occurredAt,
+        latestSignalKind: classifyPublicModelSignal(latest),
+        signalCount: signals.length,
       };
     })
-    .sort((a, b) => b.latestReleaseAt.localeCompare(a.latestReleaseAt));
+    .sort(
+      (a, b) =>
+        b.latestSignalAt.localeCompare(a.latestSignalAt) ||
+        a.id.localeCompare(b.id),
+    );
   const now = generatedAt.valueOf();
-  const recentEvents = [...events].sort((a, b) =>
-    b.occurredAt.localeCompare(a.occurredAt),
+  const sortedEvents = [...visibleEvents].sort(
+    (a, b) =>
+      b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
   );
   const within = (event: ModelReleaseEvent, days: number) =>
     now - new Date(event.occurredAt).valueOf() <= days * 86_400_000;
-  const latestRun = [...reports].sort((a, b) =>
-    b.finishedAt.localeCompare(a.finishedAt),
-  )[0];
+  const today = sortedEvents.filter(
+    (event) => event.occurredAt.slice(0, 10) === generatedAtIso.slice(0, 10),
+  );
+  const todayKinds = today.map(classifyPublicModelSignal);
+  const latestRun = [...reports]
+    .filter((report) => report.finishedAt <= generatedAtIso)
+    .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))[0];
   return {
-    schemaVersion: 1,
-    generatedAt: generatedAt.toISOString(),
+    schemaVersion: 2,
+    generatedAt: generatedAtIso,
     definition:
-      "Latest means the most recently published or first-observed release, not the best-performing model.",
+      "Latest means the newest tracked model signal. Confirmed releases, first observations, revisions, and lifecycle changes are counted separately.",
     summary: {
       models: models.length,
-      releasesToday: recentEvents.filter(
-        (event) =>
-          event.occurredAt.slice(0, 10) ===
-          generatedAt.toISOString().slice(0, 10),
+      signalsToday: today.length,
+      signals7Days: sortedEvents.filter((event) => within(event, 7)).length,
+      confirmedReleasesToday: todayKinds.filter(
+        (value) => value === "confirmed-release",
       ).length,
-      releases7Days: recentEvents.filter((event) => within(event, 7)).length,
-      openWeightModels: models.filter((model) =>
-        model.availability.includes("open-weights"),
+      firstObservedToday: todayKinds.filter(
+        (value) => value === "first-observed",
       ).length,
-      apiModels: models.filter((model) => model.availability.includes("api"))
-        .length,
-      activeOrganizations: new Set(models.map((model) => model.organization))
-        .size,
+      revisionsToday: todayKinds.filter((value) => value === "revision").length,
     },
     ...(latestRun ? { latestRun } : {}),
     latestByCategory: categories.categories.map((category) => {
@@ -155,7 +172,7 @@ export function buildModelRadarDashboardData(
       return {
         id: category.id,
         name: category.name,
-        ...(model ? { model } : {}),
+        ...(model ? { modelId: model.id } : {}),
       };
     }),
     filters: {
@@ -166,12 +183,8 @@ export function buildModelRadarDashboardData(
       availability: [
         ...new Set(models.flatMap((model) => model.availability)),
       ].sort(),
-      modalities: [
-        ...new Set(models.flatMap((model) => model.modalities)),
-      ].sort(),
       lifecycle: [...new Set(models.map((model) => model.lifecycle))].sort(),
     },
     models,
-    recentEvents: recentEvents.slice(0, 500),
   };
 }

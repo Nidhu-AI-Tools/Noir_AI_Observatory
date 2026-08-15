@@ -11,6 +11,7 @@ export * from "./json-health-run-report-store";
 export * from "./jsonl-health-check-store";
 export * from "./research-store";
 export * from "./yaml-research-registry-store";
+export * from "./yaml-research-taxonomy-store";
 export * from "./jsonl-research-item-store";
 export * from "./json-research-state-store";
 export * from "./json-research-run-report-store";

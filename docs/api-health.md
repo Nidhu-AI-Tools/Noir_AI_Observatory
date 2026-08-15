@@ -1,6 +1,6 @@
 # API health monitoring
 
-Phase 4 samples public HTTPS APIs from GitHub-hosted Ubuntu runners. It reports **observed availability**, not contractual uptime: scheduled jobs can be delayed, measurements come from one non-guaranteed location, and the default cadence is four checks per day.
+The API health monitor samples public HTTPS APIs from GitHub-hosted Ubuntu runners. It reports **observed availability**, not contractual uptime: scheduled jobs can be delayed, measurements come from one non-guaranteed location, and the default cadence is four checks per day.
 
 ## Configuration
 

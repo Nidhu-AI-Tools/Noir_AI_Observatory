@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 import { sourceTagSchema } from "../source/schema";
+import {
+  researchFacetDefaultsSchema,
+  researchProviderFacetEvidenceSchema,
+  type ResearchFacetDefaults,
+} from "./discovery-schema";
 
 const stableIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const commonSourceFields = {
@@ -12,6 +17,8 @@ const commonSourceFields = {
   enabled: z.boolean(),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
+  facetDefaults: researchFacetDefaultsSchema.optional(),
+  coverageDescription: z.string().trim().min(1).max(500).optional(),
 };
 
 function publicFeedUrl(value: string): boolean {
@@ -88,7 +95,7 @@ export const researchRegistrySchema = z
   });
 
 const commonItemFields = {
-  schemaVersion: z.literal(1),
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
   id: z.string().min(1).max(300),
   sourceIds: z.array(stableIdSchema).min(1),
   title: z.string().trim().min(1).max(500),
@@ -98,6 +105,7 @@ const commonItemFields = {
   category: stableIdSchema,
   tags: z.array(sourceTagSchema),
   summaryExcerpt: z.string().trim().max(2_000).optional(),
+  facetEvidence: z.array(researchProviderFacetEvidenceSchema).optional(),
 };
 
 export const researchPaperSchema = z
@@ -196,6 +204,8 @@ export type ResearchSourceCandidate =
       tags: string[];
       weight?: number;
       enabled?: boolean;
+      facetDefaults?: ResearchFacetDefaults;
+      coverageDescription?: string;
     }
   | {
       kind: "rss_feed";
@@ -206,11 +216,19 @@ export type ResearchSourceCandidate =
       tags: string[];
       weight?: number;
       enabled?: boolean;
+      facetDefaults?: ResearchFacetDefaults;
+      coverageDescription?: string;
     };
 
 export type ResearchSourceUpdate = Partial<
   Pick<
     ResearchSource,
-    "displayName" | "category" | "tags" | "weight" | "enabled"
+    | "displayName"
+    | "category"
+    | "tags"
+    | "weight"
+    | "enabled"
+    | "facetDefaults"
+    | "coverageDescription"
   >
 > & { query?: string; url?: string; publisher?: string };

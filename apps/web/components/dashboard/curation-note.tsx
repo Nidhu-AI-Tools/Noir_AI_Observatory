@@ -1,14 +1,14 @@
-import type { CurationNote } from "@noir/core";
+import type { TodayCurationNote } from "@noir/dashboard-data";
 
-export function CurationNoteView({ note }: { note: CurationNote }) {
+export function CurationNoteView({ note }: { note: TodayCurationNote }) {
   return (
     <article className="rounded-xl border border-violet-300/25 bg-violet-300/8 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs font-medium tracking-[0.18em] text-violet-300 uppercase">
-          Human-reviewed daily note · {note.date}
+          Daily note · {note.date}
         </p>
         <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--muted)]">
-          Assisted by {note.assistedBy.provider} · {note.assistedBy.model}
+          {note.reviewed ? "Reviewed" : "Daily note"}
         </span>
       </div>
       <h2 className="mt-3 text-xl font-semibold text-white">{note.headline}</h2>
@@ -17,7 +17,7 @@ export function CurationNoteView({ note }: { note: CurationNote }) {
         {note.highlights.map((highlight) => (
           <section
             className="rounded-lg border border-[var(--border)] bg-black/15 p-4"
-            key={highlight.sourceId}
+            key={highlight.sourceUrl}
           >
             <h3 className="font-medium text-white">{highlight.title}</h3>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">

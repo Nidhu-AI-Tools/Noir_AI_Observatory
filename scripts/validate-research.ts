@@ -6,15 +6,23 @@ import {
   JsonResearchRunReportStore,
   JsonlResearchItemStore,
   YamlResearchRegistryStore,
+  YamlResearchTaxonomyStore,
 } from "../packages/storage/src/index";
+import {
+  validateResearchDiscoveryConfiguration,
+  validateResearchItemFacetEvidence,
+} from "../packages/research/src/index";
 
 const root = process.cwd();
-const [registry, items, reports] = await Promise.all([
+const [registry, taxonomy, items, reports] = await Promise.all([
   new YamlResearchRegistryStore(root).read(),
+  new YamlResearchTaxonomyStore(root).read(),
   new JsonlResearchItemStore(root).readAll(),
   new JsonResearchRunReportStore(root).readAll(),
 ]);
+validateResearchDiscoveryConfiguration(registry, taxonomy);
 items.forEach((item) => researchItemSchema.parse(item));
+validateResearchItemFacetEvidence(items, taxonomy);
 reports.forEach((report) => researchRunReportSchema.parse(report));
 const sourceIds = new Set(registry.sources.map((source) => source.id));
 const itemIds = new Set<string>();
