@@ -99,7 +99,7 @@ export class CodexCurationProvider implements CurationProvider {
     try {
       await writeFile(
         schemaFile,
-        JSON.stringify(buildCurationOutputJsonSchema(config)),
+        JSON.stringify(buildCurationOutputJsonSchema(context, config)),
         "utf8",
       );
       const args = [

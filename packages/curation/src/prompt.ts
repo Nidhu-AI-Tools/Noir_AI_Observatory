@@ -20,7 +20,7 @@ Rules:
 - Keep the overall summary within ${config.output.maxSummaryCharacters} characters.
 - Keep each whyItMatters within ${config.output.maxSignificanceCharacters} characters.
 - Return only JSON matching this schema:
-${JSON.stringify(buildCurationOutputJsonSchema(config))}
+${JSON.stringify(buildCurationOutputJsonSchema(context, config))}
 
 <observatory-data>
 ${JSON.stringify(context)}

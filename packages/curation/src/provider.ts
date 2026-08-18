@@ -22,7 +22,15 @@ export interface CurationProvider {
   ): Promise<CurationModelOutput>;
 }
 
-export function buildCurationOutputJsonSchema(config: CurationConfig) {
+export function buildCurationOutputJsonSchema(
+  context: CurationContext,
+  config: CurationConfig,
+) {
+  const sourceIds = context.candidates.map((candidate) => candidate.id);
+  if (sourceIds.length === 0)
+    throw new Error(
+      "Cannot build a curation output schema without candidate source IDs.",
+    );
   return {
     type: "object",
     additionalProperties: false,
@@ -43,7 +51,7 @@ export function buildCurationOutputJsonSchema(config: CurationConfig) {
           additionalProperties: false,
           required: ["sourceId", "title", "summary", "whyItMatters"],
           properties: {
-            sourceId: { type: "string", minLength: 1, maxLength: 300 },
+            sourceId: { type: "string", enum: sourceIds },
             title: { type: "string", minLength: 1, maxLength: 300 },
             summary: { type: "string", minLength: 1, maxLength: 800 },
             whyItMatters: {

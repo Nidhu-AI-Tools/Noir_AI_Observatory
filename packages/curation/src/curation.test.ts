@@ -245,10 +245,72 @@ describe("daily curation", () => {
         type: "object",
         properties: {
           summary: { maxLength: 700 },
-          highlights: { maxItems: 5 },
+          highlights: {
+            maxItems: 5,
+            items: {
+              properties: {
+                sourceId: { enum: [paper.id] },
+              },
+            },
+          },
         },
       },
     });
+  });
+
+  it("retries Ollama once when source binding validation fails", async () => {
+    let attempts = 0;
+    const provider = {
+      kind: "ollama" as const,
+      model: "llama3.1:8b",
+      async check() {
+        return { ok: true, provider: "ollama" as const, detail: "ready" };
+      },
+      async generate() {
+        attempts += 1;
+        return attempts === 1
+          ? {
+              ...output,
+              highlights: [
+                {
+                  ...output.highlights[0]!,
+                  sourceId: "A useful AI paper",
+                },
+              ],
+            }
+          : output;
+      },
+    };
+    const draft = await new CurationService().draft(context, config, provider);
+    expect(attempts).toBe(2);
+    expect(draft.sourceIds).toEqual([paper.id]);
+  });
+
+  it("stops after the bounded Ollama retry", async () => {
+    let attempts = 0;
+    const provider = {
+      kind: "ollama" as const,
+      model: "llama3.1:8b",
+      async check() {
+        return { ok: true, provider: "ollama" as const, detail: "ready" };
+      },
+      async generate() {
+        attempts += 1;
+        return {
+          ...output,
+          highlights: [
+            {
+              ...output.highlights[0]!,
+              sourceId: "A useful AI paper",
+            },
+          ],
+        };
+      },
+    };
+    await expect(
+      new CurationService().draft(context, config, provider),
+    ).rejects.toThrow("unknown source");
+    expect(attempts).toBe(2);
   });
 
   it("runs Codex ephemerally and read-only", async () => {
