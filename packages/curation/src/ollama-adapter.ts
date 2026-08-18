@@ -88,7 +88,7 @@ export class OllamaCurationProvider implements CurationProvider {
       body: JSON.stringify({
         model: this.model,
         stream: false,
-        format: buildCurationOutputJsonSchema(config),
+        format: buildCurationOutputJsonSchema(context, config),
         messages: [
           {
             role: "user",
