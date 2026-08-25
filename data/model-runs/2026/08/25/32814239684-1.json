@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "runId": "32814239684-1",
+  "trigger": "schedule",
+  "startedAt": "2026-08-25T05:47:55.455Z",
+  "finishedAt": "2026-08-25T05:47:55.561Z",
+  "status": "success",
+  "totals": {
+    "observations": 560,
+    "eligible": 176,
+    "produced": 17,
+    "duplicates": 159,
+    "manualModels": 0,
+    "failed": 0
+  },
+  "eventIds": [
+    "model-event-4c7518739a4533c94d1c6dc3bbc0e04e",
+    "model-event-c9621fd22b8c99c945c9cc6fa0624f5a",
+    "model-event-1383dafa9954ce2d319650e90494cf30",
+    "model-event-7dca6d8da971c7a5d9f48919d21f7b0d",
+    "model-event-867f2e42a697e79cf819b17bf9a54770",
+    "model-event-dc12d79c7496191adad4a1ef69a14d1e",
+    "model-event-24de791f2811345fbddb4eda885cca92",
+    "model-event-4c579cfec6c41c12a6f400e0b11d9ff9",
+    "model-event-a249cab79eafdad18ac2e7d68410f617",
+    "model-event-eceec2f368e89dfc367e0d0e79283107",
+    "model-event-baf18c0b73fcf0b267a2a15b72c80be8",
+    "model-event-975c8221309e19e28e1348b547b825e1",
+    "model-event-5b0da5c1ae1e548fcdbb31111d2f2bfe",
+    "model-event-112a10580192ba7673024b2326236dd3",
+    "model-event-c563b727c6513848345142e090ebdd06",
+    "model-event-57fc5eb44bd65a836388f03af6ea249f",
+    "model-event-5b46229446c51442d00871d16367ecb2"
+  ],
+  "errors": []
+}
