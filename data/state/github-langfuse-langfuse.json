@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-langfuse-langfuse",
-  "lastSuccessfulAt": "2026-08-26T03:17:24.951Z",
+  "lastSuccessfulAt": "2026-08-27T12:46:24.323Z",
   "cursor": {
-    "timestamp": "2026-08-25T15:37:56Z",
+    "timestamp": "2026-08-27T07:24:31Z",
     "externalIdsAtTimestamp": [
-      "376519097"
+      "377632718"
     ]
   },
-  "etag": "W/\"c628d6990aa4145d0feec97f637c65cc370641913ce5dc32ac1cf1cc976d98cb\""
+  "etag": "W/\"f426e8df48bded0cd5ac08d20ea11e47e940e6f75f6294428810994a896126d9\""
 }

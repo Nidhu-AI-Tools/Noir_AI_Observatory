@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-qwen",
-  "lastSuccessfulAt": "2026-08-26T03:17:27.309Z",
+  "lastSuccessfulAt": "2026-08-27T12:46:26.609Z",
   "cursor": {
-    "timestamp": "2026-08-14T15:00:01.000Z",
+    "timestamp": "2026-08-27T05:04:18.000Z",
     "externalIdsAtTimestamp": [
-      "6a72f2e302294c7d32dd278e"
+      "6a8bfff357482d2b4bb219de"
     ]
   }
 }
