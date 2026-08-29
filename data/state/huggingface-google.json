@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-google",
-  "lastSuccessfulAt": "2026-08-28T14:20:21.132Z",
+  "lastSuccessfulAt": "2026-08-29T09:01:55.307Z",
   "cursor": {
-    "timestamp": "2026-08-28T00:43:32.000Z",
+    "timestamp": "2026-08-28T15:16:27.000Z",
     "externalIdsAtTimestamp": [
       "6a8cc03f8aeb376d539fb81f"
     ]
