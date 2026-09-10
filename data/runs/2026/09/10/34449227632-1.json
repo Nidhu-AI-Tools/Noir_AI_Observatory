@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "runId": "34449227632-1",
+  "trigger": "schedule",
+  "startedAt": "2026-09-10T07:17:50.154Z",
+  "finishedAt": "2026-09-10T07:17:57.946Z",
+  "status": "success",
+  "totals": {
+    "configured": 13,
+    "attempted": 13,
+    "succeeded": 13,
+    "failed": 0,
+    "skipped": 0,
+    "observations": 21
+  },
+  "sources": [
+    {
+      "sourceId": "github-ollama-ollama",
+      "status": "success",
+      "durationMs": 1454,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-09-05T23:49:00Z",
+        "externalIdsAtTimestamp": [
+          "383028723"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-05T23:49:00Z",
+        "externalIdsAtTimestamp": [
+          "383028723"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-ggml-org-llama-cpp",
+      "status": "success",
+      "durationMs": 1503,
+      "observations": 9,
+      "cursorBefore": {
+        "timestamp": "2026-09-09T07:17:51Z",
+        "externalIdsAtTimestamp": [
+          "385298612"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-09T17:29:28Z",
+        "externalIdsAtTimestamp": [
+          "385718164"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-huggingface-transformers",
+      "status": "success",
+      "durationMs": 620,
+      "observations": 1,
+      "cursorBefore": {
+        "timestamp": "2026-08-26T14:50:01Z",
+        "externalIdsAtTimestamp": [
+          "377216922"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-09T15:42:45Z",
+        "externalIdsAtTimestamp": [
+          "385614523"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-langchain-ai-langchain",
+      "status": "success",
+      "durationMs": 482,
+      "observations": 1,
+      "cursorBefore": {
+        "timestamp": "2026-09-08T14:20:40Z",
+        "externalIdsAtTimestamp": [
+          "384796673"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-09T21:22:00Z",
+        "externalIdsAtTimestamp": [
+          "385855336"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-langfuse-langfuse",
+      "status": "success",
+      "durationMs": 436,
+      "observations": 1,
+      "cursorBefore": {
+        "timestamp": "2026-09-08T12:53:51Z",
+        "externalIdsAtTimestamp": [
+          "384728311"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-09T16:04:02Z",
+        "externalIdsAtTimestamp": [
+          "385663591"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-qdrant-qdrant",
+      "status": "success",
+      "durationMs": 1819,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-09-04T07:59:14Z",
+        "externalIdsAtTimestamp": [
+          "382158009"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-04T07:59:14Z",
+        "externalIdsAtTimestamp": [
+          "382158009"
+        ]
+      }
+    },
+    {
+      "sourceId": "github-vllm-project-vllm",
+      "status": "success",
+      "durationMs": 1076,
+      "observations": 1,
+      "cursorBefore": {
+        "timestamp": "2026-08-26T09:46:30Z",
+        "externalIdsAtTimestamp": [
+          "377027961"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-09T08:54:49Z",
+        "externalIdsAtTimestamp": [
+          "385359183"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-deepseek-ai",
+      "status": "success",
+      "durationMs": 71,
+      "observations": 1,
+      "cursorBefore": {
+        "timestamp": "2026-09-01T09:22:10.000Z",
+        "externalIdsAtTimestamp": [
+          "6a951c32379de35b0d189f6e"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-10T07:17:09.000Z",
+        "externalIdsAtTimestamp": [
+          "6aa213563d5b3527359d1af2"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-google",
+      "status": "success",
+      "durationMs": 74,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-09-02T15:44:59.000Z",
+        "externalIdsAtTimestamp": [
+          "6a8cc03f8aeb376d539fb81f"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-02T15:44:59.000Z",
+        "externalIdsAtTimestamp": [
+          "6a8cc03f8aeb376d539fb81f"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-meta-llama",
+      "status": "success",
+      "durationMs": 52,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      },
+      "cursorAfter": {
+        "timestamp": "2026-07-26T09:31:15.158Z",
+        "externalIdsAtTimestamp": []
+      }
+    },
+    {
+      "sourceId": "huggingface-mistralai",
+      "status": "success",
+      "durationMs": 46,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-09-07T07:28:06.000Z",
+        "externalIdsAtTimestamp": [
+          "69a6bd1c59ca5dda6c15a0ec"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-07T07:28:06.000Z",
+        "externalIdsAtTimestamp": [
+          "69a6bd1c59ca5dda6c15a0ec"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-nvidia",
+      "status": "success",
+      "durationMs": 74,
+      "observations": 7,
+      "cursorBefore": {
+        "timestamp": "2026-09-08T22:53:18.000Z",
+        "externalIdsAtTimestamp": [
+          "6a57b3e0b9c332a5fb66bbd6"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-10T07:03:20.000Z",
+        "externalIdsAtTimestamp": [
+          "6a9013dd08330c3521e6afd0"
+        ]
+      }
+    },
+    {
+      "sourceId": "huggingface-qwen",
+      "status": "success",
+      "durationMs": 48,
+      "observations": 0,
+      "cursorBefore": {
+        "timestamp": "2026-09-02T06:31:52.000Z",
+        "externalIdsAtTimestamp": [
+          "6a8ff1e3f0e47dd74df596df"
+        ]
+      },
+      "cursorAfter": {
+        "timestamp": "2026-09-02T06:31:52.000Z",
+        "externalIdsAtTimestamp": [
+          "6a8ff1e3f0e47dd74df596df"
+        ]
+      }
+    }
+  ]
+}
