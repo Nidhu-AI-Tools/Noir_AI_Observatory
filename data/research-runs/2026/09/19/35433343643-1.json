@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "runId": "35433343643-1",
+  "trigger": "schedule",
+  "startedAt": "2026-09-19T08:57:25.708Z",
+  "finishedAt": "2026-09-19T08:57:40.918Z",
+  "status": "failure",
+  "totals": {
+    "configured": 1,
+    "attempted": 1,
+    "skipped": 0,
+    "fetched": 0,
+    "added": 0,
+    "updated": 0,
+    "duplicatesMerged": 0,
+    "failed": 1
+  },
+  "sources": [
+    {
+      "sourceId": "arxiv-query-arxiv-artificial-intelligence",
+      "status": "failed",
+      "fetched": 0,
+      "accepted": 0,
+      "error": "The operation was aborted due to timeout"
+    }
+  ]
+}
