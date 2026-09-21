@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "35503330992-1",
+  "trigger": "schedule",
+  "startedAt": "2026-09-20T09:48:59.089Z",
+  "finishedAt": "2026-09-20T09:48:59.237Z",
+  "status": "no-op",
+  "totals": {
+    "observations": 1069,
+    "eligible": 303,
+    "produced": 0,
+    "duplicates": 303,
+    "manualModels": 0,
+    "failed": 0
+  },
+  "eventIds": [],
+  "errors": []
+}
