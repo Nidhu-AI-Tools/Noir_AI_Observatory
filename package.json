@@ -13,7 +13,9 @@
     "build": "corepack pnpm generate:dashboard && corepack pnpm generate:health && corepack pnpm generate:research && corepack pnpm generate:model-radar && corepack pnpm --filter @noir/web build",
     "category:add": "node --import tsx scripts/registry-cli.ts category:add",
     "category:edit": "node --import tsx scripts/registry-cli.ts category:edit",
-    "check": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm observations:validate && corepack pnpm health:validate && corepack pnpm research:validate && corepack pnpm model-intelligence:validate && corepack pnpm curation:validate && corepack pnpm build",
+    "artifacts:check": "node --import tsx scripts/check-artifacts.ts",
+    "audit:links": "node --import tsx scripts/audit-generated-links.ts",
+    "check": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm observations:validate && corepack pnpm health:validate && corepack pnpm research:validate && corepack pnpm model-intelligence:validate && corepack pnpm curation:validate && corepack pnpm build && corepack pnpm audit:links && corepack pnpm artifacts:check",
     "collect": "node --import tsx scripts/collect.ts",
     "curation:daily": "node --import tsx scripts/curation-cli.ts curation:daily",
     "curation:doctor": "node --import tsx scripts/curation-cli.ts curation:doctor",
@@ -73,10 +75,14 @@
     "source:list": "node --import tsx scripts/registry-cli.ts source:list",
     "source:request": "node --import tsx scripts/source-request.ts",
     "test": "vitest run",
+    "test:a11y": "playwright test --grep @a11y",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "typecheck": "corepack pnpm -r --if-present typecheck && tsc --project tsconfig.scripts.json"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "26.1.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
@@ -84,6 +90,7 @@
     "eslint-config-next": "16.2.12",
     "prettier": "3.9.6",
     "prettier-plugin-tailwindcss": "0.8.1",
+    "serve": "^14.2.6",
     "tsx": "4.23.1",
     "typescript": "5.9.3",
     "vitest": "4.1.10"

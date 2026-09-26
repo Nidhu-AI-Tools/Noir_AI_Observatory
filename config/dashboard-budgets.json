@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "limits": {
+    "todayInitial": 256000,
+    "researchInitial": 256000,
+    "researchPage": 153600,
+    "modelsIndex": 256000
+  }
+}

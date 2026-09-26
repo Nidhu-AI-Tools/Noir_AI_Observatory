@@ -58,3 +58,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed dashboard
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          base_url="${PAGE_URL%/}"
+          for path in / /radar/ /research/ /models/ /health/ /digests/ /sources/ /generated/today/index.json /generated/research/index.json; do
+            curl --fail --silent --show-error --retry 5 --retry-delay 3 "$base_url$path" >/dev/null
+          done
