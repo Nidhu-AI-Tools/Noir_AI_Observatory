@@ -10,10 +10,17 @@ NOTE_PATH="data/curation/${CURATION_DATE:0:4}/${CURATION_DATE:5:2}/${CURATION_DA
 write_output() {
   local name="$1"
   local value="$2"
-  [[ -n "${GITHUB_OUTPUT:-}" ]] && printf '%s=%s\n' "$name" "$value" >>"$GITHUB_OUTPUT"
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    printf '%s=%s\n' "$name" "$value" >>"$GITHUB_OUTPUT"
+  fi
+}
+
+log() {
+  printf '[%s] %s\n' "$(TZ=Asia/Kolkata date '+%Y-%m-%dT%H:%M:%S%z')" "$*"
 }
 
 cd "$ROOT_DIR"
+log "START daily curation for $CURATION_DATE"
 
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "The automation checkout is not clean." >&2
@@ -56,6 +63,7 @@ if ! git diff --cached --quiet; then
 fi
 
 git push origin HEAD:Noir
+log "PASS pushed Noir at $(git rev-parse --short HEAD)"
 write_output has_note true
 write_output note_date "$CURATION_DATE"
 write_output note_path "$NOTE_PATH"

@@ -44,6 +44,11 @@ a {
   text-decoration: none;
 }
 
+/* Tailwind slate-500 is too dim against Observatory surfaces for small text. */
+.text-slate-500 {
+  color: var(--muted);
+}
+
 ::selection {
   background: rgb(155 135 245 / 35%);
 }
