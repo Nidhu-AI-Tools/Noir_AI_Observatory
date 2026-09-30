@@ -286,6 +286,31 @@ describe("daily curation", () => {
     expect(draft.sourceIds).toEqual([paper.id]);
   });
 
+  it("keeps one source-bound highlight when Ollama repeats a source", async () => {
+    let attempts = 0;
+    const repeated = {
+      ...output,
+      highlights: [output.highlights[0]!, { ...output.highlights[0]! }],
+    };
+    const provider = {
+      kind: "ollama" as const,
+      model: "llama3.1:8b",
+      async check() {
+        return { ok: true, provider: "ollama" as const, detail: "ready" };
+      },
+      async generate() {
+        attempts += 1;
+        return repeated;
+      },
+    };
+
+    const draft = await new CurationService().draft(context, config, provider);
+
+    expect(attempts).toBe(2);
+    expect(draft.highlights).toHaveLength(1);
+    expect(draft.sourceIds).toEqual([paper.id]);
+  });
+
   it("stops after the bounded Ollama retry", async () => {
     let attempts = 0;
     const provider = {

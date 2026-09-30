@@ -199,3 +199,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for local checks and repository conventio
 ## License
 
 No license has been selected yet. Until one is added, the repository remains under standard copyright terms.
+
+To kickstart the PR:
+
+```bash
+launchctl kickstart -k "gui/$(id -u)/com.noir.ai-observatory-curation"
+```

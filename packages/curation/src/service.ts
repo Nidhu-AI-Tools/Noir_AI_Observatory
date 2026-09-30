@@ -8,7 +8,7 @@ import {
 
 import { contextHash } from "./identity";
 import type { CurationProvider } from "./provider";
-import { validateModelOutput } from "./validation";
+import { deduplicateHighlightSources, validateModelOutput } from "./validation";
 
 export class CurationService {
   constructor(private readonly clock: () => Date = () => new Date()) {}
@@ -19,18 +19,35 @@ export class CurationService {
     provider: CurationProvider,
   ) {
     const attempts = provider.kind === "ollama" ? 2 : 1;
+    let finalGenerated:
+      Awaited<ReturnType<CurationProvider["generate"]>> | undefined;
+    let finalError: unknown;
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      const generated = await provider.generate(context, config);
       try {
-        return validateModelOutput(
-          await provider.generate(context, config),
-          context,
-          config,
-        );
+        return validateModelOutput(generated, context, config);
       } catch (error) {
-        if (attempt === attempts) throw error;
+        finalGenerated = generated;
+        finalError = error;
       }
     }
-    throw new Error("Curation generation exhausted its retry limit.");
+
+    // The second Ollama response is still required to be source-bound. If it
+    // only repeats an otherwise valid source, preserve its first occurrence
+    // rather than skip the entire day. Other validation errors fail closed.
+    if (
+      provider.kind === "ollama" &&
+      finalGenerated &&
+      finalError instanceof Error &&
+      finalError.message.startsWith("Model repeated source ")
+    )
+      return validateModelOutput(
+        deduplicateHighlightSources(finalGenerated),
+        context,
+        config,
+      );
+
+    throw finalError;
   }
 
   async draft(
