@@ -36,6 +36,10 @@ git checkout Noir
 git merge --ff-only origin/Noir
 git merge --no-edit origin/main
 
+# The automation clone persists between runs. Refresh dependencies after
+# merging so newly added quality checks cannot fail only in this checkout.
+corepack pnpm install --frozen-lockfile
+
 if [[ -f "$NOTE_PATH" ]] && grep -q '^status: published$' "$NOTE_PATH"; then
   echo "$CURATION_DATE is already published."
   write_output has_note false

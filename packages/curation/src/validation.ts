@@ -11,6 +11,25 @@ export type ValidatedCurationOutput = Omit<
   "highlights"
 > & { highlights: CurationHighlight[] };
 
+/**
+ * Retains the first model-written highlight for each source. This is used as
+ * a bounded last-resort recovery when a local model repeats a source after a
+ * normal regeneration attempt. It never creates evidence or rewrites links.
+ */
+export function deduplicateHighlightSources(
+  value: CurationModelOutput,
+): CurationModelOutput {
+  const used = new Set<string>();
+  return {
+    ...value,
+    highlights: value.highlights.filter((highlight) => {
+      if (used.has(highlight.sourceId)) return false;
+      used.add(highlight.sourceId);
+      return true;
+    }),
+  };
+}
+
 export function validateModelOutput(
   value: unknown,
   context: CurationContext,
