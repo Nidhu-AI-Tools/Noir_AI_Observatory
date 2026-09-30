@@ -33,7 +33,10 @@ git fetch --no-tags origin \
   '+refs/heads/main:refs/remotes/origin/main' \
   '+refs/heads/Noir:refs/remotes/origin/Noir'
 git checkout Noir
-git merge --ff-only origin/Noir
+# The persistent automation clone may already contain recently merged main
+# data. Integrate the remote briefing branch instead of rejecting that normal
+# divergence; a real content conflict still stops the run for review.
+git merge --no-edit origin/Noir
 git merge --no-edit origin/main
 
 # The automation clone persists between runs. Refresh dependencies after
