@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-google",
-  "lastSuccessfulAt": "2026-10-06T08:57:48.824Z",
+  "lastSuccessfulAt": "2026-10-07T08:37:42.544Z",
   "cursor": {
-    "timestamp": "2026-10-04T21:07:53.000Z",
+    "timestamp": "2026-10-06T15:29:23.000Z",
     "externalIdsAtTimestamp": [
-      "6ac24f3cba7bf169f7720033"
+      "6aa80a7682023d2e774f1c9a"
     ]
   }
 }
