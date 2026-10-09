@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-vllm-project-vllm",
-  "lastSuccessfulAt": "2026-10-08T08:56:27.010Z",
+  "lastSuccessfulAt": "2026-10-09T09:01:47.250Z",
   "cursor": {
     "timestamp": "2026-10-05T06:44:55Z",
     "externalIdsAtTimestamp": [
       "403435729"
     ]
   },
-  "etag": "W/\"ad589e923ac819447854bb4c504aa136aa22fc9bc0fe2d2accd0a1529bf95ed8\""
+  "etag": "W/\"49633c6097f8e72b740b491601083a66c063a114a73a5362c420439c2b483a7b\""
 }
