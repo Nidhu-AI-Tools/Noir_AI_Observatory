@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-ollama-ollama",
-  "lastSuccessfulAt": "2026-10-09T09:01:39.752Z",
+  "lastSuccessfulAt": "2026-10-10T08:28:28.458Z",
   "cursor": {
     "timestamp": "2026-10-08T16:53:47Z",
     "externalIdsAtTimestamp": [
       "407063639"
     ]
   },
-  "etag": "W/\"5954ab85e53c9a4290c5cf9e2294fc7b186c181844d8c95b59f28728e22e58e7\""
+  "etag": "W/\"ac60c7726bd8ea02df6fb7c2d62bde0b2b07f3c9387d73789156fc8aed18561e\""
 }
