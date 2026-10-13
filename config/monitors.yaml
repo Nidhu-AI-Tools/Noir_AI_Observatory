@@ -36,12 +36,12 @@ monitors:
     updatedAt: 2026-07-29T06:31:16.847Z
   - id: api-api-jikan-moe-v4-anime-1
     displayName: MyAnimeList via Jikan
-    description: Monitors the public Jikan endpoint for MyAnimeList anime data using the Cowboy Bebop record.
-    url: https://api.jikan.moe/v4/anime/1
+    description: Monitors Jikan's dedicated public API health endpoint.
+    url: https://api.jikan.moe/v4/health
     method: GET
     expectedStatuses:
       - 200
-    timeoutMs: 10000
+    timeoutMs: 30000
     degradedAfterMs: 2000
     categoryId: developer-tool
     tags:
@@ -51,7 +51,7 @@ monitors:
       - public-api
     enabled: true
     createdAt: 2026-07-26T10:46:28.704Z
-    updatedAt: 2026-07-26T10:46:28.704Z
+    updatedAt: 2026-10-13T07:32:43.000Z
   - id: api-api-open-meteo-com-v1-forecast
     displayName: Open-Meteo — New York Current Weather
     description: Checks current weather retrieval for New York City through Open-Meteo.
