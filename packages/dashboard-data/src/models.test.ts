@@ -55,18 +55,50 @@ describe("model radar dashboard data", () => {
       [],
       new Date("2026-07-26T12:00:00.000Z"),
     );
-    expect(result.schemaVersion).toBe(2);
-    expect(result.summary).toMatchObject({
+    expect(result.index.schemaVersion).toBe(3);
+    expect(result.index.summary).toMatchObject({
       models: 1,
       signalsToday: 1,
       firstObservedToday: 1,
       confirmedReleasesToday: 0,
     });
-    expect(result.latestByCategory[0]?.modelId).toBe("model-acme-reasoner");
-    expect(result.models[0]).not.toHaveProperty("releases");
-    expect(result.models[0]).not.toHaveProperty("latestEvent");
-    expect(result).not.toHaveProperty("recentEvents");
-    expect(result.definition).toContain("counted separately");
+    expect(result.index.latestByCategory[0]?.model?.id).toBe(
+      "model-acme-reasoner",
+    );
+    expect(result.catalog.models[0]?.p).toBe(1);
+    expect(result.pages[0]?.models[0]).not.toHaveProperty("releases");
+    expect(result.pages[0]?.models[0]).not.toHaveProperty("latestEvent");
+    expect(result.index.definition).toContain("counted separately");
+  });
+
+  it("keeps the catalog complete while splitting full cards into pages", () => {
+    const events = Array.from({ length: 49 }, (_, index) =>
+      event({
+        id: `model-event-${index}`,
+        modelId: `model-acme-${index}`,
+        canonicalName: `Model ${index}`,
+        occurredAt: `2026-07-${String((index % 28) + 1).padStart(2, "0")}T10:00:00.000Z`,
+      }),
+    );
+    const result = buildModelRadarDashboardData(
+      {
+        version: 1,
+        categories: [
+          {
+            id: "reasoning",
+            name: "Reasoning",
+            description: "Reasoning models.",
+          },
+        ],
+      },
+      events,
+      [],
+      new Date("2026-07-30T12:00:00.000Z"),
+      24,
+    );
+    expect(result.catalog.models).toHaveLength(49);
+    expect(result.pages.map((page) => page.models.length)).toEqual([24, 24, 1]);
+    expect(result.catalog.models.at(-1)?.p).toBe(3);
   });
 
   it("distinguishes release, observation, revision, and lifecycle evidence", () => {

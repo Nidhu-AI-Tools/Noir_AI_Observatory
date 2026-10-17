@@ -11,7 +11,7 @@ export type PublicModelSignalKind =
   | "lifecycle-change"
   | "other-update";
 
-export type ModelCatalogEntry = {
+export type ModelCardEntry = {
   id: string;
   canonicalName: string;
   organization: string;
@@ -29,8 +29,25 @@ export type ModelCatalogEntry = {
   signalCount: number;
 };
 
+export type ModelCatalogEntry = Omit<ModelCardEntry, "links"> & {
+  page: number;
+};
+
+/** Compact, stable search/filter record for the initial Models page load. */
+export type ModelCatalogRecord = {
+  i: string;
+  n: string;
+  o: string;
+  x?: string;
+  c: string[];
+  t: string[];
+  a: ModelReleaseEvent["availability"];
+  l: ModelReleaseEvent["lifecycle"];
+  p: number;
+};
+
 export interface ModelRadarDashboardData {
-  schemaVersion: 2;
+  schemaVersion: 3;
   generatedAt: string;
   definition: string;
   summary: {
@@ -45,7 +62,14 @@ export interface ModelRadarDashboardData {
   latestByCategory: {
     id: string;
     name: string;
-    modelId?: string;
+    model?: Pick<
+      ModelCatalogEntry,
+      | "id"
+      | "canonicalName"
+      | "organization"
+      | "latestSignalAt"
+      | "latestSignalKind"
+    >;
   }[];
   filters: {
     categories: { id: string; name: string }[];
@@ -53,7 +77,26 @@ export interface ModelRadarDashboardData {
     availability: string[];
     lifecycle: string[];
   };
-  models: ModelCatalogEntry[];
+  pagination: { pageSize: number; pages: number };
+}
+
+export interface ModelRadarCatalogData {
+  schemaVersion: 1;
+  generatedAt: string;
+  models: ModelCatalogRecord[];
+}
+
+export interface ModelRadarPageData {
+  schemaVersion: 1;
+  generatedAt: string;
+  page: number;
+  models: ModelCardEntry[];
+}
+
+export interface ModelRadarDashboardBundle {
+  index: ModelRadarDashboardData;
+  catalog: ModelRadarCatalogData;
+  pages: ModelRadarPageData[];
 }
 
 export function classifyPublicModelSignal(
@@ -82,24 +125,23 @@ export function classifyPublicModelSignal(
   return "other-update";
 }
 
-export function buildModelRadarDashboardData(
+function modelCards(
   categories: ModelCategoryRegistry,
   events: ModelReleaseEvent[],
-  reports: ModelIntelligenceRunReport[],
-  generatedAt = new Date(),
-): ModelRadarDashboardData {
-  const generatedAtIso = generatedAt.toISOString();
-  const visibleEvents = events.filter(
-    (event) => event.occurredAt <= generatedAtIso,
-  );
+  generatedAtIso: string,
+) {
   const categoryNames = new Map(
     categories.categories.map((category) => [category.id, category.name]),
   );
   const grouped = new Map<string, ModelReleaseEvent[]>();
-  for (const event of visibleEvents)
-    grouped.set(event.modelId, [...(grouped.get(event.modelId) ?? []), event]);
-  const models = [...grouped.entries()]
-    .map(([id, values]): ModelCatalogEntry => {
+  for (const event of events)
+    if (event.occurredAt <= generatedAtIso)
+      grouped.set(event.modelId, [
+        ...(grouped.get(event.modelId) ?? []),
+        event,
+      ]);
+  return [...grouped.entries()]
+    .map(([id, values]): ModelCardEntry => {
       const signals = [...values].sort(
         (a, b) =>
           b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
@@ -133,11 +175,44 @@ export function buildModelRadarDashboardData(
         b.latestSignalAt.localeCompare(a.latestSignalAt) ||
         a.id.localeCompare(b.id),
     );
-  const now = generatedAt.valueOf();
-  const sortedEvents = [...visibleEvents].sort(
-    (a, b) =>
-      b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
+}
+
+export function buildModelRadarDashboardData(
+  categories: ModelCategoryRegistry,
+  events: ModelReleaseEvent[],
+  reports: ModelIntelligenceRunReport[],
+  generatedAt = new Date(),
+  pageSize = 24,
+): ModelRadarDashboardBundle {
+  const generatedAtIso = generatedAt.toISOString();
+  const models = modelCards(categories, events, generatedAtIso);
+  const pages = Array.from(
+    { length: Math.ceil(models.length / pageSize) },
+    (_, index): ModelRadarPageData => ({
+      schemaVersion: 1,
+      generatedAt: generatedAtIso,
+      page: index + 1,
+      models: models.slice(index * pageSize, (index + 1) * pageSize),
+    }),
   );
+  const catalogModels = models.map((model, index) => ({
+    i: model.id,
+    n: model.canonicalName,
+    o: model.organization,
+    ...(model.externalModelId ? { x: model.externalModelId } : {}),
+    c: model.categories,
+    t: model.tags,
+    a: model.availability,
+    l: model.lifecycle,
+    p: Math.floor(index / pageSize) + 1,
+  }));
+  const sortedEvents = events
+    .filter((event) => event.occurredAt <= generatedAtIso)
+    .sort(
+      (a, b) =>
+        b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
+    );
+  const now = generatedAt.valueOf();
   const within = (event: ModelReleaseEvent, days: number) =>
     now - new Date(event.occurredAt).valueOf() <= days * 86_400_000;
   const today = sortedEvents.filter(
@@ -147,44 +222,60 @@ export function buildModelRadarDashboardData(
   const latestRun = [...reports]
     .filter((report) => report.finishedAt <= generatedAtIso)
     .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))[0];
+  const compact = (model: ModelCardEntry) => ({
+    id: model.id,
+    canonicalName: model.canonicalName,
+    organization: model.organization,
+    latestSignalAt: model.latestSignalAt,
+    latestSignalKind: model.latestSignalKind,
+  });
   return {
-    schemaVersion: 2,
-    generatedAt: generatedAtIso,
-    definition:
-      "Latest means the newest tracked model signal. Confirmed releases, first observations, revisions, and lifecycle changes are counted separately.",
-    summary: {
-      models: models.length,
-      signalsToday: today.length,
-      signals7Days: sortedEvents.filter((event) => within(event, 7)).length,
-      confirmedReleasesToday: todayKinds.filter(
-        (value) => value === "confirmed-release",
-      ).length,
-      firstObservedToday: todayKinds.filter(
-        (value) => value === "first-observed",
-      ).length,
-      revisionsToday: todayKinds.filter((value) => value === "revision").length,
+    index: {
+      schemaVersion: 3,
+      generatedAt: generatedAtIso,
+      definition:
+        "Latest means the newest tracked model signal. Confirmed releases, first observations, revisions, and lifecycle changes are counted separately.",
+      summary: {
+        models: models.length,
+        signalsToday: today.length,
+        signals7Days: sortedEvents.filter((event) => within(event, 7)).length,
+        confirmedReleasesToday: todayKinds.filter(
+          (value) => value === "confirmed-release",
+        ).length,
+        firstObservedToday: todayKinds.filter(
+          (value) => value === "first-observed",
+        ).length,
+        revisionsToday: todayKinds.filter((value) => value === "revision")
+          .length,
+      },
+      ...(latestRun ? { latestRun } : {}),
+      latestByCategory: categories.categories.map((category) => {
+        const model = models.find((item) =>
+          item.categories.includes(category.id),
+        );
+        return {
+          id: category.id,
+          name: category.name,
+          ...(model ? { model: compact(model) } : {}),
+        };
+      }),
+      filters: {
+        categories: categories.categories.map(({ id, name }) => ({ id, name })),
+        organizations: [
+          ...new Set(models.map((model) => model.organization)),
+        ].sort(),
+        availability: [
+          ...new Set(models.flatMap((model) => model.availability)),
+        ].sort(),
+        lifecycle: [...new Set(models.map((model) => model.lifecycle))].sort(),
+      },
+      pagination: { pageSize, pages: pages.length },
     },
-    ...(latestRun ? { latestRun } : {}),
-    latestByCategory: categories.categories.map((category) => {
-      const model = models.find((item) =>
-        item.categories.includes(category.id),
-      );
-      return {
-        id: category.id,
-        name: category.name,
-        ...(model ? { modelId: model.id } : {}),
-      };
-    }),
-    filters: {
-      categories: categories.categories.map(({ id, name }) => ({ id, name })),
-      organizations: [
-        ...new Set(models.map((model) => model.organization)),
-      ].sort(),
-      availability: [
-        ...new Set(models.flatMap((model) => model.availability)),
-      ].sort(),
-      lifecycle: [...new Set(models.map((model) => model.lifecycle))].sort(),
+    catalog: {
+      schemaVersion: 1,
+      generatedAt: generatedAtIso,
+      models: catalogModels,
     },
-    models,
+    pages,
   };
 }

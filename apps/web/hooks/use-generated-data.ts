@@ -4,6 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
+export function generatedDataUrl(path: string) {
+  return `${basePath}${path}`;
+}
+
 export function useGeneratedData<T>(path: string): {
   data: T | null;
   error: string | null;
@@ -23,7 +27,7 @@ export function useGeneratedData<T>(path: string): {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${basePath}${path}`, { signal: controller.signal })
+    fetch(generatedDataUrl(path), { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(`Data returned ${response.status}.`);
         return (await response.json()) as T;
