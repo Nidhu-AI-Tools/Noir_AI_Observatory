@@ -1,13 +1,20 @@
 "use client";
 
 import type {
+  ModelCardEntry,
   ModelCatalogEntry,
+  ModelCatalogRecord,
+  ModelRadarCatalogData,
   ModelRadarDashboardData,
+  ModelRadarPageData,
   PublicModelSignalKind,
 } from "@noir/dashboard-data";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { useGeneratedData } from "../../hooks/use-generated-data";
+import {
+  generatedDataUrl,
+  useGeneratedData,
+} from "../../hooks/use-generated-data";
 import { formatDateTime } from "../../lib/dashboard-format";
 import { deriveRunDisplayStatus } from "../../lib/run-status";
 import { EmptyState } from "../empty-state";
@@ -20,17 +27,113 @@ const repositoryUrl =
   process.env.NEXT_PUBLIC_REPOSITORY_URL ??
   "https://github.com/Nidhu-AI-Tools/Noir_AI_Observatory";
 
+function catalogEntry(
+  record: ModelCatalogRecord,
+): Pick<
+  ModelCatalogEntry,
+  | "id"
+  | "canonicalName"
+  | "organization"
+  | "externalModelId"
+  | "categories"
+  | "tags"
+  | "availability"
+  | "lifecycle"
+  | "page"
+> {
+  return {
+    id: record.i,
+    canonicalName: record.n,
+    organization: record.o,
+    ...(record.x ? { externalModelId: record.x } : {}),
+    categories: record.c,
+    tags: record.t,
+    availability: record.a,
+    lifecycle: record.l,
+    page: record.p,
+  };
+}
+
+function useModelPages(pages: number[]) {
+  const key = pages.join(",");
+  const pageNumbers = useMemo(
+    () => (key ? key.split(",").map(Number) : []),
+    [key],
+  );
+  const [result, setResult] = useState<{
+    key: string;
+    models: Map<string, ModelCardEntry>;
+    error: string | null;
+  }>({ key: "", models: new Map(), error: null });
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!pageNumbers.length) return () => controller.abort();
+    Promise.all(
+      pageNumbers.map(async (page) => {
+        const response = await fetch(
+          generatedDataUrl(
+            `/generated/models/pages/${String(page).padStart(4, "0")}.json`,
+          ),
+          { signal: controller.signal },
+        );
+        if (!response.ok)
+          throw new Error(`Model page returned ${response.status}.`);
+        return (await response.json()) as ModelRadarPageData;
+      }),
+    )
+      .then((values) => {
+        if (controller.signal.aborted) return;
+        setResult({
+          key,
+          models: new Map(
+            values
+              .flatMap((value) => value.models)
+              .map((model) => [model.id, model]),
+          ),
+          error: null,
+        });
+      })
+      .catch((reason: unknown) => {
+        if (controller.signal.aborted) return;
+        setResult({
+          key,
+          models: new Map(),
+          error:
+            reason instanceof Error
+              ? reason.message
+              : "Model data could not be loaded.",
+        });
+      });
+    return () => controller.abort();
+  }, [key, pageNumbers]);
+  return {
+    models:
+      result.key === key ? result.models : new Map<string, ModelCardEntry>(),
+    error: result.key === key ? result.error : null,
+    loading: pages.length > 0 && result.key !== key,
+  };
+}
+
 export function ModelRadarDashboard() {
-  const { data, error, loading, retry } =
-    useGeneratedData<ModelRadarDashboardData>("/generated/models/index.json");
+  const index = useGeneratedData<ModelRadarDashboardData>(
+    "/generated/models/index.json",
+  );
+  const catalog = useGeneratedData<ModelRadarCatalogData>(
+    "/generated/models/catalog.json",
+  );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [organization, setOrganization] = useState("all");
   const [availability, setAvailability] = useState("all");
   const [lifecycle, setLifecycle] = useState("all");
-  const models = useMemo(
+  const [page, setPage] = useState(1);
+  const catalogModels = useMemo(
+    () => catalog.data?.models.map(catalogEntry) ?? [],
+    [catalog.data],
+  );
+  const filtered = useMemo(
     () =>
-      data?.models.filter((model) => {
+      catalogModels.filter((model) => {
         const search = query.trim().toLowerCase();
         return (
           (!search ||
@@ -49,52 +152,82 @@ export function ModelRadarDashboard() {
           (lifecycle === "all" || model.lifecycle === lifecycle)
         );
       }) ?? [],
-    [availability, category, data, lifecycle, organization, query],
+    [availability, catalogModels, category, lifecycle, organization, query],
   );
-  if (!data)
+  const pageSize = index.data?.pagination.pageSize ?? 24;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, pageCount);
+  const visibleCatalog = filtered.slice(
+    (safePage - 1) * pageSize,
+    safePage * pageSize,
+  );
+  const sourcePages = useMemo(
+    () =>
+      [...new Set(visibleCatalog.map((model) => model.page))].sort(
+        (a, b) => a - b,
+      ),
+    [visibleCatalog],
+  );
+  const pageData = useModelPages(sourcePages);
+  const visibleModels = visibleCatalog
+    .map((model) => pageData.models.get(model.id))
+    .filter((model): model is ModelCardEntry => Boolean(model));
+  const resetPage = () => setPage(1);
+
+  if (!index.data || !catalog.data)
     return (
-      <GeneratedDataState error={error} loading={loading} onRetry={retry} />
+      <GeneratedDataState
+        error={index.error ?? catalog.error}
+        loading={index.loading || catalog.loading}
+        onRetry={() => {
+          index.retry();
+          catalog.retry();
+        }}
+      />
     );
-  const latestRunStatus = data.latestRun
+  const latestRunStatus = index.data.latestRun
     ? deriveRunDisplayStatus(
-        data.latestRun.status,
-        data.latestRun.finishedAt,
-        data.generatedAt,
+        index.data.latestRun.status,
+        index.data.latestRun.finishedAt,
+        index.data.generatedAt,
       )
     : undefined;
   return (
     <div className="space-y-6">
       <aside className="rounded-xl border border-violet-300/25 bg-violet-300/10 p-4 text-sm text-violet-100">
-        {data.definition}
+        {index.data.definition}
       </aside>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-        <MetricCard label="Tracked models" value={data.summary.models} />
-        <MetricCard label="Signals today" value={data.summary.signalsToday} />
+        <MetricCard label="Tracked models" value={index.data.summary.models} />
+        <MetricCard
+          label="Signals today"
+          value={index.data.summary.signalsToday}
+        />
         <MetricCard
           label="Signals · 7 days"
-          value={data.summary.signals7Days}
+          value={index.data.summary.signals7Days}
         />
         <MetricCard
           label="First observed today"
-          value={data.summary.firstObservedToday}
+          value={index.data.summary.firstObservedToday}
         />
         <MetricCard
           label="Confirmed releases"
-          value={data.summary.confirmedReleasesToday}
+          value={index.data.summary.confirmedReleasesToday}
         />
         <MetricCard
           label="Revisions today"
-          value={data.summary.revisionsToday}
+          value={index.data.summary.revisionsToday}
         />
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {data.latestRun ? (
+        {index.data.latestRun ? (
           <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
             <StatusBadge
               label={latestRunStatus!.label}
               tone={latestRunStatus!.tone}
             />
-            <span>{formatDateTime(data.latestRun.finishedAt)}</span>
+            <span>{formatDateTime(index.data.latestRun.finishedAt)}</span>
           </div>
         ) : (
           <span className="text-sm text-[var(--muted)]">
@@ -120,39 +253,34 @@ export function ModelRadarDashboard() {
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {data.latestByCategory.map((item) => {
-            const model = item.modelId
-              ? data.models.find((candidate) => candidate.id === item.modelId)
-              : undefined;
-            return (
-              <article
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
-                key={item.id}
-              >
-                <p className="text-xs tracking-wider text-violet-300 uppercase">
-                  {item.name}
-                </p>
-                {model ? (
-                  <>
-                    <h3 className="mt-2 font-semibold text-white">
-                      {model.canonicalName}
-                    </h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      {model.organization}
-                    </p>
-                    <time className="mt-3 block text-xs text-slate-500">
-                      {formatDateTime(model.latestSignalAt)} ·{" "}
-                      {signalLabel(model.latestSignalKind)}
-                    </time>
-                  </>
-                ) : (
-                  <p className="mt-3 text-sm text-slate-500">
-                    No model observed.
+          {index.data.latestByCategory.map((item) => (
+            <article
+              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4"
+              key={item.id}
+            >
+              <p className="text-xs tracking-wider text-violet-300 uppercase">
+                {item.name}
+              </p>
+              {item.model ? (
+                <>
+                  <h3 className="mt-2 font-semibold text-white">
+                    {item.model.canonicalName}
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {item.model.organization}
                   </p>
-                )}
-              </article>
-            );
-          })}
+                  <time className="mt-3 block text-xs text-slate-500">
+                    {formatDateTime(item.model.latestSignalAt)} ·{" "}
+                    {signalLabel(item.model.latestSignalKind)}
+                  </time>
+                </>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500">
+                  No model observed.
+                </p>
+              )}
+            </article>
+          ))}
         </div>
       </section>
       <section className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-2 xl:grid-cols-5">
@@ -160,15 +288,25 @@ export function ModelRadarDashboard() {
           <span className="sr-only">Search models</span>
           <input
             className="w-full rounded-lg border border-[var(--border)] bg-[#0c1015] px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400"
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              resetPage();
+            }}
             placeholder="Search model or organization"
             type="search"
             value={query}
           />
         </label>
-        <FilterSelect label="Category" onChange={setCategory} value={category}>
+        <FilterSelect
+          label="Category"
+          onChange={(value) => {
+            setCategory(value);
+            resetPage();
+          }}
+          value={category}
+        >
           <option value="all">All categories</option>
-          {data.filters.categories.map((item) => (
+          {index.data.filters.categories.map((item) => (
             <option value={item.id} key={item.id}>
               {item.name}
             </option>
@@ -176,11 +314,14 @@ export function ModelRadarDashboard() {
         </FilterSelect>
         <FilterSelect
           label="Organization"
-          onChange={setOrganization}
+          onChange={(value) => {
+            setOrganization(value);
+            resetPage();
+          }}
           value={organization}
         >
           <option value="all">All organizations</option>
-          {data.filters.organizations.map((item) => (
+          {index.data.filters.organizations.map((item) => (
             <option value={item} key={item}>
               {item}
             </option>
@@ -188,11 +329,14 @@ export function ModelRadarDashboard() {
         </FilterSelect>
         <FilterSelect
           label="Lifecycle"
-          onChange={setLifecycle}
+          onChange={(value) => {
+            setLifecycle(value);
+            resetPage();
+          }}
           value={lifecycle}
         >
           <option value="all">All lifecycle states</option>
-          {data.filters.lifecycle.map((item) => (
+          {index.data.filters.lifecycle.map((item) => (
             <option value={item} key={item}>
               {item}
             </option>
@@ -200,39 +344,83 @@ export function ModelRadarDashboard() {
         </FilterSelect>
         <FilterSelect
           label="Availability"
-          onChange={setAvailability}
+          onChange={(value) => {
+            setAvailability(value);
+            resetPage();
+          }}
           value={availability}
         >
           <option value="all">All availability</option>
-          {data.filters.availability.map((item) => (
+          {index.data.filters.availability.map((item) => (
             <option value={item} key={item}>
               {item}
             </option>
           ))}
         </FilterSelect>
       </section>
-      {models.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyState
           title={
-            data.models.length ? "No models match" : "No models indexed yet"
+            catalogModels.length ? "No models match" : "No models indexed yet"
           }
           description={
-            data.models.length
+            catalogModels.length
               ? "Clear one or more filters."
               : "Run model intelligence after collecting Hugging Face observations, or add reviewed model information."
           }
         />
       ) : (
-        <section className="grid gap-4 lg:grid-cols-2">
-          {models.map((model) => (
-            <ModelCard model={model} key={model.id} />
-          ))}
-        </section>
+        <>
+          <div className="flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
+            <span>
+              Showing {(safePage - 1) * pageSize + 1}–
+              {Math.min(safePage * pageSize, filtered.length)} of{" "}
+              {filtered.length} models
+            </span>
+            <div className="flex gap-2">
+              <button
+                className="rounded-lg border border-[var(--border)] px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={safePage === 1}
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+                type="button"
+              >
+                Previous
+              </button>
+              <button
+                className="rounded-lg border border-[var(--border)] px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={safePage === pageCount}
+                onClick={() =>
+                  setPage((value) => Math.min(pageCount, value + 1))
+                }
+                type="button"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+          {pageData.error ? (
+            <EmptyState
+              title="Model details could not be loaded"
+              description={pageData.error}
+            />
+          ) : pageData.loading ? (
+            <p className="text-sm text-[var(--muted)]">
+              Loading model details…
+            </p>
+          ) : (
+            <section className="grid gap-4 lg:grid-cols-2">
+              {visibleModels.map((model) => (
+                <ModelCard model={model} key={model.id} />
+              ))}
+            </section>
+          )}
+        </>
       )}
     </div>
   );
 }
-function ModelCard({ model }: { model: ModelCatalogEntry }) {
+
+function ModelCard({ model }: { model: ModelCardEntry }) {
   return (
     <article className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
       <div className="flex items-start justify-between gap-3">

@@ -4,6 +4,8 @@
     "todayInitial": 256000,
     "researchInitial": 256000,
     "researchPage": 153600,
-    "modelsIndex": 256000
+    "modelsIndex": 96000,
+    "modelsCatalog": 128000,
+    "modelsPage": 96000
   }
 }

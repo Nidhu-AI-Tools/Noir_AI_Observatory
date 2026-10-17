@@ -4,7 +4,12 @@ import path from "node:path";
 type Budgets = {
   version: 1;
   limits: Record<
-    "todayInitial" | "researchInitial" | "researchPage" | "modelsIndex",
+    | "todayInitial"
+    | "researchInitial"
+    | "researchPage"
+    | "modelsIndex"
+    | "modelsCatalog"
+    | "modelsPage",
     number
   >;
 };
@@ -59,10 +64,27 @@ async function main() {
       await bytes(path.join(generated, "models", "index.json")),
       budgets.limits.modelsIndex,
     ],
+    [
+      "Models catalog",
+      await bytes(path.join(generated, "models", "catalog.json")),
+      budgets.limits.modelsCatalog,
+    ],
   ] as const;
   for (const [label, size, limit] of checks) {
     console.log(`${label}: ${size} bytes (limit ${limit})`);
     if (size > limit) throw new Error(`${label} exceeds its payload budget.`);
+  }
+  const modelPages = (await readdir(path.join(generated, "models", "pages")))
+    .filter((file) => file.endsWith(".json"))
+    .sort();
+  if (!modelPages.length) throw new Error("No generated Models pages exist.");
+  for (const page of modelPages) {
+    const size = await bytes(path.join(generated, "models", "pages", page));
+    console.log(
+      `Models page ${page}: ${size} bytes (limit ${budgets.limits.modelsPage})`,
+    );
+    if (size > budgets.limits.modelsPage)
+      throw new Error(`Models page ${page} exceeds its payload budget.`);
   }
 }
 
