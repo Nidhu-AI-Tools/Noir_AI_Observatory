@@ -29,6 +29,7 @@ const repositoryUrl =
 
 function catalogEntry(
   record: ModelCatalogRecord,
+  tags: string[],
 ): Pick<
   ModelCatalogEntry,
   | "id"
@@ -47,7 +48,9 @@ function catalogEntry(
     organization: record.o,
     ...(record.x ? { externalModelId: record.x } : {}),
     categories: record.c,
-    tags: record.t,
+    tags: record.t
+      .map((index) => tags[index])
+      .filter((tag): tag is string => Boolean(tag)),
     availability: record.a,
     lifecycle: record.l,
     page: record.p,
@@ -128,7 +131,10 @@ export function ModelRadarDashboard() {
   const [lifecycle, setLifecycle] = useState("all");
   const [page, setPage] = useState(1);
   const catalogModels = useMemo(
-    () => catalog.data?.models.map(catalogEntry) ?? [],
+    () =>
+      catalog.data?.models.map((record) =>
+        catalogEntry(record, catalog.data?.tags ?? []),
+      ) ?? [],
     [catalog.data],
   );
   const filtered = useMemo(

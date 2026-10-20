@@ -131,7 +131,7 @@ The normal path is the **Add a model release** or **Edit Model Radar metadata** 
 
 ## Creating a daily curated note
 
-With Ollama running and `llama3.1:8b` installed:
+With Ollama running and `qwen3.5:9b` installed:
 
 ```bash
 corepack pnpm curation:run

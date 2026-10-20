@@ -40,7 +40,8 @@ export type ModelCatalogRecord = {
   o: string;
   x?: string;
   c: string[];
-  t: string[];
+  /** Indexes into ModelRadarCatalogData.tags. */
+  t: number[];
   a: ModelReleaseEvent["availability"];
   l: ModelReleaseEvent["lifecycle"];
   p: number;
@@ -81,8 +82,10 @@ export interface ModelRadarDashboardData {
 }
 
 export interface ModelRadarCatalogData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
+  /** Shared tag dictionary that keeps the search payload compact as it grows. */
+  tags: string[];
   models: ModelCatalogRecord[];
 }
 
@@ -195,13 +198,17 @@ export function buildModelRadarDashboardData(
       models: models.slice(index * pageSize, (index + 1) * pageSize),
     }),
   );
+  const catalogTags = [
+    ...new Set(models.flatMap((model) => model.tags)),
+  ].sort();
+  const tagIndexes = new Map(catalogTags.map((tag, index) => [tag, index]));
   const catalogModels = models.map((model, index) => ({
     i: model.id,
     n: model.canonicalName,
     o: model.organization,
     ...(model.externalModelId ? { x: model.externalModelId } : {}),
     c: model.categories,
-    t: model.tags,
+    t: model.tags.map((tag) => tagIndexes.get(tag)!).sort((a, b) => a - b),
     a: model.availability,
     l: model.lifecycle,
     p: Math.floor(index / pageSize) + 1,
@@ -272,8 +279,9 @@ export function buildModelRadarDashboardData(
       pagination: { pageSize, pages: pages.length },
     },
     catalog: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       generatedAt: generatedAtIso,
+      tags: catalogTags,
       models: catalogModels,
     },
     pages,

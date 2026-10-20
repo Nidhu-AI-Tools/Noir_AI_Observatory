@@ -3,7 +3,7 @@ provider:
   default: ollama
 ollama:
   baseUrl: http://127.0.0.1:11434
-  defaultModel: llama3.1:8b
+  defaultModel: qwen3.5:9b
   timeoutMs: 180000
   temperature: 0.2
   contextTokens: 16384

@@ -18,7 +18,7 @@ jobs:
     if: >-
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.ref == 'Noir'
+      github.event.pull_request.head.ref == 'noir-daily-briefings'
     runs-on: ubuntu-latest
     outputs:
       has_notes: ${{ steps.approval.outputs.has_notes }}
@@ -45,7 +45,7 @@ jobs:
               .filter(Boolean)
               .map((match) => `${match[1]}-${match[2]}-${match[3]}`);
             if (!dates.length) {
-              core.notice("The merged Noir PR contained no curation note.");
+              core.notice("The merged daily briefing PR contained no curation note.");
               core.setOutput("has_notes", "false");
               return;
             }
