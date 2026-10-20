@@ -4,7 +4,7 @@ GitHub Actions collects the Observatory data automatically. Run the command belo
 
 ## One-time setup
 
-Install the project dependencies and make sure Ollama is running with `llama3.1:8b`:
+Install the project dependencies and make sure Ollama is running with `qwen3.5:9b`:
 
 ```bash
 corepack pnpm install --frozen-lockfile

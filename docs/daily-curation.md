@@ -4,13 +4,13 @@ Daily Curation Studio turns recent Observatory evidence into a short Markdown dr
 
 ## Default setup
 
-The committed default is `llama3.1:8b` at `http://127.0.0.1:11434`. Start the Ollama application or daemon, then verify both the provider and your Git author identity:
+The committed default is `qwen3.5:9b` at `http://127.0.0.1:11434`. Start the Ollama application or daemon, then verify both the provider and your Git author identity:
 
 ```bash
 corepack pnpm curation:doctor
 ```
 
-Override the model for one run with `--model`, or set `OLLAMA_MODEL` in your shell. `qwen2.5:3b-instruct` is a faster installed fallback.
+Override the model for one run with `--model`, or set `OLLAMA_MODEL` in your shell. Use a smaller installed model when you need a faster fallback.
 
 ## One-command draft
 
@@ -60,7 +60,7 @@ Source text is untrusted. Prompts explicitly treat embedded instructions as data
 
 ## Safe local automation on macOS
 
-Use the repository's reviewed launch-agent template and dedicated automation clone. It starts Ollama, creates a draft on `Noir`, and opens a bot-authored pull request, but publication still requires your GitHub approval. Follow [Automated daily curation](automated-curation.md).
+Use the repository's reviewed launch-agent template and dedicated automation clone. It starts Ollama, creates a draft on `noir-daily-briefings`, and opens a bot-authored pull request, but publication still requires your GitHub approval. Follow [Automated daily curation](automated-curation.md).
 
 ## Troubleshooting
 

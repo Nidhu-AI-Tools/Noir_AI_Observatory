@@ -2,7 +2,7 @@ name: Open daily briefing review
 
 on:
   push:
-    branches: [Noir]
+    branches: [noir-daily-briefings]
     paths:
       - "data/curation/**/*.md"
   workflow_dispatch:
@@ -20,10 +20,10 @@ jobs:
     if: github.repository == 'Nidhu-AI-Tools/Noir_AI_Observatory'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Noir
+      - name: Check out daily briefing branch
         uses: actions/checkout@v4
         with:
-          ref: Noir
+          ref: noir-daily-briefings
           fetch-depth: 0
 
       - name: Locate the newest proposed note
@@ -56,7 +56,8 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const head = `${owner}:Noir`;
+            const briefingBranch = "noir-daily-briefings";
+            const head = `${owner}:${briefingBranch}`;
             const marker = `<!-- noir-daily-briefing -->`;
             const reviewer = "Nidhushan";
             const title = `Daily briefing: ${process.env.NOTE_DATE}`;
@@ -85,13 +86,13 @@ jobs:
               })).data;
             } else if (existing.length) {
               core.notice(
-                `PR #${existing[0].number} already uses Noir → main. ` +
-                `Leaving that development PR unchanged; daily briefing creation will resume after it closes.`,
+                `PR #${existing[0].number} already uses ${briefingBranch} → main. ` +
+                `Leaving that pull request unchanged until it closes.`,
               );
               return;
             } else {
               pull = (await github.rest.pulls.create({
-                owner, repo, head: "Noir", base: "main", title, body,
+                owner, repo, head: briefingBranch, base: "main", title, body,
               })).data;
             }
             if (pull.user?.login?.toLowerCase() === reviewer.toLowerCase()) {

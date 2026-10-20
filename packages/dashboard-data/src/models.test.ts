@@ -66,6 +66,11 @@ describe("model radar dashboard data", () => {
       "model-acme-reasoner",
     );
     expect(result.catalog.models[0]?.p).toBe(1);
+    expect(result.catalog).toMatchObject({
+      schemaVersion: 2,
+      tags: ["reasoning"],
+    });
+    expect(result.catalog.models[0]?.t).toEqual([0]);
     expect(result.pages[0]?.models[0]).not.toHaveProperty("releases");
     expect(result.pages[0]?.models[0]).not.toHaveProperty("latestEvent");
     expect(result.index.definition).toContain("counted separately");
@@ -97,6 +102,7 @@ describe("model radar dashboard data", () => {
       24,
     );
     expect(result.catalog.models).toHaveLength(49);
+    expect(result.catalog.tags).toEqual(["reasoning"]);
     expect(result.pages.map((page) => page.models.length)).toEqual([24, 24, 1]);
     expect(result.catalog.models.at(-1)?.p).toBe(3);
   });
