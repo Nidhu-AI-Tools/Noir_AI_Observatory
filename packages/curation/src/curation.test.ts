@@ -241,6 +241,7 @@ describe("daily curation", () => {
     expect(bodies[0]).toMatchObject({
       model: "llama3.1:8b",
       stream: false,
+      think: false,
       format: {
         type: "object",
         properties: {
