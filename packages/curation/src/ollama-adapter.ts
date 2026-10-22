@@ -88,6 +88,10 @@ export class OllamaCurationProvider implements CurationProvider {
       body: JSON.stringify({
         model: this.model,
         stream: false,
+        // Reasoning-capable models can otherwise spend the entire response in
+        // their thinking channel and leave message.content empty. Curation
+        // needs a single schema-constrained JSON document in content.
+        think: false,
         format: buildCurationOutputJsonSchema(context, config),
         messages: [
           {
