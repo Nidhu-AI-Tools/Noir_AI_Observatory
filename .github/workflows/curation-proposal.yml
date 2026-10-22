@@ -53,6 +53,11 @@ jobs:
           NOTE_DATE: ${{ steps.note.outputs.date }}
           NOTE_PATH: ${{ steps.note.outputs.path }}
         with:
+          # GitHub occasionally returns transient 5xx errors while processing
+          # a newly created PR's reviewer request. The script is idempotent:
+          # a retry updates the same managed PR before requesting review again.
+          retries: 3
+          retry-exempt-status-codes: 400,401,403,404,422
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
