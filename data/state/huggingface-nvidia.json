@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-nvidia",
-  "lastSuccessfulAt": "2026-10-30T08:37:39.344Z",
+  "lastSuccessfulAt": "2026-10-31T08:24:45.999Z",
   "cursor": {
-    "timestamp": "2026-10-30T03:42:47.000Z",
+    "timestamp": "2026-10-30T22:47:00.000Z",
     "externalIdsAtTimestamp": [
-      "6a972e67fc116c103564d503"
+      "6a95d8ef95af23a4510fea4a"
     ]
   }
 }
