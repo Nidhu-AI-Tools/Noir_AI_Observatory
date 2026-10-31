@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "runId": "41194688561-1",
+  "trigger": "schedule",
+  "startedAt": "2026-10-31T10:55:27.401Z",
+  "finishedAt": "2026-10-31T10:55:27.568Z",
+  "status": "success",
+  "totals": {
+    "observations": 2087,
+    "eligible": 545,
+    "produced": 12,
+    "duplicates": 533,
+    "manualModels": 0,
+    "failed": 0
+  },
+  "eventIds": [
+    "model-event-9378242e30412863e449df403f4a41c6",
+    "model-event-227b2b07d7134ff81eeea23de004ea9c",
+    "model-event-c21c257a3aaac93375b7ee14e03156ff",
+    "model-event-0ff89beffbc6e3348655d13579ef0c2b",
+    "model-event-d0055200f890dd3443f171475e450a21",
+    "model-event-93a45f1d14f7ceca97affd7760d37f19",
+    "model-event-02fb48a567ce2370adc354415dec565f",
+    "model-event-05a8e86f06a58837fab9c5e65ce31b90",
+    "model-event-4e353db2d878f0b5341c721b651f0871",
+    "model-event-92159ca5a2c860d433ce4f78f5d3e6e7",
+    "model-event-c3b1557fc85a66ce00136178f48639a4",
+    "model-event-920630447392be3a0bd3a2608a8c88f3"
+  ],
+  "errors": []
+}
