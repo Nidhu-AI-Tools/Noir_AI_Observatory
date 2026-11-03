@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
   "sourceId": "arxiv-query-arxiv-artificial-intelligence",
-  "cursorPublishedAt": "2026-10-30T17:59:34.000Z",
+  "cursorPublishedAt": "2026-11-02T18:59:32.000Z",
   "cursorItemIds": [
-    "arxiv:2610.42147"
+    "arxiv:2611.03647",
+    "arxiv:2611.03648"
   ],
-  "updatedAt": "2026-11-02T12:48:38.744Z"
+  "updatedAt": "2026-11-03T12:15:31.530Z"
 }
