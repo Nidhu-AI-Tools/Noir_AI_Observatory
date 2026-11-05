@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "runId": "41984036758-1",
+  "trigger": "schedule",
+  "startedAt": "2026-11-05T06:59:19.184Z",
+  "finishedAt": "2026-11-05T06:59:21.402Z",
+  "status": "success",
+  "totals": {
+    "configured": 7,
+    "attempted": 7,
+    "skipped": 0,
+    "healthy": 6,
+    "degraded": 0,
+    "down": 1,
+    "internalFailures": 0
+  },
+  "monitors": [
+    {
+      "monitorId": "api-api-crossref-org-works",
+      "status": "healthy",
+      "latencyMs": 874
+    },
+    {
+      "monitorId": "api-api-github-com",
+      "status": "healthy",
+      "latencyMs": 89
+    },
+    {
+      "monitorId": "api-api-jikan-moe-v4-anime-1",
+      "status": "down",
+      "latencyMs": 1966
+    },
+    {
+      "monitorId": "api-api-open-meteo-com-v1-forecast",
+      "status": "healthy",
+      "latencyMs": 559
+    },
+    {
+      "monitorId": "api-export-arxiv-org-api-query",
+      "status": "healthy",
+      "latencyMs": 169
+    },
+    {
+      "monitorId": "api-huggingface-co-api-models",
+      "status": "healthy",
+      "latencyMs": 98
+    },
+    {
+      "monitorId": "api-pokeapi-co-api-v2-pokemon-pikachu",
+      "status": "healthy",
+      "latencyMs": 117
+    }
+  ]
+}
