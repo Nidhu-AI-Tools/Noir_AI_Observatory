@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "sourceId": "github-langchain-ai-langchain",
-  "lastSuccessfulAt": "2026-11-05T09:27:55.829Z",
+  "lastSuccessfulAt": "2026-11-06T09:21:32.515Z",
   "cursor": {
-    "timestamp": "2026-11-05T00:22:12Z",
+    "timestamp": "2026-11-05T22:56:58Z",
     "externalIdsAtTimestamp": [
-      "434616524"
+      "435856588"
     ]
   },
-  "etag": "W/\"57ea598d4438507a379a6eddd7306058c6aa7ec76e8554ec90ba2219d05d9b1f\""
+  "etag": "W/\"5e9c466a8b9e4fe65aa2611a3855aef5f0e335cd0df887641b201dbdd6d02715\""
 }
