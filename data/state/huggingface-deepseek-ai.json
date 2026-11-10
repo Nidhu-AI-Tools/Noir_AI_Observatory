@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-deepseek-ai",
-  "lastSuccessfulAt": "2026-11-09T09:46:29.957Z",
+  "lastSuccessfulAt": "2026-11-10T09:46:46.030Z",
   "cursor": {
-    "timestamp": "2026-10-17T05:46:55.000Z",
+    "timestamp": "2026-11-10T02:22:56.000Z",
     "externalIdsAtTimestamp": [
       "6ad2e0265a59c8bc18707765"
     ]
