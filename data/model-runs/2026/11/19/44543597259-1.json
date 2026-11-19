@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "runId": "44543597259-1",
+  "trigger": "schedule",
+  "startedAt": "2026-11-19T14:25:51.086Z",
+  "finishedAt": "2026-11-19T14:25:51.222Z",
+  "status": "success",
+  "totals": {
+    "observations": 2569,
+    "eligible": 653,
+    "produced": 1,
+    "duplicates": 652,
+    "manualModels": 0,
+    "failed": 0
+  },
+  "eventIds": [
+    "model-event-d282ba2121774bf5ddf7c8aaa6a96a71"
+  ],
+  "errors": []
+}
