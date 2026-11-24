@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "sourceId": "huggingface-mistralai",
-  "lastSuccessfulAt": "2026-11-23T10:43:49.903Z",
+  "lastSuccessfulAt": "2026-11-24T12:26:54.506Z",
   "cursor": {
-    "timestamp": "2026-11-02T18:30:59.000Z",
+    "timestamp": "2026-11-24T10:24:20.000Z",
     "externalIdsAtTimestamp": [
-      "6abd56613b342d55f86efe9d"
+      "69a85ff6e0e5efb4f123e368"
     ]
   }
 }
